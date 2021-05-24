@@ -25,4 +25,7 @@ Learn more about the game: <br/>
 http://www.lasca.org/ <br/>
 https://pjb.com.au/laska/ <br/>
 https://en.wikipedia.org/wiki/Lasca <br/>
-https://pjb.com.au/laska/laskers_rules.pdf
+https://pjb.com.au/laska/laskers_rules.pdf <br/>
+
+[PL] O grze na Żymopedii:
+https://zymopedia.fandom.com/pl/wiki/%C5%BBymskie_Warcaby
