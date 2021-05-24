@@ -25,3 +25,4 @@ Learn more about the game: <br/>
 http://www.lasca.org/ <br/>
 https://pjb.com.au/laska/ <br/>
 https://en.wikipedia.org/wiki/Lasca <br/>
+https://pjb.com.au/laska/laskers_rules.pdf
