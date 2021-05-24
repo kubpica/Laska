@@ -11,24 +11,17 @@ The object of the game is to prevent your opponent from moving. A stalemate or t
 D4 is cheese just for a meme. 
 My version of the game is "Żymskie"-themed which means that it contains references to the universe built around the Polish chess streamer twitch.tv/xntentacion and his community.
 
-Videos from the game:
-
+Videos from the game: <br/>
 https://www.youtube.com/watch?v=0zLJBTj-P6Y (Full presentation of the game in polish)
 
-Shorts:
+Shorts: <br/>
+https://www.tiktok.com/@warcoins/video/6961855843893513477 (Fool's Mate, polish) <br/>
+https://www.tiktok.com/@warcoins/video/6961003067080854790 (Just gameplay with music, without "Żymskie"-theme) <br/>
 
-https://www.tiktok.com/@warcoins/video/6961855843893513477 (Fool's Mate, polish)
-
-https://www.tiktok.com/@warcoins/video/6961003067080854790 (Just gameplay with music, without "Żymskie"-theme)
-
-Licence:
-
+Licence: <br/>
 Free for non-commercial use. The text "Tiktok: @warcoins" must be visible during gameplay in any deriving project.
 
-Learn more about the game:
-
-http://www.lasca.org/
-
-https://pjb.com.au/laska/
-
-https://en.wikipedia.org/wiki/Lasca
+Learn more about the game: <br/>
+http://www.lasca.org/ <br/>
+https://pjb.com.au/laska/ <br/>
+https://en.wikipedia.org/wiki/Lasca <br/>
