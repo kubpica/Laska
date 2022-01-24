@@ -13,7 +13,7 @@ namespace Laska
         public override bool CanGoBackwards => false;
         public override List<string> MovementDirections => _directions;
 
-        public override string Mianownik => "Żymianin";
-        public override string Biernik => "żymianina";
+        public override string Mianownik => Theme.SoldierMianownik;
+        public override string Biernik => Theme.SoldierBiernik;
     }
 }

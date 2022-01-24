@@ -8,6 +8,7 @@ namespace Laska
 {
     public class MoveMaker : MonoBehaviourSingleton<MoveMaker>
     {
+        [GlobalComponent] private ThemeManager theme;
         [GlobalComponent] private GameManager gameManager;
         [GlobalComponent] private Board board;
 
@@ -178,7 +179,7 @@ namespace Laska
                 var killer = selectedColumn.Commander;
                 var victim = takenColumn.Commander;
                 displayedMsg += killer.Mianownik + " z " + killer.Position
-                    + " łapie pod skórką " + victim.Biernik + " z " + victim.Position
+                    + " " + theme.TakesMsg + " " + victim.Biernik + " z " + victim.Position
                     + " na " + targetSquare.coordinate + "\n";
                 StartCoroutine(animateTake(takenColumn, targetSquare));
             }
@@ -188,7 +189,7 @@ namespace Laska
                 var targetSquare = board.GetSquareAt(squares[1]);
 
                 var piece = selectedColumn.Commander;
-                displayedMsg += piece.Mianownik + " robi kiwke z " + piece.Position + " na " + targetSquare.coordinate + "\n";
+                displayedMsg += piece.Mianownik + " " + theme.MovesMsg + " " + piece.Position + " na " + targetSquare.coordinate + "\n";
                 StartCoroutine(animateMove(targetSquare));
             }
         }
@@ -411,7 +412,7 @@ namespace Laska
 
         private void OnGUI()
         {
-            GUI.Label(new Rect(Screen.width-126, 10, 200, 20), "Tiktok: @warcoins", currentStyle);
+            //GUI.Label(new Rect(Screen.width-126, 10, 200, 20), "Tiktok: @warcoins", currentStyle);
             string player = playerToMove.color == 'b' ? "czerwonego" : "zielonego";
             if (Mate)
             {

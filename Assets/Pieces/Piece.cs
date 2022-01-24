@@ -6,6 +6,18 @@ namespace Laska
 {
     public abstract class Piece : MonoBehaviour
     {
+        private static ThemeManager _theme;
+        public static ThemeManager Theme
+        {
+            get
+            {
+                if (_theme == null)
+                    _theme = ThemeManager.Instance;
+
+                return _theme;
+            }
+        }
+
         private static Board _board;
         public static Board Board
         {
