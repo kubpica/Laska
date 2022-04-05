@@ -18,7 +18,7 @@ namespace Laska
 
         public Camera cam;
         private Player playerToMove;
-        private Column selectedColumn;
+        public Column selectedColumn;
         private List<Piece> takenPieces = new List<Piece>();
         private bool justPromoted;
         private string displayedMsg;
@@ -28,6 +28,7 @@ namespace Laska
         private const float PIECE_HEIGHT = 0.5f;
 
         public bool Mate { get; set; }
+        public bool MoveSelectionEnabled { get; set; } = true;
         
         private void Start()
         {
@@ -115,7 +116,7 @@ namespace Laska
             }
             else
             {
-                markPossibleMoves(column);    
+                markPossibleMoves(column);
             }
 
             return true;
@@ -159,7 +160,7 @@ namespace Laska
             return true;
         }
 
-        private void MakeMove(string move)
+        public void MakeMove(string move)
         {
             onMoveStarted.Invoke(move);
 
@@ -170,6 +171,9 @@ namespace Laska
             }
 
             var squares = move.Split('-');
+            if (selectedColumn == null)
+                selectedColumn = board.GetColumnAt(squares[0]);
+
             if (squares.Length == 3)
             {
                 // Take
@@ -325,14 +329,7 @@ namespace Laska
             yield return jump(selectedColumn.gameObject, targetSquare.transform.position.Y(0), height);
 
             Debug.Log("Jumped from " + selectedColumn.Square.coordinate + " to " + targetSquare.coordinate);
-            selectedColumn.Square = targetSquare;
-
-            // Check for promotion
-            if (selectedColumn.Position[1] == selectedColumn.Commander.PromotionRank)
-            {
-                selectedColumn.Promote();
-                justPromoted = true;
-            }
+            justPromoted = selectedColumn.Move(targetSquare);
         }
 
         /// <summary>
@@ -431,7 +428,8 @@ namespace Laska
 
         private void Update()
         {
-            if (gameManager.CurrentGameState != GameManager.GameState.Turn 
+            if (!MoveSelectionEnabled || 
+                gameManager.CurrentGameState != GameManager.GameState.Turn 
                 && gameManager.CurrentGameState != GameManager.GameState.PreGame)
                 return;
 

@@ -41,7 +41,15 @@ namespace Laska
                 return _column;
             }
 
-            set => _column = value;
+            set 
+            {
+                _column = value;
+
+                if (_column != null)
+                    transform.parent = _column.transform;
+                else
+                    transform.parent = Column.ColumnHolder.transform;
+            } 
         }
 
         public bool HasColumn => _column != null;
@@ -53,7 +61,7 @@ namespace Laska
         /// </summary>
         public string Position => Square.coordinate;
 
-        public bool IsFree { get; set; } = true;
+        public bool IsFree => Column.Commander == this;
         public char Color { get; set; }
 
         private List<string> _possibleMoves;

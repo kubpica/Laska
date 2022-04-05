@@ -385,6 +385,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 119
+  isAI: 0
   timer: 180
   pieces: []
 --- !u!1 &57619628
@@ -1414,6 +1415,7 @@ GameObject:
   m_Component:
   - component: {fileID: 281146561}
   - component: {fileID: 281146562}
+  - component: {fileID: 281146563}
   m_Layer: 0
   m_Name: Black
   m_TagString: Untagged
@@ -1448,8 +1450,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 98
+  isAI: 1
   timer: 180
   pieces: []
+--- !u!114 &281146563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281146560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &306729858
 GameObject:
   m_ObjectHideFlags: 0
@@ -3539,6 +3554,7 @@ GameObject:
   m_Component:
   - component: {fileID: 711401398}
   - component: {fileID: 711401399}
+  - component: {fileID: 711401400}
   m_Layer: 0
   m_Name: Pieces
   m_TagString: Untagged
@@ -3580,6 +3596,18 @@ MonoBehaviour:
     type: 3}
   blackOfficer: {fileID: 1085968545432668962, guid: 3d52a0a831c94894e878dd768083b60b,
     type: 3}
+--- !u!114 &711401400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711401397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b059af5973a241347b61848419d67f5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &759328472
 GameObject:
   m_ObjectHideFlags: 0
@@ -6706,6 +6734,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   cam: {fileID: 1543482715}
+  selectedColumn: {fileID: 0}
 --- !u!114 &1543482719
 MonoBehaviour:
   m_ObjectHideFlags: 0

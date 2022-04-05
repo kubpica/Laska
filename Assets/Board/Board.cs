@@ -38,6 +38,12 @@ namespace Laska
             return file + "" + rankId;
         }
 
+        public int DistanceBetweenPieces()
+        {
+            //TODO
+            return 0;
+        }
+
         public void GetSquareIds(string coordinate, out int fileId, out int rankId)
         {
             fileId = coordinate[0] - 'a';
@@ -99,6 +105,7 @@ namespace Laska
         {
             // Place on the square
             column.Square = square;
+            column.gameObject.name = "Column " + square.coordinate;
 
             // Add to the player's list of pieces
             var white = gameManager.players.First(p => p.color == 'w');

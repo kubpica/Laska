@@ -8,9 +8,18 @@ namespace Laska
         public Player[] players;
         public Camera camera;
 
-        private Player activePlayer;
+        /// <summary>
+        /// Player to make move.
+        /// </summary>
+        public Player ActivePlayer { get; private set; }
+
+        /// <summary>
+        /// Player waiting for the other player to move.
+        /// </summary>
+        public Player InactivePlayer => GetPlayer(getOppositeColor(ActivePlayer));
 
         [GlobalComponent] MoveMaker moveMaker;
+        [GlobalComponent] LaskaAI ai;
 
         public enum GameState
         {
@@ -48,16 +57,40 @@ namespace Laska
 
         private void setActivePlayer(Player player)
         {
-            activePlayer = player;
+            ActivePlayer = player;
             player.RefreshPossibleMoves();
 
             if (!player.HasPossibleMoves())
             {
+                Debug.Log("Player " + player.color + " (AI: " + player.isAI + ") has no moves!");
                 moveMaker.Mate = true;
+                return;
             }
             else
             {
                 moveMaker.SetPlayerToMove(player);
+            }
+
+            if (player.isAI)
+            {
+                moveMaker.MoveSelectionEnabled = false;
+                // Make AI move
+                var move = ai.BestMoveMinimax(10);
+
+                foreach(var p in Column.ColumnHolder.GetComponentsInChildren<Piece>())
+                {
+                    if (p.transform.localPosition.x != 0 || p.transform.localPosition.y != 0)
+                        Debug.LogError(p.Color + " " + p.Mianownik + " " + p.Position + " wrong position " + p.transform.position);
+
+                    if (p.transform.parent.parent != Column.ColumnHolder.transform)
+                        Debug.LogError(p.Color + " " + p.Mianownik + " " + p.Position + " wrong parent " + p.transform.parent.gameObject.name);
+                }
+
+                moveMaker.MakeMove(move);
+            }
+            else
+            {
+                moveMaker.MoveSelectionEnabled = true;
             }
         }
 
@@ -74,15 +107,26 @@ namespace Laska
             setGameState(GameState.Turn);
         }
 
+        private char getOppositeColor(Player p)
+        {
+            return p.color == 'w' ? 'b' : 'w';
+        }
+
         private void nextPlayer()
         {
-            char nextColor = activePlayer.color == 'w' ? 'b' : 'w';
+            char nextColor = getOppositeColor(ActivePlayer);
             SetActivePlayer(nextColor);
         }
 
         private void multiTakeDecision()
         {
             setGameState(GameState.Turn);
+            moveMaker.MoveSelectionEnabled = true;
+            /*if (ActivePlayer.isAI)
+            {
+                // Make AI move
+                moveMaker.MakeMove(moveMaker.selectedColumn.PossibleMoves[0]);
+            }*/
         }
 
         private void setGameState(GameState gs)
