@@ -82,7 +82,7 @@ namespace Laska
                 column.Demote();
         }
 
-        public int Minimax(int alpha, int beta, int depth, bool maximize)
+        private int minimax(int alpha, int beta, int depth, bool maximize)
         {
             int i, score;
             List<string> moves;
@@ -106,7 +106,7 @@ namespace Laska
                     List<string> takenSquares = new List<string>();
                     Square lastSquare = makeMove(move, takenSquares, out Square previousSquare, out bool promotion).Square;
 
-                    score = Mathf.Max(score, Minimax(alpha, beta, depth - 1, false));
+                    score = Mathf.Max(score, minimax(alpha, beta, depth - 1, false));
                     alpha = Mathf.Max(alpha, score);
 
                     //Debug.Log("maximize unmake " + move);
@@ -125,7 +125,7 @@ namespace Laska
                     List<string> takenSquares = new List<string>();
                     Square lastSquare = makeMove(move, takenSquares, out Square previousSquare, out bool promotion).Square;
 
-                    score = Mathf.Min(score, Minimax(alpha, beta, depth - 1, true));
+                    score = Mathf.Min(score, minimax(alpha, beta, depth - 1, true));
                     beta = Mathf.Min(beta, score);
 
                     //Debug.Log("minimize unmake " + move);
@@ -141,6 +141,7 @@ namespace Laska
 
         public string BestMoveMinimax(int depth)
         {
+            PiecesManager.FakeMoves = true;
             int bestScore = int.MinValue;
             string bestMove = "";
 
@@ -158,7 +159,7 @@ namespace Laska
                     List<string> takenSquares = new List<string>();
                     Square lastSquare = makeMove(move, takenSquares, out Square previousSquare, out bool promotion).Square;
 
-                    score = Minimax(int.MinValue, int.MaxValue, depth - 1, false);
+                    score = minimax(int.MinValue, int.MaxValue, depth - 1, false);
                     if (score > bestScore)
                     {
                         bestScore = score;
@@ -169,6 +170,7 @@ namespace Laska
                     unmakeMove(lastSquare, takenSquares, previousSquare, promotion);
                 }
             }
+            PiecesManager.FakeMoves = false;
 
             Debug.Log("bestMove " + bestMove);
             return bestMove;

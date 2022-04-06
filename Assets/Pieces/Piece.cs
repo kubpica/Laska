@@ -45,10 +45,13 @@ namespace Laska
             {
                 _column = value;
 
-                if (_column != null)
-                    transform.parent = _column.transform;
-                else
-                    transform.parent = Column.ColumnHolder.transform;
+                if (!PiecesManager.FakeMoves)
+                {
+                    if (_column != null)
+                        transform.parent = _column.transform;
+                    else
+                        transform.parent = Column.ColumnHolder.transform;
+                }
             } 
         }
 

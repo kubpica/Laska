@@ -75,12 +75,12 @@ namespace Laska
         private void replaceTopPiece(Piece newPiece)
         {
             var oldPiece = Commander;
-            oldPiece.enabled = false;
 
-            newPiece.transform.position = oldPiece.transform.position;
+            if(!PiecesManager.FakeMoves)
+                newPiece.transform.position = oldPiece.transform.position;
             newPiece.Column = this;
 
-            var player = GameManager.Instance.GetPlayer(oldPiece.Color);
+            var player = piecesManager.GameManager.GetPlayer(oldPiece.Color);
             player.pieces.Remove(oldPiece);
             player.pieces.Add(newPiece);
 
@@ -91,22 +91,14 @@ namespace Laska
 
         public bool Promote()
         {
-            var commander = Commander;
-            if (commander is Officer)
-                return false;
-
-            var officer = piecesManager.Graveyard.ReviveOfficer(commander.Color);
+            var officer = piecesManager.Graveyard.ReviveOfficer(Commander.Color);
             replaceTopPiece(officer);
             return true;
         }
 
         public void Demote()
         {
-            var commander = Commander;
-            if (!(commander is Officer))
-                return;
-
-            var soldier = piecesManager.Graveyard.ReviveSoldier(commander.Color);
+            var soldier = piecesManager.Graveyard.ReviveSoldier(Commander.Color);
             replaceTopPiece(soldier);
         }
 
@@ -125,16 +117,6 @@ namespace Laska
                 return Promote();
             }
             return false;
-        }
-
-        /// <summary>
-        /// Force a column to reposition without causing any move consequences.
-        /// </summary>
-        /// <param name="targetSquare"> Destination.</param>
-        public void DirtyMove(Square targetSquare)
-        {
-            _square = targetSquare;
-            _square.PlaceColumn(this);
         }
 
         /// <summary>
