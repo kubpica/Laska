@@ -6,7 +6,6 @@ namespace Laska
     public class GameManager : MonoBehaviourSingleton<GameManager>
     {
         public Player[] players;
-        public Camera camera;
 
         /// <summary>
         /// Player to make move.
@@ -76,16 +75,6 @@ namespace Laska
                 moveMaker.MoveSelectionEnabled = false;
                 // Make AI move
                 var move = ai.BestMoveMinimax(10);
-
-                foreach(var p in Column.ColumnHolder.GetComponentsInChildren<Piece>())
-                {
-                    if (p.transform.localPosition.x != 0 || p.transform.localPosition.y != 0)
-                        Debug.LogError(p.Color + " " + p.Mianownik + " " + p.Position + " wrong position " + p.transform.position);
-
-                    if (p.transform.parent.parent != Column.ColumnHolder.transform)
-                        Debug.LogError(p.Color + " " + p.Mianownik + " " + p.Position + " wrong parent " + p.transform.parent.gameObject.name);
-                }
-
                 moveMaker.MakeMove(move);
             }
             else

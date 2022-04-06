@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Laska
 {
-    public class PiecesSpawner : MonoBehaviourSingleton<PiecesSpawner>
+    public class PiecesSpawner : MonoBehaviourExtended
     {
         public GameObject whiteSoldier;
         public GameObject whiteOfficer;

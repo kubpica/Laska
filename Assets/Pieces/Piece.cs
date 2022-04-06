@@ -99,7 +99,7 @@ namespace Laska
         private Color materialColor;
         private Color materialColorDark;
 
-        private void Start()
+        private void Awake()
         {
             meshRenderer = GetComponent<MeshRenderer>();
 

@@ -4,7 +4,7 @@
     {
         public string laskaFen;
 
-        [GlobalComponent] PiecesSpawner spawner;
+        [GlobalComponent] private PiecesManager piecesManager;
 
         void Start()
         {
@@ -28,7 +28,7 @@
                     foreach (var c in columnDsc)
                     {
                         if(!string.IsNullOrEmpty(c))
-                            spawner.SpawnColumn(c, file, rank);
+                            piecesManager.Spawner.SpawnColumn(c, file, rank);
                         file += 2;
                     }
                 }
@@ -37,7 +37,23 @@
                 rank--;
             }
 
+            prepareOfficers();
             GameManager.Instance.SetActivePlayer(playerToMove[0]);
+        }
+
+        /// <summary>
+        /// Spawns officers and puts them in <see cref="Graveyard"/> to be waiting there for promotion.
+        /// </summary>
+        private void prepareOfficers()
+        {
+            foreach (var p in piecesManager.GetComponentsInChildren<Piece>())
+            {
+                if (p is Officer == false)
+                {
+                    var officer = piecesManager.Spawner.SpawnPiece(char.ToUpperInvariant(p.Color)) as Officer;
+                    piecesManager.Graveyard.KillOfficer(officer);
+                }
+            }
         }
     }
 

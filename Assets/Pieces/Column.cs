@@ -3,15 +3,17 @@ using UnityEngine;
 
 namespace Laska
 {
-    public class Column : MonoBehaviour
+    public class Column : MonoBehaviourExtended
     {
+        [GlobalComponent] private PiecesManager piecesManager;
+
         private static GameObject _columnHolder;
         public static GameObject ColumnHolder
         {
             get
             {
                 if (_columnHolder == null)
-                    _columnHolder = PiecesSpawner.Instance.gameObject;
+                    _columnHolder = PiecesManager.Instance.ColumnHolder;
 
                 return _columnHolder;
             }
@@ -72,18 +74,18 @@ namespace Laska
 
         private void replaceTopPiece(Piece newPiece)
         {
-            var commander = Commander;
-            commander.enabled = false;
+            var oldPiece = Commander;
+            oldPiece.enabled = false;
 
-            newPiece.transform.position = commander.transform.position;
+            newPiece.transform.position = oldPiece.transform.position;
             newPiece.Column = this;
 
-            var player = GameManager.Instance.GetPlayer(commander.Color);
-            player.pieces.Remove(commander);
+            var player = GameManager.Instance.GetPlayer(oldPiece.Color);
+            player.pieces.Remove(oldPiece);
             player.pieces.Add(newPiece);
 
             _pieces.RemoveFirst();
-            Destroy(commander.gameObject);
+            piecesManager.Graveyard.KillPiece(oldPiece);
             _pieces.AddFirst(newPiece);
         }
 
@@ -93,9 +95,8 @@ namespace Laska
             if (commander is Officer)
                 return false;
 
-            var officer = PiecesSpawner.Instance.SpawnPiece(char.ToUpperInvariant(commander.Color));
+            var officer = piecesManager.Graveyard.ReviveOfficer(commander.Color);
             replaceTopPiece(officer);
-            //Debug.LogError("Promotion " + Square.coordinate);
             return true;
         }
 
@@ -105,7 +106,7 @@ namespace Laska
             if (!(commander is Officer))
                 return;
 
-            var soldier = PiecesSpawner.Instance.SpawnPiece(char.ToLowerInvariant(commander.Color));
+            var soldier = piecesManager.Graveyard.ReviveSoldier(commander.Color);
             replaceTopPiece(soldier);
         }
 
@@ -197,7 +198,7 @@ namespace Laska
             if(_pieces.Count <= 0)
             {
                 _square.Clear();
-                Destroy(this.gameObject);
+                piecesManager.Graveyard.KillColumn(this);
             }
 
             return ex;
@@ -210,17 +211,18 @@ namespace Laska
             _pieces.RemoveLast();
 
             // Return the piece to its previous position
+            Column prevColumn;
             if (takenFrom.IsEmpty)
             {
-                takenPiece.Column = null;
-                takenPiece.Column.DirtyMove(takenFrom);
+                prevColumn = piecesManager.Graveyard.ReviveColumn();
+                prevColumn.Square = takenFrom;
             }
             else
             {
-                var prevColumn = takenFrom.Column;
-                prevColumn.Pieces.AddFirst(takenPiece);
-                takenPiece.Column = prevColumn;
+                prevColumn = takenFrom.Column;
             }
+            prevColumn.Pieces.AddFirst(takenPiece);
+            takenPiece.Column = prevColumn;
         }
     }
 }

@@ -3553,8 +3553,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 711401398}
-  - component: {fileID: 711401399}
   - component: {fileID: 711401400}
+  - component: {fileID: 711401399}
+  - component: {fileID: 711401401}
   m_Layer: 0
   m_Name: Pieces
   m_TagString: Untagged
@@ -3606,6 +3607,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b059af5973a241347b61848419d67f5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &711401401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711401397}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c657aaa737760344939116f3cf20635, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &759328472
@@ -6711,7 +6724,6 @@ MonoBehaviour:
   players:
   - {fileID: 26702257}
   - {fileID: 281146562}
-  camera: {fileID: 0}
 --- !u!114 &1543482718
 MonoBehaviour:
   m_ObjectHideFlags: 0
