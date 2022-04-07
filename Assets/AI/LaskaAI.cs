@@ -29,13 +29,9 @@ namespace Laska
                 return ACTIVE_WIN;
             }
 
-            // Check for stalemate
-            if (!playerToMove.HasNewPossibleMoves())
-            {
-                var r = playerToMove == gameManager.ActivePlayer ? INACTIVE_WIN : ACTIVE_WIN;
-                //Debug.LogError("Stelmate found " + r);
-                return r;
-            }
+            // Check for stalemate (We can skip it as we check it in the minimax func)
+            //if (!playerToMove.HasPossibleMoves())
+            //    return playerToMove == gameManager.ActivePlayer ? INACTIVE_WIN : ACTIVE_WIN;
 
             int activeScore = 0;
             
@@ -129,18 +125,17 @@ namespace Laska
         private int minimax(int alpha, int beta, int depth, bool maximize)
         {
             Player playerToMove = maximize ? gameManager.ActivePlayer : gameManager.InactivePlayer;
-            //Debug.Log("depth " + depth);
-            if (depth == 0)
-                return EvaluatePosition(playerToMove);
-
             List<string> moves = playerToMove.GetPossibleMoves(true);
 
             if (moves.Count == 0)
             {
                 var r = maximize ? INACTIVE_WIN - depth : ACTIVE_WIN + depth;
-                //Debug.LogError("Early win found " + r);
+                //Debug.LogError("Win found " + r);
                 return r;
             }
+
+            if (depth <= 0 && moves.Count > 1)
+                return EvaluatePosition(playerToMove);
 
             int score;
             if (maximize)
