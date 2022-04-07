@@ -136,9 +136,9 @@ namespace Laska
         }
 
         /// <summary>
-        /// <see cref="Piece.CalcPossibleMoves(List{string})"/> of <see cref="Commander"/>.
+        /// <see cref="Piece.CalcPossibleMoves(IEnumerable{string})"/> of <see cref="Commander"/>.
         /// </summary>
-        public void CalcPossibleMoves(List<string> takenSquares)
+        public void CalcPossibleMoves(IEnumerable<string> takenSquares)
         {
             Commander.CalcPossibleMoves(takenSquares);
         }

@@ -141,10 +141,10 @@ namespace Laska
         /// <param name="takenPieces"> Columns taken so far - these can't be taken again in this multi-take sequence.</param>
         public void CalcPossibleMoves(List<Piece> takenPieces)
         {
-            CalcPossibleMoves(takenPieces.Select(p => p.Position).ToList());
+            CalcPossibleMoves(takenPieces.Select(p => p.Position));
         }
 
-        public void CalcPossibleMoves(List<string> takenSquares)
+        public void CalcPossibleMoves(IEnumerable<string> takenSquares)
         {
             CalcPossibleMoves();
 
@@ -163,7 +163,7 @@ namespace Laska
                 if (_possibleMoves.Count == 0)
                     _canTake = false;
             }
-            else if (takenSquares.Count > 0)
+            else if (takenSquares.Count() > 0)
             {
                 // No more takes possible, end of the turn
                 _possibleMoves.Clear(); // Clear moves, as you can't move after taking
