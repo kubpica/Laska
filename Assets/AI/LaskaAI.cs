@@ -9,14 +9,30 @@ namespace Laska
         [GlobalComponent] private Board board;
         [GlobalComponent] private GameManager gameManager;
 
+        private const int ACTIVE_WIN = 1000000;
+        private const int INACTIVE_WIN = -1000000;
+
         public int EvaluatePosition(Player playerToMove)
         {
-            var whitePieceDiff = (gameManager.ActivePlayer.pieces.Count(p => p.IsFree) - gameManager.InactivePlayer.pieces.Count(p => p.IsFree));
+            // Check for mate
+            int activePlayerPieces = gameManager.ActivePlayer.pieces.Count(p => p.IsFree);
+            if (activePlayerPieces == 0)
+                return INACTIVE_WIN;
 
-            if (Mathf.Abs(whitePieceDiff) > 2)
-                whitePieceDiff += board.DistanceBetweenPieces(); //TODO
+            int inactivePlayerPices = gameManager.InactivePlayer.pieces.Count(p => p.IsFree);
+            if (inactivePlayerPices == 0)
+                return ACTIVE_WIN;
 
-            return whitePieceDiff * (playerToMove == gameManager.ActivePlayer ? 1 : -1);
+            // Check for stalemate
+            if (!playerToMove.HasNewPossibleMoves())
+                return playerToMove == gameManager.ActivePlayer ? INACTIVE_WIN : ACTIVE_WIN;
+
+            var activePieceDiff = activePlayerPieces - inactivePlayerPices;
+
+            if (Mathf.Abs(activePieceDiff) > 2)
+                activePieceDiff += board.DistanceBetweenPieces(); //TODO
+
+            return activePieceDiff;
         }
 
         private Column makeMove(string move, List<string> takenSquares, out Square previousSquare, out bool promotion, Column movedColumn = null)
@@ -95,7 +111,7 @@ namespace Laska
             //Debug.Log("moves.Count " + moves.Count);
 
             if (moves.Count == 0)
-                return maximize ? -1000000 : 1000000; //return EvaluatePosition(playerToMove);
+                return maximize ? INACTIVE_WIN-depth : ACTIVE_WIN+depth;
 
             if (maximize)
             {
@@ -159,7 +175,7 @@ namespace Laska
                     List<string> takenSquares = new List<string>();
                     Square lastSquare = makeMove(move, takenSquares, out Square previousSquare, out bool promotion).Square;
 
-                    score = minimax(int.MinValue, int.MaxValue, depth - 1, false);
+                    score = minimax(bestScore, int.MaxValue, depth - 1, false);
                     if (score > bestScore)
                     {
                         bestScore = score;

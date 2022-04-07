@@ -50,6 +50,18 @@ namespace Laska
             }
         }
 
+        public bool HasNewPossibleMoves()
+        {
+            columns = getOwnedColums();
+            foreach (var c in columns)
+            {
+                c.CalcPossibleMoves();
+                if (c.PossibleMoves.Count > 0)
+                    return true;
+            }
+            return false;
+        }
+
         public bool HasPossibleMoves()
         {
             foreach(var c in columns)
