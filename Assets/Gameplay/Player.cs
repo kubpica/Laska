@@ -10,7 +10,8 @@ namespace Laska
         public bool isAI;
         public float timer;
         public List<Piece> pieces = new List<Piece>();
-        private IEnumerable<Column> columns;
+        
+        private IEnumerable<Column> _columns;
 
         /// <summary>
         /// Get columns that have commander of this player.
@@ -18,7 +19,7 @@ namespace Laska
         /// <returns> List of <see cref="Column"/>s controlled by this player.</returns>
         private IEnumerable<Column> getOwnedColums()
         {
-            return pieces.Where(p => p.IsFree).Select(p => p.Column).Distinct();
+            return pieces.Where(p => p.IsFree).Select(p => p.Column);
         }
 
         /// <summary>
@@ -29,9 +30,9 @@ namespace Laska
         /// </remarks>
         public void RefreshPossibleMoves(List<string> takenSquares = null)
         {
-            columns = getOwnedColums();
+            _columns = getOwnedColums();
 
-            foreach(var c in columns)
+            foreach(var c in _columns)
             {
                 if (takenSquares == null)
                     c.CalcPossibleMoves();
@@ -40,9 +41,9 @@ namespace Laska
             }
 
             // If take is possible, remove all non-take moves, as taking is obligatory
-            if (columns.Any(c => c.CanTake))
+            if (_columns.Any(c => c.CanTake))
             {
-                foreach (var c in columns)
+                foreach (var c in _columns)
                 {
                     if (!c.CanTake)
                         c.PossibleMoves.Clear();
@@ -52,8 +53,8 @@ namespace Laska
 
         public bool HasNewPossibleMoves()
         {
-            columns = getOwnedColums();
-            foreach (var c in columns)
+            _columns = getOwnedColums();
+            foreach (var c in _columns)
             {
                 c.CalcPossibleMoves();
                 if (c.PossibleMoves.Count > 0)
@@ -64,7 +65,7 @@ namespace Laska
 
         public bool HasPossibleMoves()
         {
-            foreach(var c in columns)
+            foreach(var c in _columns)
             {
                 if (c.PossibleMoves.Count > 0)
                     return true;
@@ -77,7 +78,7 @@ namespace Laska
             if(refresh)
                 RefreshPossibleMoves();
             List<string> moves = new List<string>();
-            foreach (var c in columns)
+            foreach (var c in _columns)
             {
                 moves.AddRange(c.PossibleMoves);
             }

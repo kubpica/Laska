@@ -38,10 +38,11 @@ namespace Laska
             return file + "" + rankId;
         }
 
-        public int DistanceBetweenPieces()
+        public int CalcDistance(string coord1, string coord2)
         {
-            //TODO
-            return 0;
+            GetSquareIds(coord1, out int fileId1, out int rankId1);
+            GetSquareIds(coord2, out int fileId2, out int rankId2);
+            return Mathf.Max(Mathf.Abs(fileId1-fileId2), Mathf.Abs(rankId1 - rankId2));
         }
 
         public void GetSquareIds(string coordinate, out int fileId, out int rankId)

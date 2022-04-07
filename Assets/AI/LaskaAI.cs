@@ -17,22 +17,50 @@ namespace Laska
             // Check for mate
             int activePlayerPieces = gameManager.ActivePlayer.pieces.Count(p => p.IsFree);
             if (activePlayerPieces == 0)
+            {
+                //Debug.LogError("INACTIVE_WIN found");
                 return INACTIVE_WIN;
+            }
 
             int inactivePlayerPices = gameManager.InactivePlayer.pieces.Count(p => p.IsFree);
             if (inactivePlayerPices == 0)
+            {
+                //Debug.LogError("ACTIVE_WIN found");
                 return ACTIVE_WIN;
+            }
 
             // Check for stalemate
             if (!playerToMove.HasNewPossibleMoves())
-                return playerToMove == gameManager.ActivePlayer ? INACTIVE_WIN : ACTIVE_WIN;
+            {
+                var r = playerToMove == gameManager.ActivePlayer ? INACTIVE_WIN : ACTIVE_WIN;
+                //Debug.LogError("Stelmate found " + r);
+                return r;
+            }
 
+            int activeScore = 0;
+            
             var activePieceDiff = activePlayerPieces - inactivePlayerPices;
+            activeScore = activePieceDiff * 10000;
 
-            if (Mathf.Abs(activePieceDiff) > 2)
-                activePieceDiff += board.DistanceBetweenPieces(); //TODO
+            if (activePieceDiff > 2) //Mathf.Abs(activePieceDiff)
+            {
+                activeScore += calcDistanceScore();
+            }
 
-            return activePieceDiff;
+            return activeScore;
+        }
+
+        private int calcDistanceScore()
+        {
+            int score = 0;
+            foreach (var ac in gameManager.ActivePlayer.pieces.Where(p => p.IsFree))
+            {
+                foreach (var ic in gameManager.InactivePlayer.pieces.Where(p => p.IsFree))
+                {
+                    score += (int)Mathf.Pow(6 - board.CalcDistance(ac.Position, ic.Position), 2);
+                }
+            }
+            return score;
         }
 
         private Column makeMove(string move, List<string> takenSquares, out Square previousSquare, out bool promotion, Column movedColumn = null)
@@ -100,19 +128,21 @@ namespace Laska
 
         private int minimax(int alpha, int beta, int depth, bool maximize)
         {
-            int i, score;
-            List<string> moves;
             Player playerToMove = maximize ? gameManager.ActivePlayer : gameManager.InactivePlayer;
             //Debug.Log("depth " + depth);
             if (depth == 0)
                 return EvaluatePosition(playerToMove);
 
-            moves = playerToMove.GetPossibleMoves(true);
-            //Debug.Log("moves.Count " + moves.Count);
+            List<string> moves = playerToMove.GetPossibleMoves(true);
 
             if (moves.Count == 0)
-                return maximize ? INACTIVE_WIN-depth : ACTIVE_WIN+depth;
+            {
+                var r = maximize ? INACTIVE_WIN - depth : ACTIVE_WIN + depth;
+                //Debug.LogError("Early win found " + r);
+                return r;
+            }
 
+            int score;
             if (maximize)
             {
                 score = int.MinValue;
@@ -188,7 +218,22 @@ namespace Laska
             }
             PiecesManager.FakeMoves = false;
 
-            Debug.Log("bestMove " + bestMove);
+            if (moves.Count == 1)
+            {
+                Debug.Log("forcedMove " + bestMove);
+            }
+            else
+            {
+                Debug.Log("bestMove/" + moves.Count + " " + bestMove + " (" + bestScore + ")");
+                if(bestScore >= ACTIVE_WIN)
+                {
+                    Debug.LogError("ACTIVE_WIN found");
+                }
+                else if (bestScore <= INACTIVE_WIN)
+                {
+                    Debug.LogError("INACTIVE_WIN found");
+                }
+            }
             return bestMove;
         }
     }

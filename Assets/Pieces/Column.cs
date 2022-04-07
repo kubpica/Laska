@@ -89,11 +89,10 @@ namespace Laska
             _pieces.AddFirst(newPiece);
         }
 
-        public bool Promote()
+        public void Promote()
         {
             var officer = piecesManager.Graveyard.ReviveOfficer(Commander.Color);
             replaceTopPiece(officer);
-            return true;
         }
 
         public void Demote()
@@ -114,7 +113,8 @@ namespace Laska
             // Check for promotion
             if (Position[1] == Commander.PromotionRank)
             {
-                return Promote();
+                Promote();
+                return true;
             }
             return false;
         }

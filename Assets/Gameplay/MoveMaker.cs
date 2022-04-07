@@ -328,7 +328,7 @@ namespace Laska
         {
             yield return jump(selectedColumn.gameObject, targetSquare.transform.position.Y(0), height);
 
-            Debug.Log("Jumped from " + selectedColumn.Square.coordinate + " to " + targetSquare.coordinate);
+            //Debug.Log("Jumped from " + selectedColumn.Square.coordinate + " to " + targetSquare.coordinate);
             justPromoted = selectedColumn.Move(targetSquare);
         }
 
@@ -436,8 +436,8 @@ namespace Laska
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
                 var clicked = cam.GetColliderUnderMouse();
-                if (clicked != null)
-                    Debug.Log("clicked " + clicked.gameObject.name);
+                //if (clicked != null)
+                //    Debug.Log("clicked " + clicked.gameObject.name);
 
                 if (clicked != null && clicked.transform.parent != null)
                 {
@@ -457,7 +457,7 @@ namespace Laska
                             pieceClicked(piece);
                         }
 
-                        Debug.Log("clicked piece " + piece);
+                        //Debug.Log("clicked piece " + piece);
                     }
                 }
             }
