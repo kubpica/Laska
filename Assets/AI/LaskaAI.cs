@@ -9,6 +9,9 @@ namespace Laska
         [GlobalComponent] private Board board;
         [GlobalComponent] private GameManager gameManager;
 
+        public int searchDepth;
+        public bool forcedSequencesAsOneMove;
+
         private const int ACTIVE_WIN = 1000000;
         private const int INACTIVE_WIN = -1000000;
 
@@ -133,8 +136,12 @@ namespace Laska
                 //Debug.LogError("Win found " + r);
                 return r;
             }
-
-            if (depth <= 0 && moves.Count > 1)
+            else if (moves.Count == 1)
+            {
+                if (forcedSequencesAsOneMove)
+                    depth++;
+            }
+            else if (depth <= 0)
                 return EvaluatePosition(playerToMove);
 
             int score;
@@ -176,6 +183,11 @@ namespace Laska
             }
 
             return score;
+        }
+
+        public string BestMoveMinimax()
+        {
+            return BestMoveMinimax(searchDepth);
         }
 
         public string BestMoveMinimax(int depth)

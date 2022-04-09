@@ -74,7 +74,7 @@ namespace Laska
             {
                 moveMaker.MoveSelectionEnabled = false;
                 // Make AI move
-                var move = ai.BestMoveMinimax(10);
+                var move = ai.BestMoveMinimax();
                 moveMaker.MakeMove(move);
             }
             else
