@@ -37,8 +37,6 @@ namespace Laska
 
         private void Start()
         {
-            setActivePlayer(players[0]);
-
             moveMaker.onMoveStarted.AddListener(moveStarted);
             moveMaker.onMoveEnded.AddListener(moveEnded);
             moveMaker.onMultiTakeDecision.AddListener(multiTakeDecision);

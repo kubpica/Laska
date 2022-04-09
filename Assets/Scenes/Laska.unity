@@ -6748,7 +6748,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   cam: {fileID: 1543482715}
-  selectedColumn: {fileID: 0}
 --- !u!114 &1543482719
 MonoBehaviour:
   m_ObjectHideFlags: 0

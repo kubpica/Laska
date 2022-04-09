@@ -18,7 +18,7 @@ namespace Laska
 
         public Camera cam;
         private Player playerToMove;
-        public Column selectedColumn;
+        private Column selectedColumn;
         private List<Piece> takenPieces = new List<Piece>();
         private bool justPromoted;
         private string displayedMsg;
