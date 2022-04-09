@@ -174,17 +174,16 @@ namespace Laska
             if (selectedColumn == null)
                 selectedColumn = board.GetColumnAt(squares[0]);
 
-            if (squares.Length == 3)
+            if (squares.Length > 3)
+            {
+                // Multi take
+                StartCoroutine(animateMultiTake(squares));
+            }
+            else if (squares.Length == 3)
             {
                 // Take
                 var takenColumn = board.GetColumnAt(squares[1]);
                 var targetSquare = board.GetSquareAt(squares[2]);
-
-                var killer = selectedColumn.Commander;
-                var victim = takenColumn.Commander;
-                displayedMsg += killer.Mianownik + " z " + killer.Position
-                    + " " + theme.TakesMsg + " " + victim.Biernik + " z " + victim.Position
-                    + " na " + targetSquare.coordinate + "\n";
                 StartCoroutine(animateTake(takenColumn, targetSquare));
             }
             else
@@ -198,8 +197,43 @@ namespace Laska
             }
         }
 
+        private void displayKillMsg(Column takenColumn, Square targetSquare)
+        {
+            var killer = selectedColumn.Commander;
+            var victim = takenColumn.Commander;
+            displayedMsg += killer.Mianownik + " z " + killer.Position
+                + " " + theme.TakesMsg + " " + victim.Biernik + " z " + victim.Position
+                + " na " + targetSquare.coordinate + "\n";
+        }
+
+        private IEnumerator animateMultiTake(string[] squares)
+        {
+            for (int i = 1; i<squares.Length; i+=2)
+            {
+                if(i != 1)
+                    yield return new WaitForSeconds(0.1f);
+
+                var takenColumn = board.GetColumnAt(squares[i]);
+                var targetSquare = board.GetSquareAt(squares[i+1]);
+                displayKillMsg(takenColumn, targetSquare);
+
+                // Jump
+                yield return jump(targetSquare, 1.5f + 0.5f * takenColumn.Pieces.Count);
+
+                // Save taken pieces on the list
+                takenPieces.Add(takenColumn.Commander);
+                takenColumn.Commander.MarkDark(); // Darken the taken piece
+            }
+
+            // No more takes possible
+            // Animate the takes 
+            yield return takeAnimation();
+        }
+
         private IEnumerator animateTake(Column takenColumn, Square targetSquare)
         {
+            displayKillMsg(takenColumn, targetSquare);
+
             // Jump
             yield return jump(targetSquare, 1.5f + 0.5f * takenColumn.Pieces.Count);
 
@@ -231,13 +265,6 @@ namespace Laska
                 // No more takes possible
                 // Animate the takes 
                 yield return takeAnimation();
-
-                // Perform takes on the logic level and end the move
-                foreach (var p in takenPieces)
-                {
-                    selectedColumn.Take(p.Column);
-                }
-                endMove();
             }
         }
 
@@ -301,6 +328,13 @@ namespace Laska
             {
                 piece.UnmarkDark();
             }
+
+            // Perform takes on the logic level and end the move
+            foreach (var piece in takenPieces)
+            {
+                selectedColumn.Take(piece.Column);
+            }
+            endMove();
         }
 
         /// <summary>

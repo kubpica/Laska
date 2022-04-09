@@ -106,18 +106,21 @@ namespace Laska
         /// </summary>
         /// <param name="targetSquare"> Destination.</param>
         /// <returns> True if the piece has been promoted.</returns>
-        public bool Move(Square targetSquare)
+        public bool Move(Square targetSquare, bool ignorePromotion = false)
         {
             Square = targetSquare;
 
             // Check for promotion
             if (Position[1] == Commander.PromotionRank)
             {
-                Promote();
+                if(!ignorePromotion)
+                    Promote();
                 return true;
             }
             return false;
         }
+
+        #region Calc possible moves
 
         /// <summary>
         /// <see cref="Piece.CalcPossibleMoves()"/> of <see cref="Commander"/>.
@@ -142,6 +145,24 @@ namespace Laska
         {
             Commander.CalcPossibleMoves(takenSquares);
         }
+
+        /// <summary>
+        /// <see cref="Piece.CalcPossibleMovesNewList()"/> of <see cref="Commander"/>.
+        /// </summary>
+        public List<string> CalcPossibleMovesNewList()
+        {
+            return Commander.CalcPossibleMovesNewList();
+        }
+
+        /// <summary>
+        /// <see cref="Piece.CalcPossibleMovesNewList(IEnumerable{string})"/> of <see cref="Commander"/>.
+        /// </summary>
+        public List<string> CalcPossibleMovesNewList(IEnumerable<string> takenSquares)
+        {
+            return Commander.CalcPossibleMovesNewList(takenSquares);
+        }
+
+        #endregion
 
         /// <summary>
         /// Takes commander of the specified column as prisoner of this column.

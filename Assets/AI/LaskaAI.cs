@@ -59,7 +59,7 @@ namespace Laska
             return score;
         }
 
-        private Column makeMove(string move, Stack<string> takenSquares, out Square previousSquare, out bool promotion, Column movedColumn = null)
+        private Column makeMove(string move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion, Column movedColumn = null)
         {
             //Debug.Log("makeMove " + move + " " + takenSquares.Count);
             var squares = move.Split('-');
@@ -73,26 +73,25 @@ namespace Laska
                 previousSquare = null;
             }
             Square targetSquare;
-            if (squares.Length == 3)
+            if (squares.Length >= 3)
             {
                 // Take
-                var takenColumn = board.GetColumnAt(squares[1]);
-                targetSquare = board.GetSquareAt(squares[2]);
+                takenSquares = new Stack<Square>();
+                targetSquare = board.GetSquareAt(squares[squares.Length-1]);
 
-                takenSquares.Push(takenColumn.Square.coordinate);
-                movedColumn.Take(takenColumn);
-                promotion = movedColumn.Move(targetSquare);
-
-                movedColumn.CalcPossibleMoves(takenSquares);
-                if (movedColumn.PossibleMoves.Count > 0 && !promotion)
+                for(int i = 1; i<squares.Length; i += 2)
                 {
-                    makeMove(movedColumn.PossibleMoves[0], takenSquares, out _, out promotion, movedColumn);
-                    return movedColumn;
+                    var takenColumn = board.GetColumnAt(squares[i]);
+                    takenSquares.Push(takenColumn.Square);
+                    movedColumn.Take(takenColumn);
                 }
+                
+                promotion = movedColumn.Move(targetSquare);
             }
             else
             {
                 // Move
+                takenSquares = null;
                 targetSquare = board.GetSquareAt(squares[1]);
                 previousSquare = movedColumn.Square;
                 promotion = movedColumn.Move(targetSquare);
@@ -103,15 +102,18 @@ namespace Laska
             return movedColumn;
         }
 
-        private void unmakeMove(Square lastSquare, Stack<string> takenSquares, Square previousSquare, bool demote)
+        private void unmakeMove(Square lastSquare, Stack<Square> takenSquares, Square previousSquare, bool demote)
         {
             var column = lastSquare.Column;
 
             //Debug.Log("unmake " + column.Square.coordinate + " " + takenSquares.Count + " " + previousSquare.coordinate + " " + demote);
-            while (takenSquares.Count > 0)
+            if(takenSquares != null)
             {
-                var takenSquare = takenSquares.Pop();
-                column.Untake(board.GetSquareAt(takenSquare));
+                while (takenSquares.Count > 0)
+                {
+                    var takenSquare = takenSquares.Pop();
+                    column.Untake(takenSquare);
+                }
             }
 
             column.Move(previousSquare);
@@ -123,7 +125,7 @@ namespace Laska
         private int minimax(int alpha, int beta, int depth, bool maximize)
         {
             Player playerToMove = maximize ? gameManager.ActivePlayer : gameManager.InactivePlayer;
-            List<string> moves = playerToMove.GetPossibleMoves(true);
+            List<string> moves = playerToMove.GetPossibleMovesAndMultiTakes(true);
 
             if (moves.Count == 0)
             {
@@ -142,8 +144,7 @@ namespace Laska
                 foreach (var move in moves)
                 {
                     //Debug.Log("maximize make " + move);
-                    Stack<string> takenSquares = new Stack<string>();
-                    Square lastSquare = makeMove(move, takenSquares, out Square previousSquare, out bool promotion).Square;
+                    Square lastSquare = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion).Square;
 
                     score = Mathf.Max(score, minimax(alpha, beta, depth - 1, false));
                     alpha = Mathf.Max(alpha, score);
@@ -161,8 +162,7 @@ namespace Laska
                 foreach (var move in moves)
                 {
                     //Debug.Log("minimize make " + move);
-                    Stack<string> takenSquares = new Stack<string>();
-                    Square lastSquare = makeMove(move, takenSquares, out Square previousSquare, out bool promotion).Square;
+                    Square lastSquare = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion).Square;
 
                     score = Mathf.Min(score, minimax(alpha, beta, depth - 1, true));
                     beta = Mathf.Min(beta, score);
@@ -184,7 +184,7 @@ namespace Laska
             int bestScore = int.MinValue;
             string bestMove = "";
 
-            List<string> moves = gameManager.ActivePlayer.GetPossibleMoves();
+            List<string> moves = gameManager.ActivePlayer.GetPossibleMovesAndMultiTakes();
             int score;
             if (moves.Count == 1)
             {
@@ -195,8 +195,7 @@ namespace Laska
                 foreach (var move in moves)
                 {
                     //Debug.Log("first make " + move);
-                    Stack<string> takenSquares = new Stack<string>();
-                    Square lastSquare = makeMove(move, takenSquares, out Square previousSquare, out bool promotion).Square;
+                    Square lastSquare = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion).Square;
 
                     score = minimax(bestScore, int.MaxValue, depth - 1, false);
                     if (score > bestScore)

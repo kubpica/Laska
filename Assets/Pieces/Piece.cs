@@ -123,18 +123,6 @@ namespace Laska
             meshRenderer.material.color = materialColor;
         }
 
-        protected void AddPossibleMove(int fileId, int rankId)
-        {
-            string move = Position + "-" + Board.GetSquareCoordinate(fileId, rankId);
-            _possibleMoves.Add(move);
-        }
-
-        protected void AddPossibleMove(int fileId, int rankId, int takesFileId, int takesRankId)
-        {
-            string move = Position + "-" + Board.GetSquareCoordinate(takesFileId, takesRankId) + "-" + Board.GetSquareCoordinate(fileId, rankId);
-            _possibleMoves.Add(move);
-        }
-
         /// <summary>
         /// Used to calculate next possible takes in a multi-take.
         /// </summary>
@@ -147,27 +135,7 @@ namespace Laska
         public void CalcPossibleMoves(IEnumerable<string> takenSquares)
         {
             CalcPossibleMoves();
-
-            if (_canTake)
-            {
-                for(int i = _possibleMoves.Count-1; i>=0; i--)
-                {
-                    var move = _possibleMoves[i];
-                    string takenSquare = move.Substring(3, 2);
-                    if (takenSquares.Contains(takenSquare))
-                    {
-                        _possibleMoves.RemoveAt(i);
-                    }
-                }
-
-                if (_possibleMoves.Count == 0)
-                    _canTake = false;
-            }
-            else if (takenSquares.Count() > 0)
-            {
-                // No more takes possible, end of the turn
-                _possibleMoves.Clear(); // Clear moves, as you can't move after taking
-            }
+            _canTake = ignoreTakenSquares(_possibleMoves, takenSquares, _canTake);
         }
 
         public void CalcPossibleMoves()
@@ -176,42 +144,100 @@ namespace Laska
                 _possibleMoves = new List<string>();
             else
                 _possibleMoves.Clear();
-            
+
+            _canTake = calcPossibleMoves(_possibleMoves);
+        }
+
+        public List<string> CalcPossibleMovesNewList()
+        {
+            var list = new List<string>();
+            calcPossibleMoves(list);
+            return list;
+        }
+
+        public List<string> CalcPossibleMovesNewList(IEnumerable<string> takenSquares)
+        {
+            var list = new List<string>();
+            bool canTake = calcPossibleMoves(list);
+            ignoreTakenSquares(list, takenSquares, canTake);
+            return list;
+        }
+
+        private bool calcPossibleMoves(List<string> possibleMoves)
+        {
             Board.GetSquareIds(Position, out int file, out int rank);
 
-            _canTake = false;
-            foreach(var dir in MovementDirections)
+            bool canTake = false;
+            foreach (var dir in MovementDirections)
             {
                 int dirX = dir[0] == '-' ? -1 : 1;
                 int dirY = dir[1] == '-' ? -1 : 1;
                 try
                 {
                     var attackedColumn = Board.GetColumnAt(file + 1 * dirX, rank + 1 * dirY);
-                    if(attackedColumn != null)
+                    if (attackedColumn != null)
                     {
                         if (Board.GetColumnAt(file + 2 * dirX, rank + 2 * dirY) == null)
                         {
                             // Can take?
                             if (attackedColumn.Commander.Color != Color)
                             {
-                                if (!_canTake)
+                                if (!canTake)
                                 {
-                                    _possibleMoves.Clear();
-                                    _canTake = true;
+                                    possibleMoves.Clear();
+                                    canTake = true;
                                 }
 
-                                AddPossibleMove(file + 2 * dirX, rank + 2 * dirY, file + 1 * dirX, rank + 1 * dirY);
+                                addPossibleMove(possibleMoves, file + 2 * dirX, rank + 2 * dirY, file + 1 * dirX, rank + 1 * dirY);
                             }
                         }
                     }
-                    else if (!_canTake)
+                    else if (!canTake)
                     {
                         // Can move?
-                        AddPossibleMove(file + 1*dirX, rank + 1*dirY);
+                        addPossibleMove(possibleMoves, file + 1 * dirX, rank + 1 * dirY);
                     }
                 }
                 catch { }
             }
+            return canTake;
+        }
+
+        private void addPossibleMove(List<string> possibleMoves, int fileId, int rankId)
+        {
+            string move = Position + "-" + Board.GetSquareCoordinate(fileId, rankId);
+            possibleMoves.Add(move);
+        }
+
+        private void addPossibleMove(List<string> possibleMoves, int fileId, int rankId, int takesFileId, int takesRankId)
+        {
+            string move = Position + "-" + Board.GetSquareCoordinate(takesFileId, takesRankId) + "-" + Board.GetSquareCoordinate(fileId, rankId);
+            possibleMoves.Add(move);
+        }
+
+        private bool ignoreTakenSquares(List<string> possibleMoves, IEnumerable<string> takenSquares, bool canTake)
+        {
+            if (canTake)
+            {
+                for (int i = possibleMoves.Count - 1; i >= 0; i--)
+                {
+                    var move = possibleMoves[i];
+                    string takenSquare = move.Substring(3, 2);
+                    if (takenSquares.Contains(takenSquare))
+                    {
+                        possibleMoves.RemoveAt(i);
+                    }
+                }
+
+                if (possibleMoves.Count == 0)
+                    canTake = false;
+            }
+            else if (takenSquares.Count() > 0)
+            {
+                // No more takes possible, end of the turn
+                possibleMoves.Clear(); // Clear moves, as you can't move after taking
+            }
+            return canTake;
         }
     }
 }
