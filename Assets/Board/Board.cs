@@ -7,6 +7,8 @@ namespace Laska
 {
     public class Board : MonoBehaviourSingleton<Board>
     {
+        public ulong ZobristKey { get; set; }
+
         private Square[,] squares = new Square[7,7];
         private HashSet<MeshRenderer> marked = new HashSet<MeshRenderer>();
 

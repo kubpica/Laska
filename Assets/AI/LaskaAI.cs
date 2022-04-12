@@ -62,19 +62,13 @@ namespace Laska
             return score;
         }
 
-        private Column makeMove(string move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion, Column movedColumn = null)
+        private Column makeMove(string move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion)
         {
             //Debug.Log("makeMove " + move + " " + takenSquares.Count);
             var squares = move.Split('-');
-            if (movedColumn == null)
-            {
-                movedColumn = board.GetColumnAt(squares[0]);
-                previousSquare = movedColumn.Square;
-            }
-            else
-            {
-                previousSquare = null;
-            }
+            Column movedColumn = board.GetColumnAt(squares[0]);
+            previousSquare = movedColumn.Square;
+
             Square targetSquare;
             if (squares.Length >= 3)
             {
@@ -96,7 +90,6 @@ namespace Laska
                 // Move
                 takenSquares = null;
                 targetSquare = board.GetSquareAt(squares[1]);
-                previousSquare = movedColumn.Square;
                 promotion = movedColumn.Move(targetSquare);
             }
 

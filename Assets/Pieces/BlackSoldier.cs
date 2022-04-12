@@ -12,8 +12,10 @@ namespace Laska
         public override char PromotionRank => '1';
         public override bool CanGoBackwards => false;
         public override List<string> MovementDirections => _directions;
+        public override int ZobristIndex => 2;
 
         public override string Mianownik => Theme.SoldierMianownik;
         public override string Biernik => Theme.SoldierBiernik;
+
     }
 }

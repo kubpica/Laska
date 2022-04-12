@@ -94,6 +94,7 @@ namespace Laska
         public abstract char PromotionRank { get; }
         public abstract bool CanGoBackwards { get; }
         public abstract List<string> MovementDirections { get; }
+        public abstract int ZobristIndex { get; }
 
         public abstract string Mianownik { get; }
         public abstract string Biernik { get; }
@@ -111,6 +112,11 @@ namespace Laska
             var dark = new HSBColor(materialColor);
             dark.b = 0.6f;
             materialColorDark = dark.ToColor();
+        }
+
+        public int GetHeightInColumn()
+        {
+            return Column.Pieces.TakeWhile(p => p != this).Count();
         }
 
         public void MarkDark()

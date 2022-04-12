@@ -6,6 +6,7 @@ namespace Laska
     public class Column : MonoBehaviourExtended
     {
         [GlobalComponent] private PiecesManager piecesManager;
+        [GlobalComponent] private Board board;
 
         private static GameObject _columnHolder;
         public static GameObject ColumnHolder
@@ -89,7 +90,7 @@ namespace Laska
             _pieces.AddFirst(newPiece);
         }
 
-        public void Promote()
+        private void promote()
         {
             var officer = piecesManager.Graveyard.ReviveOfficer(Commander.Color);
             replaceTopPiece(officer);
@@ -97,8 +98,27 @@ namespace Laska
 
         public void Demote()
         {
+            ZobristCommander();
+
             var soldier = piecesManager.Graveyard.ReviveSoldier(Commander.Color);
             replaceTopPiece(soldier);
+
+            ZobristCommander();
+        }
+
+        public void ZobristCommander()
+        {
+            board.ZobristKey ^= Zobrist.piecesArray[Commander.ZobristIndex, Square.draughtsNotationIndex-1, _pieces.Count - 1];
+        }
+
+        public void ZobristAll()
+        {
+            int height = _pieces.Count - 1;
+            foreach(var p in _pieces)
+            {
+                board.ZobristKey ^= Zobrist.piecesArray[p.ZobristIndex, Square.draughtsNotationIndex-1, height];
+                height--;
+            }
         }
 
         /// <summary>
@@ -108,16 +128,24 @@ namespace Laska
         /// <returns> True if the piece has been promoted.</returns>
         public bool Move(Square targetSquare, bool ignorePromotion = false)
         {
+            ZobristAll();
             Square = targetSquare;
 
             // Check for promotion
+            bool promotion;
             if (Position[1] == Commander.PromotionRank)
             {
                 if(!ignorePromotion)
-                    Promote();
-                return true;
+                    promote();
+                promotion = true;
             }
-            return false;
+            else
+            {
+                promotion = false;
+            }
+
+            ZobristAll();
+            return promotion;
         }
 
         #region Calc possible moves
@@ -182,9 +210,10 @@ namespace Laska
                 return;
             }
 
+            ZobristAll();
             _pieces.AddLast(piece);
-
             piece.Column = this;
+            ZobristAll();
         }
 
         /// <summary>
@@ -193,6 +222,7 @@ namespace Laska
         /// <returns> Released commander - a piece on the top.</returns>
         public Piece Release()
         {
+            ZobristCommander();
             var ex = _pieces.First.Value;
             _pieces.RemoveFirst();
 
@@ -210,8 +240,10 @@ namespace Laska
         public void Untake(Square takenFrom)
         {
             // Relase the bottom piece
+            ZobristAll();
             var takenPiece = _pieces.Last.Value;
             _pieces.RemoveLast();
+            ZobristAll();
 
             // Return the piece to its previous position
             Column prevColumn;
@@ -226,6 +258,7 @@ namespace Laska
             }
             prevColumn.Pieces.AddFirst(takenPiece);
             takenPiece.Column = prevColumn;
+            prevColumn.ZobristCommander();
         }
     }
 }
