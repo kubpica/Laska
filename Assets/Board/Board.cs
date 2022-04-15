@@ -7,8 +7,16 @@ namespace Laska
 {
     public class Board : MonoBehaviourSingleton<Board>
     {
+        public ulong ZobristKey { get; set; }
+
+        /// <summary>
+        /// Number of non-take (half)moves since last take (for 50-move draw rule).
+        /// </summary>
+        public int OfficerMovesSinceLastTake { get; set; } 
+
         private Square[,] squares = new Square[7,7];
         private HashSet<MeshRenderer> marked = new HashSet<MeshRenderer>();
+        private Stack<ulong> repetitionPositionHistory = new Stack<ulong>(); // Zobrist keys 
 
         [GlobalComponent] GameManager gameManager;
 
@@ -29,6 +37,17 @@ namespace Laska
                     Debug.LogError("Not every square is inited!");
                 }
             }
+        }
+
+        public void SavePositionInRepetitionHistory() => repetitionPositionHistory.Push(ZobristKey);
+        public void ClearRepetitionHistory() => repetitionPositionHistory.Clear();
+        public bool HasCurrentPositionRepeated() => repetitionPositionHistory.Contains(ZobristKey);
+        public bool IsThreefoldRepetition() => repetitionPositionHistory.Count(x => x == ZobristKey) == 3;
+        public IEnumerable<ulong> GetPositionsSinceLastTake() => repetitionPositionHistory.Distinct();
+
+        public void ZobristSideToMove()
+        {
+            ZobristKey ^= Zobrist.blackToMove;
         }
 
         public string GetSquareCoordinate(int fileId, int rankId)

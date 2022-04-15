@@ -11,9 +11,13 @@ namespace Laska
 
         public int searchDepth;
         public bool forcedSequencesAsOneMove;
+        public bool searchAllTakes;
 
         private const int ACTIVE_WIN = 1000000;
         private const int INACTIVE_WIN = -1000000;
+        private const int DRAW = -1;
+
+        private HashSet<ulong> _visitedNonTakePositions = new HashSet<ulong>(); // Zobrist keys
 
         public int EvaluatePosition(Player playerToMove)
         {
@@ -21,14 +25,12 @@ namespace Laska
             int activePlayerPieces = gameManager.ActivePlayer.pieces.Count(p => p.IsFree);
             if (activePlayerPieces == 0)
             {
-                //Debug.LogError("INACTIVE_WIN found");
                 return INACTIVE_WIN;
             }
 
             int inactivePlayerPices = gameManager.InactivePlayer.pieces.Count(p => p.IsFree);
             if (inactivePlayerPices == 0)
             {
-                //Debug.LogError("ACTIVE_WIN found");
                 return ACTIVE_WIN;
             }
 
@@ -62,19 +64,13 @@ namespace Laska
             return score;
         }
 
-        private Column makeMove(string move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion, Column movedColumn = null)
+        private Column makeMove(string move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion)
         {
-            //Debug.Log("makeMove " + move + " " + takenSquares.Count);
             var squares = move.Split('-');
-            if (movedColumn == null)
-            {
-                movedColumn = board.GetColumnAt(squares[0]);
-                previousSquare = movedColumn.Square;
-            }
-            else
-            {
-                previousSquare = null;
-            }
+            Column movedColumn = board.GetColumnAt(squares[0]);
+            previousSquare = movedColumn.Square;
+            movedColumn.ZobristAll(); // XOR-out column from old square
+
             Square targetSquare;
             if (squares.Length >= 3)
             {
@@ -86,55 +82,63 @@ namespace Laska
                 {
                     var takenColumn = board.GetColumnAt(squares[i]);
                     takenSquares.Push(takenColumn.Square);
+                    takenColumn.ZobristCommander(); // XOR-out taken piece
                     movedColumn.Take(takenColumn);
                 }
-                
-                promotion = movedColumn.Move(targetSquare);
             }
             else
             {
                 // Move
                 takenSquares = null;
                 targetSquare = board.GetSquareAt(squares[1]);
-                previousSquare = movedColumn.Square;
-                promotion = movedColumn.Move(targetSquare);
             }
+            promotion = movedColumn.Move(targetSquare);
 
-            //if(promotion)
-            //Debug.LogError("promotion " + promotion);
+            movedColumn.ZobristAll(); // XOR-in column on new square (with new pieces if take)
+            board.ZobristSideToMove();
+
             return movedColumn;
         }
 
-        private void unmakeMove(Square lastSquare, Stack<Square> takenSquares, Square previousSquare, bool demote)
+        private void unmakeMove(Column movedColumn, Stack<Square> takenSquares, Square previousSquare, bool demote)
         {
-            var column = lastSquare.Column;
+            board.ZobristSideToMove();
+            movedColumn.ZobristAll(); // XOR-out column from current square
 
-            //Debug.Log("unmake " + column.Square.coordinate + " " + takenSquares.Count + " " + previousSquare.coordinate + " " + demote);
-            if(takenSquares != null)
+            if (takenSquares != null)
             {
                 while (takenSquares.Count > 0)
                 {
                     var takenSquare = takenSquares.Pop();
-                    column.Untake(takenSquare);
+                    movedColumn.Untake(takenSquare);
+                    takenSquare.Column.ZobristCommander(); // XOR-in restored piece
                 }
             }
 
-            column.Move(previousSquare);
+            movedColumn.Move(previousSquare);
 
             if (demote)
-                column.Demote();
+                movedColumn.Demote();
+
+            movedColumn.ZobristAll(); // XOR-in column on previous square (with previous pieces)
         }
 
         private int minimax(int alpha, int beta, int depth, bool maximize)
         {
+            // Detect draw by repetition.
+            // Returns a draw score even if this position has only appeared once in the game history (for simplicity).
+            if (_visitedNonTakePositions.Contains(board.ZobristKey))
+            {
+                return DRAW;
+            }
+
             Player playerToMove = maximize ? gameManager.ActivePlayer : gameManager.InactivePlayer;
             List<string> moves = playerToMove.GetPossibleMovesAndMultiTakes(true);
+            bool canTake = playerToMove.CanTake;
 
             if (moves.Count == 0)
             {
-                var r = maximize ? INACTIVE_WIN - depth : ACTIVE_WIN + depth;
-                //Debug.LogError("Win found " + r);
-                return r;
+                return maximize ? INACTIVE_WIN - depth : ACTIVE_WIN + depth;
             }
             else if (moves.Count == 1)
             {
@@ -142,7 +146,13 @@ namespace Laska
                     depth++;
             }
             else if (depth <= 0)
-                return EvaluatePosition(playerToMove);
+            {
+                if(!searchAllTakes || !canTake)
+                    return EvaluatePosition(playerToMove);
+            }
+
+            if (!canTake)
+                _visitedNonTakePositions.Add(board.ZobristKey);
 
             int score;
             if (maximize)
@@ -150,14 +160,12 @@ namespace Laska
                 score = int.MinValue;
                 foreach (var move in moves)
                 {
-                    //Debug.Log("maximize make " + move);
-                    Square lastSquare = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion).Square;
+                    Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
                     score = Mathf.Max(score, minimax(alpha, beta, depth - 1, false));
                     alpha = Mathf.Max(alpha, score);
 
-                    //Debug.Log("maximize unmake " + move);
-                    unmakeMove(lastSquare, takenSquares, previousSquare, promotion);
+                    unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
                     if (alpha >= beta)
                         break;
@@ -168,19 +176,20 @@ namespace Laska
                 score = int.MaxValue;
                 foreach (var move in moves)
                 {
-                    //Debug.Log("minimize make " + move);
-                    Square lastSquare = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion).Square;
+                    Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
                     score = Mathf.Min(score, minimax(alpha, beta, depth - 1, true));
                     beta = Mathf.Min(beta, score);
 
-                    //Debug.Log("minimize unmake " + move);
-                    unmakeMove(lastSquare, takenSquares, previousSquare, promotion);
+                    unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
                     if (beta <= alpha)
                         break;
                 }
             }
+
+            if (!canTake)
+                _visitedNonTakePositions.Remove(board.ZobristKey);
 
             return score;
         }
@@ -204,10 +213,13 @@ namespace Laska
             }
             else
             {
+                _visitedNonTakePositions.Clear();
+                foreach (var p in board.GetPositionsSinceLastTake())
+                    _visitedNonTakePositions.Add(p);
+
                 foreach (var move in moves)
                 {
-                    //Debug.Log("first make " + move);
-                    Square lastSquare = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion).Square;
+                    Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
                     score = minimax(bestScore, int.MaxValue, depth - 1, false);
                     if (score > bestScore)
@@ -215,9 +227,8 @@ namespace Laska
                         bestScore = score;
                         bestMove = move;
                     }
-                    //Debug.Log("first unmake " + move);
 
-                    unmakeMove(lastSquare, takenSquares, previousSquare, promotion);
+                    unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
                 }
             }
             PiecesManager.FakeMoves = false;

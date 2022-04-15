@@ -232,6 +232,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: a6
+  draughtsNotationIndex: 0
 --- !u!1 &13202049
 GameObject:
   m_ObjectHideFlags: 0
@@ -341,6 +342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: a3
+  draughtsNotationIndex: 8
 --- !u!1 &26702255
 GameObject:
   m_ObjectHideFlags: 0
@@ -385,7 +387,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 119
-  isAI: 0
+  isAI: 1
   timer: 180
   pieces: []
 --- !u!1 &57619628
@@ -726,6 +728,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: c2
+  draughtsNotationIndex: 0
 --- !u!1 &114726587
 GameObject:
   m_ObjectHideFlags: 0
@@ -835,6 +838,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: e6
+  draughtsNotationIndex: 0
 --- !u!1 &135044130
 GameObject:
   m_ObjectHideFlags: 0
@@ -944,6 +948,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: a1
+  draughtsNotationIndex: 1
 --- !u!1 &137418753
 GameObject:
   m_ObjectHideFlags: 0
@@ -1092,6 +1097,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: b4
+  draughtsNotationIndex: 12
 --- !u!1 &144563371
 GameObject:
   m_ObjectHideFlags: 0
@@ -1201,6 +1207,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: g1
+  draughtsNotationIndex: 4
 --- !u!1 &153869903
 GameObject:
   m_ObjectHideFlags: 0
@@ -1405,6 +1412,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: e3
+  draughtsNotationIndex: 10
 --- !u!1 &281146560
 GameObject:
   m_ObjectHideFlags: 0
@@ -1561,6 +1569,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: a7
+  draughtsNotationIndex: 22
 --- !u!1 &311993714
 GameObject:
   m_ObjectHideFlags: 0
@@ -1860,6 +1869,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: b5
+  draughtsNotationIndex: 0
 --- !u!1 &374194308
 GameObject:
   m_ObjectHideFlags: 0
@@ -1969,6 +1979,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: f4
+  draughtsNotationIndex: 14
 --- !u!1 &388434699
 GameObject:
   m_ObjectHideFlags: 0
@@ -2173,6 +2184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: a5
+  draughtsNotationIndex: 15
 --- !u!1 &393469053
 GameObject:
   m_ObjectHideFlags: 0
@@ -2416,6 +2428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: a2
+  draughtsNotationIndex: 0
 --- !u!1 &464919898
 GameObject:
   m_ObjectHideFlags: 0
@@ -3000,6 +3013,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: d4
+  draughtsNotationIndex: 13
 --- !u!1 &614603976
 GameObject:
   m_ObjectHideFlags: 0
@@ -3109,6 +3123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: e4
+  draughtsNotationIndex: 0
 --- !u!1 &643850753
 GameObject:
   m_ObjectHideFlags: 0
@@ -3218,6 +3233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: g2
+  draughtsNotationIndex: 0
 --- !u!1 &646868231
 GameObject:
   m_ObjectHideFlags: 0
@@ -3327,6 +3343,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: c6
+  draughtsNotationIndex: 0
 --- !u!1 &683266147
 GameObject:
   m_ObjectHideFlags: 0
@@ -3436,6 +3453,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: b3
+  draughtsNotationIndex: 0
 --- !u!1 &700724445
 GameObject:
   m_ObjectHideFlags: 0
@@ -3812,6 +3830,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: e2
+  draughtsNotationIndex: 0
 --- !u!1 &828875166
 GameObject:
   m_ObjectHideFlags: 0
@@ -3921,6 +3940,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: f1
+  draughtsNotationIndex: 0
 --- !u!1 &851970737
 GameObject:
   m_ObjectHideFlags: 0
@@ -4125,6 +4145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: g5
+  draughtsNotationIndex: 18
 --- !u!1 &945763974
 GameObject:
   m_ObjectHideFlags: 0
@@ -4234,6 +4255,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: f2
+  draughtsNotationIndex: 7
 --- !u!1 &985356464
 GameObject:
   m_ObjectHideFlags: 0
@@ -4343,6 +4365,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: b6
+  draughtsNotationIndex: 19
 --- !u!1 &1007160186
 GameObject:
   m_ObjectHideFlags: 0
@@ -4642,6 +4665,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: b1
+  draughtsNotationIndex: 0
 --- !u!1 &1030313526
 GameObject:
   m_ObjectHideFlags: 0
@@ -4751,6 +4775,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: b2
+  draughtsNotationIndex: 5
 --- !u!1 &1042623620
 GameObject:
   m_ObjectHideFlags: 0
@@ -4955,6 +4980,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: g7
+  draughtsNotationIndex: 25
 --- !u!1 &1079086651
 GameObject:
   m_ObjectHideFlags: 0
@@ -5064,6 +5090,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: c1
+  draughtsNotationIndex: 2
 --- !u!850595691 &1081943849
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -5467,6 +5494,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   searchDepth: 8
   forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
 --- !u!1 &1300494784
 GameObject:
   m_ObjectHideFlags: 0
@@ -5576,6 +5604,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: e7
+  draughtsNotationIndex: 24
 --- !u!1 &1305646106
 GameObject:
   m_ObjectHideFlags: 0
@@ -5685,6 +5714,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: c3
+  draughtsNotationIndex: 9
 --- !u!1 &1331890978
 GameObject:
   m_ObjectHideFlags: 0
@@ -5794,6 +5824,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: g3
+  draughtsNotationIndex: 11
 --- !u!1 &1336408715
 GameObject:
   m_ObjectHideFlags: 0
@@ -6217,6 +6248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: e5
+  draughtsNotationIndex: 17
 --- !u!1 &1443625621
 GameObject:
   m_ObjectHideFlags: 0
@@ -6326,6 +6358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: c7
+  draughtsNotationIndex: 23
 --- !u!1 &1459185463
 GameObject:
   m_ObjectHideFlags: 0
@@ -6625,6 +6658,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: c5
+  draughtsNotationIndex: 16
 --- !u!1 &1543482713
 GameObject:
   m_ObjectHideFlags: 0
@@ -6637,6 +6671,7 @@ GameObject:
   - component: {fileID: 1543482715}
   - component: {fileID: 1543482714}
   - component: {fileID: 1543482718}
+  - component: {fileID: 1543482720}
   - component: {fileID: 1543482717}
   - component: {fileID: 1543482719}
   m_Layer: 0
@@ -6768,6 +6803,18 @@ MonoBehaviour:
   dragSpeed: 1
   fastDragSpeed: 5
   d4: {fileID: 613786897}
+--- !u!114 &1543482720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1543482713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82fff64ada7331c4a967066f82ab9e39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1565419215
 GameObject:
   m_ObjectHideFlags: 0
@@ -6916,6 +6963,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: b7
+  draughtsNotationIndex: 0
 --- !u!1 &1594377320
 GameObject:
   m_ObjectHideFlags: 0
@@ -7025,6 +7073,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: d2
+  draughtsNotationIndex: 6
 --- !u!1 &1635456270
 GameObject:
   m_ObjectHideFlags: 0
@@ -7229,6 +7278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: d1
+  draughtsNotationIndex: 0
 --- !u!1 &1651851767
 GameObject:
   m_ObjectHideFlags: 0
@@ -7338,6 +7388,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: g4
+  draughtsNotationIndex: 0
 --- !u!1 &1663038252
 GameObject:
   m_ObjectHideFlags: 0
@@ -7447,6 +7498,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: d7
+  draughtsNotationIndex: 0
 --- !u!1 &1705501894
 GameObject:
   m_ObjectHideFlags: 0
@@ -7556,6 +7608,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: f3
+  draughtsNotationIndex: 0
 --- !u!1 &1709108832
 GameObject:
   m_ObjectHideFlags: 0
@@ -7760,6 +7813,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: d6
+  draughtsNotationIndex: 20
 --- !u!1 &1722690395
 GameObject:
   m_ObjectHideFlags: 0
@@ -8059,6 +8113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: f6
+  draughtsNotationIndex: 21
 --- !u!1 &1751183873
 GameObject:
   m_ObjectHideFlags: 0
@@ -8302,6 +8357,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: d3
+  draughtsNotationIndex: 0
 --- !u!1 &1786813358
 GameObject:
   m_ObjectHideFlags: 0
@@ -8411,6 +8467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: f7
+  draughtsNotationIndex: 0
 --- !u!1 &1829520629
 GameObject:
   m_ObjectHideFlags: 0
@@ -8612,6 +8669,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: c4
+  draughtsNotationIndex: 0
 --- !u!1 &1891234865
 GameObject:
   m_ObjectHideFlags: 0
@@ -8760,6 +8818,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: g6
+  draughtsNotationIndex: 0
 --- !u!1 &1950414722
 GameObject:
   m_ObjectHideFlags: 0
@@ -8869,6 +8928,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: a4
+  draughtsNotationIndex: 0
 --- !u!1 &1955122552
 GameObject:
   m_ObjectHideFlags: 0
@@ -8978,6 +9038,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: d5
+  draughtsNotationIndex: 0
 --- !u!1 &1989680945
 GameObject:
   m_ObjectHideFlags: 0
@@ -9087,6 +9148,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: f5
+  draughtsNotationIndex: 0
 --- !u!1 &2042446784
 GameObject:
   m_ObjectHideFlags: 0
@@ -9481,3 +9543,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coordinate: e1
+  draughtsNotationIndex: 3

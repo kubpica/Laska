@@ -6,6 +6,7 @@ namespace Laska
     public class Column : MonoBehaviourExtended
     {
         [GlobalComponent] private PiecesManager piecesManager;
+        [GlobalComponent] private Board board;
 
         private static GameObject _columnHolder;
         public static GameObject ColumnHolder
@@ -89,7 +90,7 @@ namespace Laska
             _pieces.AddFirst(newPiece);
         }
 
-        public void Promote()
+        private void promote()
         {
             var officer = piecesManager.Graveyard.ReviveOfficer(Commander.Color);
             replaceTopPiece(officer);
@@ -99,6 +100,21 @@ namespace Laska
         {
             var soldier = piecesManager.Graveyard.ReviveSoldier(Commander.Color);
             replaceTopPiece(soldier);
+        }
+
+        public void ZobristCommander()
+        {
+            board.ZobristKey ^= Zobrist.piecesArray[Commander.ZobristIndex, Square.draughtsNotationIndex-1, _pieces.Count - 1];
+        }
+
+        public void ZobristAll()
+        {
+            int height = _pieces.Count - 1;
+            foreach(var p in _pieces)
+            {
+                board.ZobristKey ^= Zobrist.piecesArray[p.ZobristIndex, Square.draughtsNotationIndex-1, height];
+                height--;
+            }
         }
 
         /// <summary>
@@ -111,13 +127,19 @@ namespace Laska
             Square = targetSquare;
 
             // Check for promotion
+            bool promotion;
             if (Position[1] == Commander.PromotionRank)
             {
                 if(!ignorePromotion)
-                    Promote();
-                return true;
+                    promote();
+                promotion = true;
             }
-            return false;
+            else
+            {
+                promotion = false;
+            }
+
+            return promotion;
         }
 
         #region Calc possible moves
@@ -183,7 +205,6 @@ namespace Laska
             }
 
             _pieces.AddLast(piece);
-
             piece.Column = this;
         }
 
