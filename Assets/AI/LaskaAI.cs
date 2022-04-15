@@ -25,14 +25,12 @@ namespace Laska
             int activePlayerPieces = gameManager.ActivePlayer.pieces.Count(p => p.IsFree);
             if (activePlayerPieces == 0)
             {
-                //Debug.LogError("INACTIVE_WIN found");
                 return INACTIVE_WIN;
             }
 
             int inactivePlayerPices = gameManager.InactivePlayer.pieces.Count(p => p.IsFree);
             if (inactivePlayerPices == 0)
             {
-                //Debug.LogError("ACTIVE_WIN found");
                 return ACTIVE_WIN;
             }
 
@@ -140,9 +138,7 @@ namespace Laska
 
             if (moves.Count == 0)
             {
-                var r = maximize ? INACTIVE_WIN - depth : ACTIVE_WIN + depth;
-                //Debug.LogError("Win found " + r);
-                return r;
+                return maximize ? INACTIVE_WIN - depth : ACTIVE_WIN + depth;
             }
             else if (moves.Count == 1)
             {
@@ -164,13 +160,11 @@ namespace Laska
                 score = int.MinValue;
                 foreach (var move in moves)
                 {
-                    //Debug.Log("maximize make " + move);
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
                     score = Mathf.Max(score, minimax(alpha, beta, depth - 1, false));
                     alpha = Mathf.Max(alpha, score);
 
-                    //Debug.Log("maximize unmake " + move);
                     unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
                     if (alpha >= beta)
@@ -182,13 +176,11 @@ namespace Laska
                 score = int.MaxValue;
                 foreach (var move in moves)
                 {
-                    //Debug.Log("minimize make " + move);
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
                     score = Mathf.Min(score, minimax(alpha, beta, depth - 1, true));
                     beta = Mathf.Min(beta, score);
 
-                    //Debug.Log("minimize unmake " + move);
                     unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
                     if (beta <= alpha)
@@ -227,7 +219,6 @@ namespace Laska
 
                 foreach (var move in moves)
                 {
-                    //Debug.Log("first make " + move);
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
                     score = minimax(bestScore, int.MaxValue, depth - 1, false);
@@ -236,7 +227,6 @@ namespace Laska
                         bestScore = score;
                         bestMove = move;
                     }
-                    //Debug.Log("first unmake " + move);
 
                     unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
                 }
