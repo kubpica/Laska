@@ -14,6 +14,7 @@ namespace Laska
         
         private IEnumerable<Column> _columns;
         private bool _canTake;
+        public bool CanTake => _canTake;
 
         /// <summary>
         /// Get columns that have commander of this player.

@@ -11,6 +11,7 @@ namespace Laska
         [GlobalComponent] private ThemeManager theme;
         [GlobalComponent] private GameManager gameManager;
         [GlobalComponent] private Board board;
+        [GlobalComponent] private IngameMessages msg;
 
         public StringEvent onMoveStarted;
         public UnityEvent onMoveEnded;
@@ -21,22 +22,13 @@ namespace Laska
         private Column selectedColumn;
         private List<Piece> takenPieces = new List<Piece>();
         private bool justPromoted;
-        private string displayedMsg;
-        private GUIStyle currentStyle = new GUIStyle();
-        private GUIStyle lastStyle = new GUIStyle();
 
         private const float PIECE_HEIGHT = 0.5f;
 
-        public bool Mate { get; set; }
         public bool MoveSelectionEnabled { get; set; } = true;
         
         private void Start()
         {
-            currentStyle.fontStyle = FontStyle.Bold;
-            currentStyle.normal.textColor = Color.green;
-            lastStyle.fontStyle = FontStyle.Bold;
-            lastStyle.normal.textColor = Color.green;
-
             if (cam == null)
                 cam = Camera.main;
         }
@@ -44,7 +36,7 @@ namespace Laska
         public void SetPlayerToMove(Player player)
         {
             playerToMove = player;
-            currentStyle.normal.textColor = player.color == 'b' ? Color.red : Color.green;
+            msg.SetCurrentTextColor(player);
         }
 
         private bool SelectColumn(string square)
@@ -164,15 +156,17 @@ namespace Laska
         {
             onMoveStarted.Invoke(move);
 
-            if (takenPieces.Count == 0)
-            {
-                displayedMsg = "";
-                lastStyle.normal.textColor = playerToMove.color == 'b' ? Color.red : Color.green;
-            }
-
             var squares = move.Split('-');
             if (selectedColumn == null)
                 selectedColumn = board.GetColumnAt(squares[0]);
+
+            if (takenPieces.Count == 0)
+            {
+                msg.DisplayedMsg = "";
+                msg.SetLastTextColor(playerToMove);
+
+                selectedColumn.ZobristAll(); // XOR-out moved column
+            }
 
             if (squares.Length > 3)
             {
@@ -192,7 +186,7 @@ namespace Laska
                 var targetSquare = board.GetSquareAt(squares[1]);
 
                 var piece = selectedColumn.Commander;
-                displayedMsg += piece.Mianownik + " " + theme.MovesMsg + " " + piece.Position + " na " + targetSquare.coordinate + "\n";
+                msg.DisplayedMsg += piece.Mianownik + " " + theme.MovesMsg + " " + piece.Position + " na " + targetSquare.coordinate + "\n";
                 StartCoroutine(animateMove(targetSquare));
             }
         }
@@ -201,7 +195,7 @@ namespace Laska
         {
             var killer = selectedColumn.Commander;
             var victim = takenColumn.Commander;
-            displayedMsg += killer.Mianownik + " z " + killer.Position
+            msg.DisplayedMsg += killer.Mianownik + " z " + killer.Position
                 + " " + theme.TakesMsg + " " + victim.Biernik + " z " + victim.Position
                 + " na " + targetSquare.coordinate + "\n";
         }
@@ -278,9 +272,28 @@ namespace Laska
 
         private void endMove()
         {
+            selectedColumn.ZobristAll(); // XOR-in moved column
+            board.ZobristSideToMove();
+
+            if(takenPieces.Count == 0)
+            {
+                // Just move
+                board.SavePositionInRepetitionHistory();
+                if(!justPromoted && selectedColumn.Commander is Officer)
+                    board.OfficerMovesSinceLastTake++;
+                else
+                    board.OfficerMovesSinceLastTake = 0;
+            }
+            else
+            {
+                // With takes
+                board.ClearRepetitionHistory();
+                board.OfficerMovesSinceLastTake = 0;
+                takenPieces.Clear();
+            }
+
             selectedColumn = null;
             justPromoted = false;
-            takenPieces.Clear();
             onMoveEnded.Invoke();
         }
 
@@ -332,6 +345,7 @@ namespace Laska
             // Perform takes on the logic level and end the move
             foreach (var piece in takenPieces)
             {
+                piece.Column.ZobristCommander(); // XOR-out taken piece
                 selectedColumn.Take(piece.Column);
             }
             endMove();
@@ -419,44 +433,6 @@ namespace Laska
             if (!SelectColumn(piece.Column))
             {
                 SelectMove(piece.Position);
-            }
-        }
-
-        public static void DrawOutline(Rect pos, string text, GUIStyle style, Color outColor, Color inColor)
-        {
-            GUIStyle backupStyle = style;
-            style.normal.textColor = outColor;
-            pos.x--;
-            GUI.Label(pos, text, style);
-            pos.x += 2;
-            GUI.Label(pos, text, style);
-            pos.x--;
-            pos.y--;
-            GUI.Label(pos, text, style);
-            pos.y += 2;
-            GUI.Label(pos, text, style);
-            pos.y--;
-            style.normal.textColor = inColor;
-            GUI.Label(pos, text, style);
-            style = backupStyle;
-        }
-
-        private void OnGUI()
-        {
-            //GUI.Label(new Rect(Screen.width-126, 10, 200, 20), "Tiktok: @warcoins", currentStyle);
-            string player = playerToMove.color == 'b' ? "czerwonego" : "zielonego";
-            if (Mate)
-            {
-                GUI.Label(new Rect(10, 10, 200, 20), "Pat-mat! Wygrana gracza " + player, currentStyle);
-                return;
-            }
-
-            GUI.Label(new Rect(10, 10, 200, 20), "Ruch gracza " + player, currentStyle);
-            if (displayedMsg != null)
-            {
-                var msg = displayedMsg;
-
-                DrawOutline(new Rect(10, 30, 1900, 1000), msg, lastStyle, Color.black, lastStyle.normal.textColor);
             }
         }
 

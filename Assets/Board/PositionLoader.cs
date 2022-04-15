@@ -38,7 +38,10 @@
             }
 
             prepareOfficers();
-            GameManager.Instance.SetActivePlayer(playerToMove[0]);
+
+            char colorToMove = playerToMove[0];
+            Board.Instance.ZobristKey = Zobrist.CalcZobristKey(colorToMove);
+            GameManager.Instance.SetActivePlayer(colorToMove);
         }
 
         /// <summary>

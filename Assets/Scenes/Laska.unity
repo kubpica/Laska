@@ -387,7 +387,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 119
-  isAI: 0
+  isAI: 1
   timer: 180
   pieces: []
 --- !u!1 &57619628
@@ -5494,6 +5494,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   searchDepth: 8
   forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
 --- !u!1 &1300494784
 GameObject:
   m_ObjectHideFlags: 0
@@ -6670,6 +6671,7 @@ GameObject:
   - component: {fileID: 1543482715}
   - component: {fileID: 1543482714}
   - component: {fileID: 1543482718}
+  - component: {fileID: 1543482720}
   - component: {fileID: 1543482717}
   - component: {fileID: 1543482719}
   m_Layer: 0
@@ -6801,6 +6803,18 @@ MonoBehaviour:
   dragSpeed: 1
   fastDragSpeed: 5
   d4: {fileID: 613786897}
+--- !u!114 &1543482720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1543482713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82fff64ada7331c4a967066f82ab9e39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1565419215
 GameObject:
   m_ObjectHideFlags: 0

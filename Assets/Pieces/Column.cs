@@ -98,12 +98,8 @@ namespace Laska
 
         public void Demote()
         {
-            ZobristCommander();
-
             var soldier = piecesManager.Graveyard.ReviveSoldier(Commander.Color);
             replaceTopPiece(soldier);
-
-            ZobristCommander();
         }
 
         public void ZobristCommander()
@@ -128,7 +124,6 @@ namespace Laska
         /// <returns> True if the piece has been promoted.</returns>
         public bool Move(Square targetSquare, bool ignorePromotion = false)
         {
-            ZobristAll();
             Square = targetSquare;
 
             // Check for promotion
@@ -144,7 +139,6 @@ namespace Laska
                 promotion = false;
             }
 
-            ZobristAll();
             return promotion;
         }
 
@@ -210,10 +204,8 @@ namespace Laska
                 return;
             }
 
-            ZobristAll();
             _pieces.AddLast(piece);
             piece.Column = this;
-            ZobristAll();
         }
 
         /// <summary>
@@ -222,7 +214,6 @@ namespace Laska
         /// <returns> Released commander - a piece on the top.</returns>
         public Piece Release()
         {
-            ZobristCommander();
             var ex = _pieces.First.Value;
             _pieces.RemoveFirst();
 
@@ -240,10 +231,8 @@ namespace Laska
         public void Untake(Square takenFrom)
         {
             // Relase the bottom piece
-            ZobristAll();
             var takenPiece = _pieces.Last.Value;
             _pieces.RemoveLast();
-            ZobristAll();
 
             // Return the piece to its previous position
             Column prevColumn;
@@ -258,7 +247,6 @@ namespace Laska
             }
             prevColumn.Pieces.AddFirst(takenPiece);
             takenPiece.Column = prevColumn;
-            prevColumn.ZobristCommander();
         }
     }
 }

@@ -17,8 +17,13 @@ namespace Laska
         /// </summary>
         public Player InactivePlayer => GetPlayer(getOppositeColor(ActivePlayer));
 
+        public bool Mate { get; set; }
+        public bool DrawByRepetition { get; set; }
+        public bool DrawByFiftyMoveRule { get; set; }
+
         [GlobalComponent] MoveMaker moveMaker;
         [GlobalComponent] LaskaAI ai;
+        [GlobalComponent] Board board;
 
         public enum GameState
         {
@@ -60,7 +65,8 @@ namespace Laska
             if (!player.HasPossibleMoves())
             {
                 Debug.Log("Player " + player.color + " (AI: " + player.isAI + ") has no moves!");
-                moveMaker.Mate = true;
+                Mate = true;
+                setGameState(GameState.Ended);
                 return;
             }
             else
@@ -88,10 +94,27 @@ namespace Laska
 
         private void moveEnded()
         {
-            // Set next player
-            nextPlayer();
+            if (board.OfficerMovesSinceLastTake >= 100)
+            {
+                // Fifty-move rule - it's draw when it's 100th half-move without take or Soldier move
+                setGameState(GameState.Ended);
+                DrawByFiftyMoveRule = true;
+                IngameMessages.Instance.SetCurrentTextColor(Color.yellow);
+            }
+            else if (board.IsThreefoldRepetition())
+            {
+                //TODO check if the position actually repeated 3 times and it's not just hashing collision
 
-            setGameState(GameState.Turn);
+                setGameState(GameState.Ended);
+                DrawByRepetition = true;
+                IngameMessages.Instance.SetCurrentTextColor(Color.yellow);
+            }
+            else
+            {
+                // Set next player
+                nextPlayer();
+                setGameState(GameState.Turn);
+            }
         }
 
         private char getOppositeColor(Player p)
