@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Laska
 {
-    public class LaskaAI : MonoBehaviourSingleton<LaskaAI>
+    public class LaskaAI : MonoBehaviourExtended
     {
         [GlobalComponent] private Board board;
         [GlobalComponent] private GameManager gameManager;
@@ -12,12 +12,14 @@ namespace Laska
         public int searchDepth;
         public bool forcedSequencesAsOneMove;
         public bool searchAllTakes;
+        public bool antyZugzwang;
 
         private const int ACTIVE_WIN = 1000000;
         private const int INACTIVE_WIN = -1000000;
         private const int DRAW = -1;
 
         private HashSet<ulong> _visitedNonTakePositions = new HashSet<ulong>(); // Zobrist keys
+        private bool _isSearchingZugzwang;
 
         public int EvaluatePosition(Player playerToMove)
         {
@@ -123,6 +125,53 @@ namespace Laska
             movedColumn.ZobristAll(); // XOR-in column on previous square (with previous pieces)
         }
 
+        private int antyZugzwangSearch(int currentScore, int alpha, int beta, bool maximize, List<string> moves)
+        {
+            int zugzwangScore = maximize ? int.MinValue : int.MaxValue;
+            foreach (var move in moves)
+            {
+                Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
+
+                var score = minimax(alpha, beta, 0, !maximize);
+                if (maximize)
+                {
+                    zugzwangScore = Mathf.Max(zugzwangScore, score);
+                    alpha = Mathf.Max(alpha, zugzwangScore);
+                }
+                else
+                {
+                    zugzwangScore = Mathf.Min(zugzwangScore, score);
+                    beta = Mathf.Min(beta, zugzwangScore);
+                }
+
+                unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
+
+                if (maximize && score >= currentScore ||
+                    !maximize && score <= currentScore)
+                {
+                    // Found move that leads to better or equal position so it's not zugzwang
+                    return score;
+                }
+            }
+            // Every move leads to worse position so we found zugzwang
+            return zugzwangScore;
+        }
+
+        private int quiescenceSearch(int alpha, int beta, bool maximize, Player playerToMove, List<string> moves)
+        {
+            int currentScore = EvaluatePosition(playerToMove);
+
+            // Anty zugzwang
+            if (antyZugzwang && !_isSearchingZugzwang)
+            {
+                _isSearchingZugzwang = true;
+                currentScore = antyZugzwangSearch(currentScore, alpha, beta, maximize, moves);
+                _isSearchingZugzwang = false;
+            }
+
+            return currentScore;
+        }
+
         private int minimax(int alpha, int beta, int depth, bool maximize)
         {
             // Detect draw by repetition.
@@ -147,8 +196,8 @@ namespace Laska
             }
             else if (depth <= 0)
             {
-                if(!searchAllTakes || !canTake)
-                    return EvaluatePosition(playerToMove);
+                if (!searchAllTakes || !canTake)
+                    return quiescenceSearch(alpha, beta, maximize, playerToMove, moves);
             }
 
             if (!canTake)

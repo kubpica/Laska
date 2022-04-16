@@ -22,7 +22,6 @@ namespace Laska
         public bool DrawByFiftyMoveRule { get; set; }
 
         [GlobalComponent] MoveMaker moveMaker;
-        [GlobalComponent] LaskaAI ai;
         [GlobalComponent] Board board;
 
         public enum GameState
@@ -78,7 +77,7 @@ namespace Laska
             {
                 moveMaker.MoveSelectionEnabled = false;
                 // Make AI move
-                var move = ai.BestMoveMinimax();
+                var move = player.AI.BestMoveMinimax();
                 moveMaker.MakeMove(move);
             }
             else

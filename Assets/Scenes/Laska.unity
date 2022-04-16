@@ -353,6 +353,7 @@ GameObject:
   m_Component:
   - component: {fileID: 26702256}
   - component: {fileID: 26702257}
+  - component: {fileID: 26702258}
   m_Layer: 0
   m_Name: White
   m_TagString: Untagged
@@ -387,9 +388,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 119
-  isAI: 1
+  isAI: 0
   timer: 180
   pieces: []
+--- !u!114 &26702258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 26702255}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  searchDepth: 8
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  antyZugzwang: 1
 --- !u!1 &57619628
 GameObject:
   m_ObjectHideFlags: 0
@@ -1423,6 +1440,7 @@ GameObject:
   m_Component:
   - component: {fileID: 281146561}
   - component: {fileID: 281146562}
+  - component: {fileID: 281146563}
   m_Layer: 0
   m_Name: Black
   m_TagString: Untagged
@@ -1460,6 +1478,22 @@ MonoBehaviour:
   isAI: 1
   timer: 180
   pieces: []
+--- !u!114 &281146563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 281146560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  searchDepth: 8
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  antyZugzwang: 1
 --- !u!1 &306729858
 GameObject:
   m_ObjectHideFlags: 0
@@ -5456,7 +5490,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1290523155}
-  - component: {fileID: 1290523156}
   m_Layer: 0
   m_Name: Players
   m_TagString: Untagged
@@ -5480,21 +5513,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1290523156
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1290523154}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  searchDepth: 8
-  forcedSequencesAsOneMove: 1
-  searchAllTakes: 1
 --- !u!1 &1300494784
 GameObject:
   m_ObjectHideFlags: 0

@@ -10,7 +10,7 @@ namespace Laska
         public ulong ZobristKey { get; set; }
 
         /// <summary>
-        /// Number of non-take (half)moves since last take (for 50-move draw rule).
+        /// Number of <see cref="Officer"/> (half)moves in a row without a take or Soldier move (for 50-move draw rule).
         /// </summary>
         public int OfficerMovesSinceLastTake { get; set; } 
 

@@ -16,6 +16,21 @@ namespace Laska
         private bool _canTake;
         public bool CanTake => _canTake;
 
+        private LaskaAI _ai;
+        public LaskaAI AI 
+        { 
+            get 
+            { 
+                if(_ai == null)
+                {
+                    _ai = GetComponent<LaskaAI>();
+                    if (_ai == null)
+                        _ai = gameObject.AddComponent<LaskaAI>();
+                }
+                return _ai;
+            } 
+        }
+
         /// <summary>
         /// Get columns that have commander of this player.
         /// </summary>
