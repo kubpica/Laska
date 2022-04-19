@@ -13,6 +13,8 @@ namespace Laska
         public List<Piece> pieces = new List<Piece>();
         
         private IEnumerable<Column> _columns;
+        public IEnumerable<Column> Columns => _columns;
+
         private bool _canTake;
         public bool CanTake => _canTake;
 

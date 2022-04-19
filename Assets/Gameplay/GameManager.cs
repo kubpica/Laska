@@ -58,7 +58,6 @@ namespace Laska
 
         private void setActivePlayer(Player player)
         {
-            ActivePlayer = player;
             player.RefreshPossibleMoves();
 
             if (!player.HasPossibleMoves())
@@ -72,13 +71,15 @@ namespace Laska
             {
                 moveMaker.SetPlayerToMove(player);
             }
+            ActivePlayer = player;
 
             if (player.isAI)
-            {
+            {                
                 moveMaker.MoveSelectionEnabled = false;
                 // Make AI move
                 var move = player.AI.BestMoveMinimax();
                 moveMaker.MakeMove(move);
+
             }
             else
             {

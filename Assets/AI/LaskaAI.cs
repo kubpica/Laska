@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -12,6 +13,7 @@ namespace Laska
         public int searchDepth;
         public bool forcedSequencesAsOneMove;
         public bool searchAllTakes;
+        public bool searchUnsafePositions;
         public bool antyZugzwang;
 
         private const int ACTIVE_WIN = 1000000;
@@ -51,6 +53,91 @@ namespace Laska
             }
 
             return activeScore;
+        }
+
+        public bool isPositionSafe(Player playerToMove, List<string> moves)
+        {
+            return !hasAnyUnsafePiece(playerToMove) && hasAnySafeMove(playerToMove, moves);
+        }
+
+        private bool hasAnyUnsafePiece(Player playerToMove)
+        {
+            foreach(var column in playerToMove.Columns)
+            {
+                if (!isSquareSafe(column.Position, column))
+                    return true;
+            }
+            return false;
+        }
+
+        private bool hasAnySafeMove(Player playerToMove, List<string> moves)
+        {
+            if (playerToMove.CanTake)
+                return false;
+
+            foreach(var move in moves)
+            {
+                var squares = move.Split('-');
+                if (isSquareSafe(squares[1], board.GetColumnAt(squares[0])))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Square is safe for <c>columnAtRisk</c> when being on that square is not forcing oponent to take. 
+        /// </summary>
+        private bool isSquareSafe(string square, Column columnAtRisk)
+        {
+            board.GetSquareIds(square, out int file, out int rank);
+            try
+            {
+                return isSquareDiagonalSafe(1) && isSquareDiagonalSafe(-1);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // The column is near board border so it's safe
+                return true;
+            }
+
+            bool isSquareDiagonalSafe(int dir)
+            {
+                var upperColumn = board.GetColumnAt(file - 1 * dir, rank + 1);
+                var lowerColumn = board.GetColumnAt(file + 1 * dir, rank - 1);
+                if (upperColumn == columnAtRisk)
+                    upperColumn = null;
+                else if (lowerColumn == columnAtRisk)
+                    lowerColumn = null;
+
+                if ((upperColumn == null) != (lowerColumn == null)) // One of columns have space to take
+                {
+                    Column attacker = upperColumn == null ? lowerColumn : upperColumn;
+                    if (attacker.Commander.Color == columnAtRisk.Commander.Color)
+                        return true;
+
+                    int attackerFile;
+                    int attackerRank;
+                    if (attacker == lowerColumn)
+                    {
+                        attackerFile = file + 1 * dir;
+                        attackerRank = rank - 1;
+                    }
+                    else
+                    {
+                        attackerFile = file - 1 * dir;
+                        attackerRank = rank + 1;
+                    }
+
+                    string takeDirection = attackerFile > file ? "-" : "+";
+                    takeDirection += attackerRank > rank ? "-" : "+";
+                    if (attacker.Commander.MovementDirections.Contains(takeDirection))
+                    {
+                        return false;
+                    }
+                }
+                // Either no attacking columns or no space to take - so it's safe
+                return true;
+            }
         }
 
         private int calcDistanceScore()
@@ -157,19 +244,27 @@ namespace Laska
             return zugzwangScore;
         }
 
-        private int quiescenceSearch(int alpha, int beta, bool maximize, Player playerToMove, List<string> moves)
+        private bool quiescenceSearch(int alpha, int beta, bool maximize, Player playerToMove, List<string> moves, out int eval)
         {
-            int currentScore = EvaluatePosition(playerToMove);
+            eval = 0;
+
+            if (searchAllTakes && playerToMove.CanTake)
+                return true;
+
+            if (searchUnsafePositions && !hasAnySafeMove(playerToMove, moves))
+                return true;
+
+            eval = EvaluatePosition(playerToMove);
 
             // Anty zugzwang
             if (antyZugzwang && !_isSearchingZugzwang)
             {
                 _isSearchingZugzwang = true;
-                currentScore = antyZugzwangSearch(currentScore, alpha, beta, maximize, moves);
+                eval = antyZugzwangSearch(eval, alpha, beta, maximize, moves);
                 _isSearchingZugzwang = false;
             }
 
-            return currentScore;
+            return false;
         }
 
         private int minimax(int alpha, int beta, int depth, bool maximize)
@@ -196,8 +291,8 @@ namespace Laska
             }
             else if (depth <= 0)
             {
-                if (!searchAllTakes || !canTake)
-                    return quiescenceSearch(alpha, beta, maximize, playerToMove, moves);
+                if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, out int eval))
+                    return eval;
             }
 
             if (!canTake)

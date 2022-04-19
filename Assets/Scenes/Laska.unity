@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 119
-  isAI: 0
+  isAI: 1
   timer: 180
   pieces: []
 --- !u!114 &26702258
@@ -406,6 +406,7 @@ MonoBehaviour:
   searchDepth: 8
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
+  searchUnsafePositions: 0
   antyZugzwang: 1
 --- !u!1 &57619628
 GameObject:
@@ -1493,7 +1494,8 @@ MonoBehaviour:
   searchDepth: 8
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
-  antyZugzwang: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 0
 --- !u!1 &306729858
 GameObject:
   m_ObjectHideFlags: 0
