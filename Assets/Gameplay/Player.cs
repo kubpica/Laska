@@ -37,7 +37,7 @@ namespace Laska
         /// Get columns that have commander of this player.
         /// </summary>
         /// <returns> List of <see cref="Column"/>s controlled by this player.</returns>
-        private IEnumerable<Column> getOwnedColums()
+        public IEnumerable<Column> GetOwnedColums()
         {
             return pieces.Where(p => p.IsFree).Select(p => p.Column);
         }
@@ -50,7 +50,7 @@ namespace Laska
         /// </remarks>
         public void RefreshPossibleMoves(List<string> takenSquares = null)
         {
-            _columns = getOwnedColums();
+            _columns = GetOwnedColums();
 
             foreach(var c in _columns)
             {
@@ -82,7 +82,7 @@ namespace Laska
         /// <returns>...then returns true, false if no legal moves possible.</returns>
         public bool HasNewPossibleMoves()
         {
-            var columns = getOwnedColums();
+            var columns = GetOwnedColums();
             foreach (var c in columns)
             {
                 if (c.CalcPossibleMovesNewList().Count > 0)

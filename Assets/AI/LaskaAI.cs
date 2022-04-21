@@ -15,6 +15,8 @@ namespace Laska
         public bool searchAllTakes;
         public bool searchUnsafePositions;
         public bool antyZugzwang;
+        public bool evalColumnsStrength;
+        public int pointsPerExtraColumnStrength = 10000;
 
         private const int ACTIVE_WIN = 1000000;
         private const int INACTIVE_WIN = -1000000;
@@ -47,7 +49,20 @@ namespace Laska
             var activePieceDiff = activePlayerPieces - inactivePlayerPices;
             activeScore = activePieceDiff * 10000;
 
-            if (activePieceDiff > 2) //Mathf.Abs(activePieceDiff)
+            if (evalColumnsStrength)
+            {
+                var columns = gameManager.ActivePlayer.GetOwnedColums();
+                activePlayerPieces = 0;
+                foreach (var c in columns)
+                    activeScore += (c.Strength - 1) * pointsPerExtraColumnStrength;
+
+                columns = gameManager.InactivePlayer.GetOwnedColums();
+                inactivePlayerPices = 0;
+                foreach (var c in columns)
+                    activeScore -= (c.Strength - 1) * pointsPerExtraColumnStrength;
+            }
+
+            if (activeScore > 20000) //activePieceDiff > 2
             {
                 activeScore += calcDistanceScore();
             }

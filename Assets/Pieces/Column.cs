@@ -28,7 +28,7 @@ namespace Laska
 
             go.transform.parent = ColumnHolder.transform;
             commander.transform.parent = go.transform;
-            
+
             var column = go.AddComponent<Column>();
             column.Init(commander);
 
@@ -39,22 +39,22 @@ namespace Laska
         public LinkedList<Piece> Pieces => _pieces;
 
         private Square _square;
-        public Square Square 
+        public Square Square
         {
             get => _square;
-            
+
             set
             {
                 if (_square == value)
                     return;
 
                 // Empty the old square
-                if(_square != null)
+                if (_square != null)
                     _square.Clear();
 
                 // Place the piece on the new square
                 _square = value;
-                if(_square != null)
+                if (_square != null)
                     _square.PlaceColumn(this);
             }
         }
@@ -62,6 +62,24 @@ namespace Laska
         public List<string> PossibleMoves => Commander.PossibleMoves;
         public bool CanTake => Commander.CanTake;
         public string Position => Commander.Position;
+
+        /// <summary>
+        /// How many pieces of the same color are there on the top of this column.
+        /// </summary>
+        public int Strength
+        {
+            get
+            {
+                var p = _pieces.First;
+                int i = 1;
+                while(p.Next != null && Commander.Color == p.Value.Color)
+                {
+                    p = p.Next;
+                    i++;
+                }
+                return i;
+            }
+        }
 
         public void Init(Piece commander)
         {
