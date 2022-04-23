@@ -406,10 +406,11 @@ MonoBehaviour:
   searchDepth: 8
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
-  searchUnsafePositions: 1
-  antyZugzwang: 1
-  evalColumnsStrength: 1
+  searchUnsafePositions: 0
+  antyZugzwang: 0
+  evalColumnsStrength: 0
   pointsPerExtraColumnStrength: 5000
+  evalSpace: 0
 --- !u!1 &57619628
 GameObject:
   m_ObjectHideFlags: 0
@@ -1496,10 +1497,11 @@ MonoBehaviour:
   searchDepth: 8
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
-  searchUnsafePositions: 1
-  antyZugzwang: 1
-  evalColumnsStrength: 1
+  searchUnsafePositions: 0
+  antyZugzwang: 0
+  evalColumnsStrength: 0
   pointsPerExtraColumnStrength: 10000
+  evalSpace: 0
 --- !u!1 &306729858
 GameObject:
   m_ObjectHideFlags: 0

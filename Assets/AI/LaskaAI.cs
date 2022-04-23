@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -17,6 +16,7 @@ namespace Laska
         public bool antyZugzwang;
         public bool evalColumnsStrength;
         public int pointsPerExtraColumnStrength = 10000;
+        public bool evalSpace;
 
         private const int ACTIVE_WIN = 1000000;
         private const int INACTIVE_WIN = -1000000;
@@ -24,18 +24,22 @@ namespace Laska
 
         private HashSet<ulong> _visitedNonTakePositions = new HashSet<ulong>(); // Zobrist keys
         private bool _isSearchingZugzwang;
+        private HashSet<string> _cachedSafeSquares = new HashSet<string>();
 
         public int EvaluatePosition(Player playerToMove)
         {
+            var activeColumns = gameManager.ActivePlayer.GetOwnedColums();
+            var inactiveColumns = gameManager.InactivePlayer.GetOwnedColums();
+
             // Check for mate
-            int activePlayerPieces = gameManager.ActivePlayer.pieces.Count(p => p.IsFree);
-            if (activePlayerPieces == 0)
+            int activeColumnsCount = activeColumns.Count();
+            if (activeColumnsCount == 0)
             {
                 return INACTIVE_WIN;
             }
 
-            int inactivePlayerPices = gameManager.InactivePlayer.pieces.Count(p => p.IsFree);
-            if (inactivePlayerPices == 0)
+            int inactiveColumnsCount = inactiveColumns.Count();
+            if (inactiveColumnsCount == 0)
             {
                 return ACTIVE_WIN;
             }
@@ -46,23 +50,29 @@ namespace Laska
 
             int activeScore = 0;
             
-            var activePieceDiff = activePlayerPieces - inactivePlayerPices;
+            var activePieceDiff = activeColumnsCount - inactiveColumnsCount;
             activeScore = activePieceDiff * 10000;
 
             if (evalColumnsStrength)
             {
-                var columns = gameManager.ActivePlayer.GetOwnedColums();
-                activePlayerPieces = 0;
-                foreach (var c in columns)
+                foreach (var c in activeColumns)
                     activeScore += (c.Strength - 1) * pointsPerExtraColumnStrength;
 
-                columns = gameManager.InactivePlayer.GetOwnedColums();
-                inactivePlayerPices = 0;
-                foreach (var c in columns)
+                foreach (var c in inactiveColumns)
                     activeScore -= (c.Strength - 1) * pointsPerExtraColumnStrength;
             }
 
-            if (activeScore > 20000) //activePieceDiff > 2
+            if (evalSpace)
+            {
+                _cachedSafeSquares.Clear();
+                foreach (var c in activeColumns)
+                    activeScore += calcAccessibleSquares(c);
+
+                _cachedSafeSquares.Clear();
+                foreach (var c in inactiveColumns)
+                    activeScore -= calcAccessibleSquares(c);
+            }
+            else if (activeScore > 20000) //activePieceDiff > 2
             {
                 activeScore += calcDistanceScore();
             }
@@ -70,7 +80,41 @@ namespace Laska
             return activeScore;
         }
 
-        public bool isPositionSafe(Player playerToMove, List<string> moves)
+        /// <summary>
+        /// Visits accessible squares recursively and returns number of safe ones.
+        /// </summary>
+        private int calcAccessibleSquares(Column column)
+        {
+            var visitedSquares = new HashSet<Square>();
+            visitAccessibleSquares(column.MovementDirections, column.Square, false);
+            return visitedSquares.Count;
+
+            void visitAccessibleSquares(List<string> movementDirections, Square square, bool useCache)
+            {
+                board.GetSquareIds(square.coordinate, out int file, out int rank);
+
+                // Get squares accessible from current square
+                foreach (var dir in movementDirections)
+                {
+                    int dirX = dir[0] == '-' ? -1 : 1;
+                    int dirY = dir[1] == '-' ? -1 : 1;
+
+                    // Visit next square recursively
+                    try
+                    {
+                        var s = board.GetSquareAt(file + 1 * dirX, rank + 1 * dirY);
+                        if (s.IsEmpty && !visitedSquares.Contains(s) && isSquareSafe(s.coordinate, column, useCache))
+                        {
+                            visitedSquares.Add(s);
+                            visitAccessibleSquares(movementDirections, s, true);
+                        }
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private bool isPositionSafe(Player playerToMove, List<string> moves)
         {
             return !hasAnyUnsafePiece(playerToMove) && hasAnySafeMove(playerToMove, moves);
         }
@@ -90,7 +134,7 @@ namespace Laska
             if (playerToMove.CanTake)
                 return false;
 
-            foreach(var move in moves)
+            foreach (var move in moves)
             {
                 var squares = move.Split('-');
                 if (isSquareSafe(squares[1], board.GetColumnAt(squares[0])))
@@ -102,18 +146,22 @@ namespace Laska
         /// <summary>
         /// Square is safe for <c>columnAtRisk</c> when being on that square is not forcing oponent to take. 
         /// </summary>
-        private bool isSquareSafe(string square, Column columnAtRisk)
+        private bool isSquareSafe(string square, Column columnAtRisk, bool useCache = false)
         {
-            board.GetSquareIds(square, out int file, out int rank);
-            try
-            {
-                return isSquareDiagonalSafe(1) && isSquareDiagonalSafe(-1);
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                // The column is near board border so it's safe
+            if (useCache && _cachedSafeSquares.Contains(square))
                 return true;
+
+            // The column is near board border so it's safe
+            if (square[1] == '1' || square[1] == '7' || square[0] == 'a' || square[0] == 'g')
+                return true;
+
+            board.GetSquareIds(square, out int file, out int rank);
+            bool isSafe = isSquareDiagonalSafe(1) && isSquareDiagonalSafe(-1);
+            if(isSafe && useCache)
+            {
+                _cachedSafeSquares.Add(square);
             }
+            return isSafe;
 
             bool isSquareDiagonalSafe(int dir)
             {
@@ -145,7 +193,7 @@ namespace Laska
 
                     string takeDirection = attackerFile > file ? "-" : "+";
                     takeDirection += attackerRank > rank ? "-" : "+";
-                    if (attacker.Commander.MovementDirections.Contains(takeDirection))
+                    if (attacker.MovementDirections.Contains(takeDirection))
                     {
                         return false;
                     }
