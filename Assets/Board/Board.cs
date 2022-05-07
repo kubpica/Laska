@@ -84,6 +84,16 @@ namespace Laska
             return squares[fileId, rankId];
         }
 
+        public Square GetSquareAt(int draughtsNotationId)
+        {
+            foreach(var s in squares)
+            {
+                if (s.draughtsNotationIndex == draughtsNotationId)
+                    return s;
+            }
+            return null;
+        }
+
         public Column GetColumnAt(string coordinate) => GetSquareAt(coordinate).Column;
 
         /// <summary>

@@ -8,6 +8,7 @@ namespace Laska
     {
         [GlobalComponent] private Board board;
         [GlobalComponent] private GameManager gameManager;
+        [Component] private MoveOrdering moveOrdering;
 
         public int searchDepth;
         public bool forcedSequencesAsOneMove;
@@ -17,6 +18,7 @@ namespace Laska
         public bool evalColumnsStrength;
         public int pointsPerExtraColumnStrength = 10000;
         public bool evalSpace;
+        public bool orderMoves;
 
         private const int ACTIVE_WIN = 1000000;
         private const int INACTIVE_WIN = -1000000;
@@ -277,6 +279,9 @@ namespace Laska
 
         private int antyZugzwangSearch(int currentScore, int alpha, int beta, bool maximize, List<string> moves)
         {
+            if (orderMoves)
+                moveOrdering.OrderMoves(moves);
+
             int zugzwangScore = maximize ? int.MinValue : int.MaxValue;
             foreach (var move in moves)
             {
@@ -358,6 +363,9 @@ namespace Laska
                     return eval;
             }
 
+            if(orderMoves)
+                moveOrdering.OrderMoves(moves);
+
             if (!canTake)
                 _visitedNonTakePositions.Add(board.ZobristKey);
 
@@ -420,6 +428,9 @@ namespace Laska
             }
             else
             {
+                if (orderMoves)
+                    moveOrdering.OrderMoves(moves);
+
                 _visitedNonTakePositions.Clear();
                 foreach (var p in board.GetPositionsSinceLastTake())
                     _visitedNonTakePositions.Add(p);
