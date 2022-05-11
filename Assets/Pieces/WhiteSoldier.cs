@@ -10,7 +10,7 @@ namespace Laska
         private static readonly List<string> _directions = new List<string> { "++", "-+" };
         
         public override char PromotionRank => '7';
-        public override bool CanGoBackwards => false;
+        public override bool IsOfficer => false;
         public override List<string> MovementDirections => _directions;
         public override int ZobristIndex => 0;
 

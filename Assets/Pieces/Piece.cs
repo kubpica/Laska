@@ -92,7 +92,7 @@ namespace Laska
         }
 
         public abstract char PromotionRank { get; }
-        public abstract bool CanGoBackwards { get; }
+        public abstract bool IsOfficer { get; }
         public abstract List<string> MovementDirections { get; }
         public abstract int ZobristIndex { get; }
 

@@ -11,26 +11,64 @@ namespace Laska
         private float[] _outSquares;
         private float[] _deadSquares;
 
-        private float _summed;
-
         private void Start()
         {
             calcTakenSquaresEvForAllSquares();
-            //calcSoldierValueOnSquares();
+            calcSoldierValueOnSquares();
 
-            calcSquaresSoldierOccupation();
+            //calcSquaresSoldierOccupation();
         }
 
         private void calcSoldierValueOnSquares()
         {
-            for (int i = 1; i <= 25; i++)
+            var results = new float[25];
+            var captives = new float[25];
+            for (int i = 0; i < 25; i++)
             {
-                calcSoldierValueOnSquare(board.GetSquareAt(i));
+                calcSoldierValueOnSquare(board.GetSquareAt(i+1), out float result, out float captivesP);
+                results[i] = result;
+                captives[i] = captivesP;
             }
-            Debug.Log("Avg result " + _summed / 25f);
+
+            _outSquares = new float[25];
+            _deadSquares = new float[25];
+
+            // First 3 starting rows
+            for (int i = 1; i <= 11; i++)
+            {
+                var s = board.GetSquareAt(i);
+                visitSquare(s, 1, false, false, false);
+            }
+
+            // "Unsafe" positions - squares where a piece can be released
+            var deathsPerUnsafeSquare = _deadSquares.Sum()/13.0f;
+            Debug.Log("deathsPerUnsafeSquare: " + deathsPerUnsafeSquare);
+            for (int rank = 1; rank < 6; rank++)
+            {
+                for (int file = 1; file < 6; file++)
+                {
+                    var s = board.GetSquareAt(file, rank);
+                    if (s.draughtsNotationIndex == 0)
+                        continue;
+                    visitSquare(s, deathsPerUnsafeSquare, false, false, false);
+                }
+            }
+
+            multiplySquares(ref results, ref _outSquares);
+            multiplySquares(ref captives, ref _outSquares);
+
+            var normalWeight = _outSquares.Sum();
+            var deathWeight = _deadSquares.Sum();
+            var totalWeight = normalWeight + deathWeight;
+            var normalP = normalWeight / totalWeight;
+            var deathP = deathWeight / totalWeight;
+
+            var avgResult = results.Sum() / normalWeight * normalP;
+            var avgCaptivesP = captives.Sum() / normalWeight * normalP + deathP;
+            Debug.Log("AvgResult: " + avgResult + " + " + avgCaptivesP + "%Captives " + "(" + (avgResult - avgCaptivesP) + ")");
         }
 
-        private void calcSoldierValueOnSquare(Square s)
+        private void calcSoldierValueOnSquare(Square s, out float result, out float captivesP)
         {
             _outSquares = new float[25];
             _deadSquares = new float[25];
@@ -38,9 +76,9 @@ namespace Laska
             visitSquare(s, 1, true, true, false);
             //print(_outSquares);
 
-            calcSimpleValue(s);
-            //Debug.Log("Result(" + s.draughtsNotationIndex + "):");
-            //calcOverallValue();
+            //calcSimpleValue(s);
+            Debug.Log("Result(" + s.draughtsNotationIndex + "):");
+            calcOverallValue(out result, out captivesP);
         }
 
         private void calcSimpleValue(Square s)
@@ -52,7 +90,6 @@ namespace Laska
 
             var result = _outSquares.Sum() / divider;
             Debug.Log("Result(" + s.draughtsNotationIndex + "): " + result);
-            _summed += result;
         }
 
         private void calcSquaresSoldierOccupation()
@@ -82,10 +119,10 @@ namespace Laska
             Debug.Log("SquaresSoldierOccupation:");
             print(_outSquares);
 
-            calcOverallValue();
+            calcOverallValue(out _, out _);
         }
 
-        private void calcOverallValue()
+        private void calcOverallValue(out float result, out float captivesP)
         {
             float normalWeight = 0;
             for (int i = 0; i < 21; i++)
@@ -104,9 +141,9 @@ namespace Laska
             for (int i = 0; i < 21; i++)
                 normalValue += _outSquares[i];
 
-            var result = normalWeight == 0 ? 0 : normalValue / normalWeight * (normalWeight / totalWeight);
+            result = normalWeight == 0 ? 0 : normalValue / normalWeight * (normalWeight / totalWeight);
             var officerP = promotionWeight / totalWeight;
-            var captivesP = deathWeight / totalWeight;
+            captivesP = deathWeight / totalWeight;
             //Debug.Log("Result: " + result + " + " + officerP + "%Officer + " + captivesP + "%Captives");
 
             // Officer value
@@ -164,6 +201,14 @@ namespace Laska
             }
         }
 
+        private void multiplySquares(ref float[] outSquares, ref float[] inSquares)
+        {
+            for (int i = 0; i < outSquares.Length; i++)
+            {
+                outSquares[i] *= inSquares[i];
+            }
+        }
+
         private void multiplySquares()
         {
             for (int i = 0; i < 25; i++)
@@ -172,7 +217,8 @@ namespace Laska
             }
         }
 
-        private void visitSquare(Square s, float value, bool progressiveSplit, bool forkSplit, bool firstSafe = false)
+        private void visitSquare(Square s, float value, bool progressiveSplit, bool forkSplit,
+            bool firstSafe = false, float deathChance = 0.4f)
         {
             board.GetSquareIds(s.coordinate, out int file, out int rank);
 
@@ -180,7 +226,7 @@ namespace Laska
             if (!firstSafe && file != 0 && file != 6 && rank != 0 && rank != 6) //
             {
                 // 60% for surviving
-                var deadValue = value * 0.4f;
+                var deadValue = value * deathChance;
                 _deadSquares[s.draughtsNotationIndex - 1] += deadValue;
                 value -= deadValue;
             }

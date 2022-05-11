@@ -5,6 +5,11 @@ namespace Laska
 {
     public class Column : MonoBehaviourExtended
     {
+        private const float OFFICER_VALUE = 10.296f;
+        private const float OFFICER_CAPTIVES_SHARE = 0.208f;
+        private const float SOLDIER_VALUE = 4.08477f; //4.160353f; //4.08477f; //6.94963f; //5.610073f; //4.456758f;
+        private const float SOLDIER_CAPTIVES_SHARE = 0.523585f; //0.5231462f; //0.523585f; //0.2609079f; //0.3636922f; //0.3041386f;
+
         [GlobalComponent] private PiecesManager piecesManager;
         [GlobalComponent] private Board board;
 
@@ -82,6 +87,51 @@ namespace Laska
             }
         }
 
+        private bool _isValueDirty = true;
+        private float _cachedValue;
+        public float Value
+        {
+            get
+            {
+                if (_isValueDirty)
+                {
+                    _isValueDirty = false;
+                    _cachedValue = calcValue();
+                }
+                return _cachedValue;
+            }
+        }
+
+        private float calcValue()
+        {
+            var commanderColor = Commander.Color;
+            return visitNode(_pieces.First);
+
+            float visitNode(LinkedListNode<Piece> node)
+            {
+                var piece = node.Value;
+                float value = piece.IsOfficer ? OFFICER_VALUE : SOLDIER_VALUE;
+                float captivesShare = piece.IsOfficer ? OFFICER_CAPTIVES_SHARE : SOLDIER_CAPTIVES_SHARE;
+
+                // Is it enemy piece?
+                int isTeammate = piece.Color == commanderColor ? 1 : -1;
+                value *= isTeammate;
+
+                if (node.Next != null)
+                {
+                    // Calc value of captives
+                    value += visitNode(node.Next) * captivesShare;
+                }
+                else
+                {
+                    // No more captives - penalty for losing a column
+                    value -= captivesShare * isTeammate;
+                }
+
+                return value;
+            }
+        }
+
         public void Init(Piece commander)
         {
             if (_pieces != null)
@@ -92,8 +142,15 @@ namespace Laska
             commander.transform.parent = transform;
         }
 
+        public void MarkDirty()
+        {
+            _isValueDirty = true;
+        }
+
         private void replaceTopPiece(Piece newPiece)
         {
+            MarkDirty();
+
             var oldPiece = Commander;
 
             if(!PiecesManager.FakeMoves)
@@ -217,6 +274,8 @@ namespace Laska
 
         public void Take(Piece piece)
         {
+            MarkDirty();
+
             if (piece.HasColumn)
             {
                 Take(piece.Column);
@@ -233,6 +292,8 @@ namespace Laska
         /// <returns> Released commander - a piece on the top.</returns>
         public Piece Release()
         {
+            MarkDirty();
+
             var ex = _pieces.First.Value;
             _pieces.RemoveFirst();
 
@@ -249,6 +310,8 @@ namespace Laska
 
         public void Untake(Square takenFrom)
         {
+            MarkDirty();
+
             // Relase the bottom piece
             var takenPiece = _pieces.Last.Value;
             _pieces.RemoveLast();
@@ -265,6 +328,7 @@ namespace Laska
                 prevColumn = takenFrom.Column;
             }
             prevColumn.Pieces.AddFirst(takenPiece);
+            prevColumn.MarkDirty();
             takenPiece.Column = prevColumn;
         }
     }

@@ -28,7 +28,7 @@ namespace Laska
         private bool _isSearchingZugzwang;
         private HashSet<string> _cachedSafeSquares = new HashSet<string>();
 
-        public int EvaluatePosition(Player playerToMove)
+        public float EvaluatePosition(Player playerToMove)
         {
             var activeColumns = gameManager.ActivePlayer.GetOwnedColums();
             var inactiveColumns = gameManager.InactivePlayer.GetOwnedColums();
@@ -50,10 +50,19 @@ namespace Laska
             //if (!playerToMove.HasNewPossibleMoves())
             //    return playerToMove == gameManager.ActivePlayer ? INACTIVE_WIN : ACTIVE_WIN;
 
-            int activeScore = 0;
+            float activeScore = 0;
             
             var activePieceDiff = activeColumnsCount - inactiveColumnsCount;
-            activeScore = activePieceDiff * 10000;
+            activeScore = activePieceDiff * pointsPerOwnedColumn;
+
+            if (evalColumnsValue)
+            {
+                foreach (var c in activeColumns)
+                    activeScore += c.Value * 2408.118596f;
+
+                foreach (var c in inactiveColumns)
+                    activeScore -= c.Value * 2408.118596f;
+            }
 
             if (evalColumnsStrength)
             {
@@ -277,12 +286,12 @@ namespace Laska
             movedColumn.ZobristAll(); // XOR-in column on previous square (with previous pieces)
         }
 
-        private int antyZugzwangSearch(int currentScore, int alpha, int beta, bool maximize, List<string> moves)
+        private float antyZugzwangSearch(float currentScore, float alpha, float beta, bool maximize, List<string> moves)
         {
             if (orderMoves)
                 moveOrdering.OrderMoves(moves);
 
-            int zugzwangScore = maximize ? int.MinValue : int.MaxValue;
+            float zugzwangScore = maximize ? float.MinValue : float.MaxValue;
             foreach (var move in moves)
             {
                 Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
@@ -312,7 +321,7 @@ namespace Laska
             return zugzwangScore;
         }
 
-        private bool quiescenceSearch(int alpha, int beta, bool maximize, Player playerToMove, List<string> moves, out int eval)
+        private bool quiescenceSearch(float alpha, float beta, bool maximize, Player playerToMove, List<string> moves, out float eval)
         {
             eval = 0;
 
@@ -335,7 +344,7 @@ namespace Laska
             return false;
         }
 
-        private int minimax(int alpha, int beta, int depth, bool maximize)
+        private float minimax(float alpha, float beta, int depth, bool maximize)
         {
             // Detect draw by repetition.
             // Returns a draw score even if this position has only appeared once in the game history (for simplicity).
@@ -359,7 +368,7 @@ namespace Laska
             }
             else if (depth <= 0)
             {
-                if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, out int eval))
+                if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, out float eval))
                     return eval;
             }
 
@@ -369,10 +378,10 @@ namespace Laska
             if (!canTake)
                 _visitedNonTakePositions.Add(board.ZobristKey);
 
-            int score;
+            float score;
             if (maximize)
             {
-                score = int.MinValue;
+                score = float.MinValue;
                 foreach (var move in moves)
                 {
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
@@ -388,7 +397,7 @@ namespace Laska
             }
             else
             {
-                score = int.MaxValue;
+                score = float.MaxValue;
                 foreach (var move in moves)
                 {
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
@@ -417,11 +426,11 @@ namespace Laska
         public string BestMoveMinimax(int depth)
         {
             PiecesManager.FakeMoves = true;
-            int bestScore = int.MinValue;
+            float bestScore = float.MinValue;
             string bestMove = "";
 
             List<string> moves = gameManager.ActivePlayer.GetPossibleMovesAndMultiTakes();
-            int score;
+            float score;
             if (moves.Count == 1)
             {
                 bestMove = moves[0];
@@ -439,7 +448,7 @@ namespace Laska
                 {
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
-                    score = minimax(bestScore, int.MaxValue, depth - 1, false);
+                    score = minimax(bestScore, float.MaxValue, depth - 1, false);
                     if (score > bestScore)
                     {
                         bestScore = score;

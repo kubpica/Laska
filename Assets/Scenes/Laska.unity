@@ -388,7 +388,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 119
-  isAI: 0
+  isAI: 1
   timer: 180
   pieces: []
 --- !u!114 &26702258
@@ -403,12 +403,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  searchDepth: 8
+  searchDepth: 6
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
   searchUnsafePositions: 0
-  antyZugzwang: 0
-  evalColumnsStrength: 1
+  antyZugzwang: 1
+  evalColumnsValue: 1
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
   pointsPerExtraColumnStrength: 5000
   evalSpace: 1
   orderMoves: 1
@@ -1480,7 +1482,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 98
-  isAI: 0
+  isAI: 1
   timer: 180
   pieces: []
 --- !u!114 &281146563
@@ -1495,11 +1497,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  searchDepth: 8
+  searchDepth: 6
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
   searchUnsafePositions: 0
-  antyZugzwang: 0
+  antyZugzwang: 1
+  evalColumnsValue: 0
+  pointsPerOwnedColumn: 10000
   evalColumnsStrength: 1
   pointsPerExtraColumnStrength: 10000
   evalSpace: 1
