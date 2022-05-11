@@ -403,15 +403,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  searchDepth: 6
+  searchDepth: 8
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
-  searchUnsafePositions: 0
+  searchUnsafePositions: 1
   antyZugzwang: 1
   evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.160353
+  soldierCaptivesShare: 0.5231462
   pointsPerOwnedColumn: 0
   evalColumnsStrength: 0
-  pointsPerExtraColumnStrength: 5000
+  pointsPerExtraColumnStrength: 10000
   evalSpace: 1
   orderMoves: 1
 --- !u!1 &57619628
@@ -1497,15 +1501,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  searchDepth: 6
+  searchDepth: 8
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
-  searchUnsafePositions: 0
+  searchUnsafePositions: 1
   antyZugzwang: 1
-  evalColumnsValue: 0
-  pointsPerOwnedColumn: 10000
-  evalColumnsStrength: 1
-  pointsPerExtraColumnStrength: 10000
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 5000
   evalSpace: 1
   orderMoves: 1
 --- !u!1 &306729858
@@ -5383,7 +5391,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1175026848}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69d113f724eae6a428b2d466e8abee73, type: 3}
   m_Name: 

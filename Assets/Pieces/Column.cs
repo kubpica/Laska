@@ -5,11 +5,7 @@ namespace Laska
 {
     public class Column : MonoBehaviourExtended
     {
-        private const float OFFICER_VALUE = 10.296f;
-        private const float OFFICER_CAPTIVES_SHARE = 0.208f;
-        private const float SOLDIER_VALUE = 4.08477f; //4.160353f; //4.08477f; //6.94963f; //5.610073f; //4.456758f;
-        private const float SOLDIER_CAPTIVES_SHARE = 0.523585f; //0.5231462f; //0.523585f; //0.2609079f; //0.3636922f; //0.3041386f;
-
+        [GlobalComponent] private GameManager gameManager;
         [GlobalComponent] private PiecesManager piecesManager;
         [GlobalComponent] private Board board;
 
@@ -87,31 +83,46 @@ namespace Laska
             }
         }
 
-        private bool _isValueDirty = true;
-        private float _cachedValue;
+        private bool _isValueDirtyWhite = true;
+        private float _cachedValueWhite;
+        private bool _isValueDirtyBlack = true;
+        private float _cachedValueBlack;
         public float Value
         {
             get
             {
-                if (_isValueDirty)
+                if(gameManager.ActivePlayer.color == 'w')
                 {
-                    _isValueDirty = false;
-                    _cachedValue = calcValue();
+                    if (_isValueDirtyWhite)
+                    {
+                        _isValueDirtyWhite = false;
+                        _cachedValueWhite = calcValue();
+                    }
+                    return _cachedValueWhite;
                 }
-                return _cachedValue;
+                else
+                {
+                    if (_isValueDirtyBlack)
+                    {
+                        _isValueDirtyBlack = false;
+                        _cachedValueBlack = calcValue();
+                    }
+                    return _cachedValueBlack;
+                }
             }
         }
 
         private float calcValue()
         {
+            var playerAi = gameManager.ActivePlayer.AI;
             var commanderColor = Commander.Color;
             return visitNode(_pieces.First);
 
             float visitNode(LinkedListNode<Piece> node)
             {
                 var piece = node.Value;
-                float value = piece.IsOfficer ? OFFICER_VALUE : SOLDIER_VALUE;
-                float captivesShare = piece.IsOfficer ? OFFICER_CAPTIVES_SHARE : SOLDIER_CAPTIVES_SHARE;
+                float value = piece.IsOfficer ? playerAi.officerValue : playerAi.soldierValue;
+                float captivesShare = piece.IsOfficer ? playerAi.officerCaptivesShare : playerAi.soldierCaptivesShare;
 
                 // Is it enemy piece?
                 int isTeammate = piece.Color == commanderColor ? 1 : -1;
@@ -144,7 +155,8 @@ namespace Laska
 
         public void MarkDirty()
         {
-            _isValueDirty = true;
+            _isValueDirtyWhite = true;
+            _isValueDirtyBlack = true;
         }
 
         private void replaceTopPiece(Piece newPiece)
