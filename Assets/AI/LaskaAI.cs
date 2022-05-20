@@ -9,6 +9,7 @@ namespace Laska
         [GlobalComponent] private Board board;
         [GlobalComponent] private GameManager gameManager;
         [Component] private MoveOrdering moveOrdering;
+        [Component] private TranspositionTable transpositionTable;
 
         public int searchDepth;
         public bool forcedSequencesAsOneMove;
@@ -20,15 +21,18 @@ namespace Laska
         public float officerCaptivesShare = 0.208f;
         public float soldierValue = 4.08477f; //4.160353f; //4.08477f; //6.94963f; //5.610073f; //4.456758f;
         public float soldierCaptivesShare = 0.523585f; //0.5231462f; //0.523585f; //0.2609079f; //0.3636922f; //0.3041386f;
-        public int pointsPerOwnedColumn = 10000;
+        public float pointsPerOwnedColumn = 10000;
         public bool evalColumnsStrength;
-        public int pointsPerExtraColumnStrength = 10000;
+        public float pointsPerExtraColumnStrength = 10000;
         public bool evalSpace;
         public bool orderMoves;
+        public bool useTranspositionTable;
+        public bool storeBestMoveForAllNodes;
+        public bool failSoft;
 
-        private const int ACTIVE_WIN = 1000000;
-        private const int INACTIVE_WIN = -1000000;
-        private const int DRAW = -1;
+        public const float ACTIVE_WIN = 1000000;
+        public const float INACTIVE_WIN = -1000000;
+        public const float DRAW = -1;
 
         private HashSet<ulong> _visitedNonTakePositions = new HashSet<ulong>(); // Zobrist keys
         private bool _isSearchingZugzwang;
@@ -39,18 +43,18 @@ namespace Laska
             var activeColumns = gameManager.ActivePlayer.GetOwnedColums();
             var inactiveColumns = gameManager.InactivePlayer.GetOwnedColums();
 
-            // Check for mate
-            int activeColumnsCount = activeColumns.Count();
-            if (activeColumnsCount == 0)
-            {
-                return INACTIVE_WIN;
-            }
+            // Check for mate (We can skip it as we check it in the minimax func)
+            //int activeColumnsCount = activeColumns.Count();
+            //if (activeColumnsCount == 0)
+            //{
+            //    return INACTIVE_WIN;
+            //}
 
-            int inactiveColumnsCount = inactiveColumns.Count();
-            if (inactiveColumnsCount == 0)
-            {
-                return ACTIVE_WIN;
-            }
+            //int inactiveColumnsCount = inactiveColumns.Count();
+            //if (inactiveColumnsCount == 0)
+            //{
+            //    return ACTIVE_WIN;
+            //}
 
             // Check for stalemate (We can skip it as we check it in the minimax func)
             //if (!playerToMove.HasNewPossibleMoves())
@@ -58,8 +62,11 @@ namespace Laska
 
             float activeScore = 0;
             
-            var activePieceDiff = activeColumnsCount - inactiveColumnsCount;
-            activeScore = activePieceDiff * pointsPerOwnedColumn;
+            if(pointsPerOwnedColumn != 0)
+            {
+                var activePieceDiff = activeColumns.Count() - inactiveColumns.Count();
+                activeScore = activePieceDiff * pointsPerOwnedColumn;
+            }
 
             if (evalColumnsValue)
             {
@@ -292,42 +299,81 @@ namespace Laska
             movedColumn.ZobristAll(); // XOR-in column on previous square (with previous pieces)
         }
 
-        private float antyZugzwangSearch(float currentScore, float alpha, float beta, bool maximize, List<string> moves)
+        private float antyZugzwangSearch(float currentScore, float alpha, float beta, bool maximize, List<string> moves, int plyFromRoot)
         {
             if (orderMoves)
                 moveOrdering.OrderMoves(moves);
 
-            float zugzwangScore = maximize ? float.MinValue : float.MaxValue;
-            foreach (var move in moves)
+            int evalType = TranspositionTable.None;
+            string bestMove = null;
+            float bestScore = float.MinValue;
+            bool isZugzwang = true; // Remains true if every move leads to worse position
+
+            for (int i = 0; i < moves.Count; i++)
             {
+                var move = moves[i];
                 Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
-
-                var score = minimax(alpha, beta, 0, !maximize);
-                if (maximize)
-                {
-                    zugzwangScore = Mathf.Max(zugzwangScore, score);
-                    alpha = Mathf.Max(alpha, zugzwangScore);
-                }
-                else
-                {
-                    zugzwangScore = Mathf.Min(zugzwangScore, score);
-                    beta = Mathf.Min(beta, zugzwangScore);
-                }
-
+                float score = -negamax(-beta, -alpha, 0, !maximize, plyFromRoot + 1);
                 unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
-                if (maximize && score >= currentScore ||
-                    !maximize && score <= currentScore)
+                if (score > bestScore)
                 {
-                    // Found move that leads to better or equal position so it's not zugzwang
-                    return score;
+                    bestScore = score;
+                    bestMove = move;
+
+                    // Move was *too* good (Cut-Node)
+                    if (score >= beta)
+                    {
+                        evalType = TranspositionTable.LowerBound;
+
+                        if (!failSoft)
+                            bestScore = beta;
+
+                        isZugzwang = false;
+                        break; // beta-cutoff
+                    }
+
+                    // Found a new best move so far. (PV-Node?)
+                    if (score > alpha)
+                    {
+                        evalType = TranspositionTable.Exact;
+                        alpha = score;
+                    }
+
+                    // Found move that leads to better or equal position so it's not zugzwang.
+                    if (score >= currentScore)
+                    {
+                        // If we haven't checked all the moves, then there might be a better one
+                        if (evalType == TranspositionTable.Exact && i != moves.Count - 1)
+                            evalType = TranspositionTable.LowerBound;
+
+                        isZugzwang = false;
+                        break; // We were just making sure the position is not zugzwang.
+                    }
                 }
             }
-            // Every move leads to worse position so we found zugzwang
-            return zugzwangScore;
+
+            // We don't like any move (All-Node)
+            if (isZugzwang && evalType == TranspositionTable.None)
+            {
+                evalType = TranspositionTable.UpperBound;
+
+                if (!failSoft)
+                    bestScore = alpha;
+
+                if (!storeBestMoveForAllNodes)
+                    bestMove = null;
+            }
+
+            if (useTranspositionTable && evalType != TranspositionTable.None)
+                transpositionTable.StoreEvaluation(0, plyFromRoot, bestScore, evalType, bestMove); // depth?
+
+            return bestScore;
         }
 
-        private bool quiescenceSearch(float alpha, float beta, bool maximize, Player playerToMove, List<string> moves, out float eval)
+        /// <returns> Should search be extended?</returns>
+        private bool quiescenceSearch(float alpha, float beta, bool maximize,
+            Player playerToMove, List<string> moves, int plyFromRoot, out float eval)
         {
             eval = 0;
 
@@ -337,26 +383,62 @@ namespace Laska
             if (searchUnsafePositions && !hasAnySafeMove(playerToMove, moves))
                 return true;
 
-            eval = EvaluatePosition(playerToMove);
+            eval = applyPerspectiveToEval(EvaluatePosition(playerToMove), maximize);
 
             // Anty zugzwang
             if (antyZugzwang && !_isSearchingZugzwang)
             {
                 _isSearchingZugzwang = true;
-                eval = antyZugzwangSearch(eval, alpha, beta, maximize, moves);
+                eval = antyZugzwangSearch(eval, alpha, beta, maximize, moves, plyFromRoot);
                 _isSearchingZugzwang = false;
             }
 
             return false;
         }
 
-        private float minimax(float alpha, float beta, int depth, bool maximize)
+        private float applyPerspectiveToEval(float eval, bool maximize)
+        {
+            return maximize ? eval : -eval;
+        }
+
+        /// <summary>
+        /// Alternative notation of the minimax algorithm in which in every node we maximize,
+        /// it's achieved by negating values and applying perspective to eval.
+        /// </summary>
+        /// <param name="alpha"> Value of the best move so far of the player to move in this node.</param>
+        /// <param name="beta"> Value of the best move of the other player.</param>
+        /// <param name="depth"> 
+        /// Decreases with every node checked, at depth 0 we run search extensions and then <see cref="EvaluatePosition(Player)"/>.
+        /// </param>
+        /// <param name="maximize"> 
+        /// Whos move it is at this node; true if it's "root player".
+        /// (As our eval func returns positive values when the position is good for <see cref="GameManager.ActivePlayer"/>.)
+        /// </param>
+        /// <param name="plyFromRoot"> </param>
+        /// <returns> 
+        /// It depends on whether we are using fail-soft or fail-hard version
+        /// and whether we fit in the [alpha, beta] window or not,
+        /// but the general idea is to return value of the best move in a given position.
+        /// </returns>
+        private float negamax(float alpha, float beta, int depth, bool maximize, int plyFromRoot)
         {
             // Detect draw by repetition.
             // Returns a draw score even if this position has only appeared once in the game history (for simplicity).
             if (_visitedNonTakePositions.Contains(board.ZobristKey))
             {
-                return DRAW;
+                return applyPerspectiveToEval(DRAW, maximize);
+            }
+
+            // Try looking up the current position in the transposition table.
+            // If the same position has already been searched to at least an equal depth
+            // to the search we're doing now, we can just use the recorded evaluation.
+            if (useTranspositionTable)
+            {
+                float ttVal = transpositionTable.LookupEvaluation(depth, plyFromRoot, alpha, beta);
+                if (ttVal != TranspositionTable.LookupFailed)
+                {
+                    return ttVal;
+                }
             }
 
             Player playerToMove = maximize ? gameManager.ActivePlayer : gameManager.InactivePlayer;
@@ -365,7 +447,8 @@ namespace Laska
 
             if (moves.Count == 0)
             {
-                return maximize ? INACTIVE_WIN - depth : ACTIVE_WIN + depth;
+                float eval = maximize ? INACTIVE_WIN + plyFromRoot : ACTIVE_WIN - plyFromRoot;
+                return applyPerspectiveToEval(eval, maximize);
             }
             else if (moves.Count == 1)
             {
@@ -374,7 +457,7 @@ namespace Laska
             }
             else if (depth <= 0)
             {
-                if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, out float eval))
+                if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, plyFromRoot, out float eval))
                     return eval;
             }
 
@@ -384,44 +467,81 @@ namespace Laska
             if (!canTake)
                 _visitedNonTakePositions.Add(board.ZobristKey);
 
-            float score;
-            if (maximize)
+            int evalType = TranspositionTable.UpperBound;
+            string bestMove = null;
+            float bestScore = float.MinValue;
+
+            foreach (var move in moves)
             {
-                score = float.MinValue;
-                foreach (var move in moves)
+                Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
+                float score = -negamax(-beta, -alpha, depth - 1, !maximize, plyFromRoot + 1);
+                unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
+
+                if (score > bestScore)
                 {
-                    Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
+                    bestScore = score;
+                    bestMove = move;
 
-                    score = Mathf.Max(score, minimax(alpha, beta, depth - 1, false));
-                    alpha = Mathf.Max(alpha, score);
+                    // Move was *too* good, so opponent won't allow this position to be reached
+                    // (by choosing a different move earlier on, so we "refute" opponents previous move). Skip remaining moves.
+                    if (score >= beta)
+                    {
+                        // Fail-high / Cut-Node
+                        // As we stop searching this node here we can't be sure that "bestMove" is actually the best,
+                        // but we will still store it in transposition table as it may be good guess for move ordering.
+                        // It's called Refutation Move - not necessarily the best, but good enough to refute opponents previous move.
+                        // (Also there could be more cutoffs deeper, so it's not guaranteed to be Exact even if it's the last move.)
+                        evalType = TranspositionTable.LowerBound;
 
-                    unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
+                        // In Fail-hard version we clamp returned/stored score to beta when we fail-high
+                        if (!failSoft)
+                            bestScore = beta;
 
-                    if (alpha >= beta)
-                        break;
+                        break; // beta-cutoff
+                    }
+
+                    // Found a new best move so far (if false, we have better move earlier).
+                    if (score > alpha)
+                    {
+                        // Inside-window / PV-Node
+                        // It's confirmed to be PV-Node only if it's the last move in this position;
+                        // otherwise it still can turn out to be Cut-Node, but it's not All-Node for sure.
+                        evalType = TranspositionTable.Exact;
+
+                        alpha = score; // alpha acts like max in MiniMax
+                    }
                 }
             }
-            else
+
+            // We don't like any of the moves in this position.
+            // We can do better by choosing a different move earlier on.
+            if (evalType == TranspositionTable.UpperBound)
             {
-                score = float.MaxValue;
-                foreach (var move in moves)
-                {
-                    Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
+                // Fail-low / All-Node
+                // Even though we checked all the moves in this position, most likely there were some cutoffs deeper.
+                // The opponent deeper may have even better moves than the ones we checked, so bestScore is our upper bound.
 
-                    score = Mathf.Min(score, minimax(alpha, beta, depth - 1, true));
-                    beta = Mathf.Min(beta, score);
+                // bestScore may be lower than alpha here, so in Fail-hard version we clamp it to alpha
+                if (!failSoft)
+                    bestScore = alpha;
 
-                    unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
-
-                    if (beta <= alpha)
-                        break;
-                }
+                // Some engines store "bestMove" for All-Nodes, while other don't save any move when all of them failed-low (e.g. Stockfish).
+                // I found some old online discussion (https://groups.google.com/g/rec.games.chess.computer/c/p8GbiiLjp0o)
+                // where people claim that storing "bestMove" for "All-Nodes" (AlphaFlag) resulted in faster search for them
+                // but they are woried that it may not necessery mean stronger play because of increased search instability.
+                if (!storeBestMoveForAllNodes)
+                    bestMove = null;
             }
+
+            if(useTranspositionTable)
+                transpositionTable.StoreEvaluation(depth, plyFromRoot, bestScore, evalType, bestMove);
 
             if (!canTake)
                 _visitedNonTakePositions.Remove(board.ZobristKey);
 
-            return score;
+            // In Fail-hard version bestScore is alpha for All-Node, beta for Cut-Node and exact for PV-Node.
+            // In Fail-soft version bestScore is not clamped to [alpha, beta] range.
+            return bestScore;
         }
 
         public string BestMoveMinimax()
@@ -454,7 +574,7 @@ namespace Laska
                 {
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
-                    score = minimax(bestScore, float.MaxValue, depth - 1, false);
+                    score = -negamax(float.MinValue, -bestScore, depth - 1, false, 1);
                     if (score > bestScore)
                     {
                         bestScore = score;
@@ -473,11 +593,11 @@ namespace Laska
             else
             {
                 Debug.Log("bestMove/" + moves.Count + " " + bestMove + " (" + bestScore + ")");
-                if(bestScore >= ACTIVE_WIN)
+                if(bestScore >= ACTIVE_WIN-depth)
                 {
                     Debug.LogError("ACTIVE_WIN found");
                 }
-                else if (bestScore <= INACTIVE_WIN)
+                else if (bestScore <= INACTIVE_WIN+depth)
                 {
                     Debug.LogError("INACTIVE_WIN found");
                 }
