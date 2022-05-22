@@ -17,6 +17,8 @@
 		/// </summary>
 		/// <remarks>
 		/// Returned from PV-Node: this is a node with a score between alpha and beta. (Principal variation: a<s<b)
+		/// Notice that it's not guaranteed to always be between [alpha, beta]. Exact score only means that
+		/// it was not influenced by cutoffs. So this value will not change when the alpha/beta changes.
 		/// </remarks>
 		public const int Exact = 1;
 
@@ -28,22 +30,27 @@
 		/// </summary>
 		/// <remarks>
 		/// Returned from Cut-Node: this is a node where a beta-cutoff occurs. (Fail-high: s>=b)
+		/// Notice that it's not guaranteed to always be above beta, it only means that it was
+		/// cached at some point where it was bigger than some old-beta. New-beta may be different.
 		/// </remarks>
 		public const int LowerBound = 2;
 
 		/// <summary>
 		/// No move during the search resulted in a position that was better than the current player could get from playing a
 		/// different move in an earlier position (i.e eval was <= alpha for all moves in the position).
-		/// Due to the way alpha-beta search works, the value we get here won't be the exact evaluation of the position,
+		/// Because there could be beta-cutoffs deeper, the value we get here won't be the exact evaluation of the position,
 		/// but rather the upper bound of the evaluation. This means that the evaluation is, at most, equal to this value.
 		/// </summary>
 		/// <remarks>
 		/// Returned from All-Node: this is a node where alpha is not raised. (Fail-low: s<=a)
+		/// Same as above, it's not guaranteed to be always lower than alpha. Alpha/beta values depend on previous positions we
+		/// searched and TT-entires don't know previous positions (the idea is that we could reach the same position different way).
 		/// </remarks>
 		public const int UpperBound = 3; 
 
-		public readonly ulong size = 64000;
+		public ulong size = 64000;
 		public bool isEnabled = true;
+		public bool failSoft;
 
 		private Entry[] _entries;
 
@@ -87,21 +94,32 @@
 				if (entry.depth >= depth)
 				{
 					float correctedScore = correctRetrievedWinEval(entry.value, plyFromRoot);
+
+					// Fail-soft vs fail-hard: https://stackoverflow.com/questions/72252975
 					if (entry.nodeType == Exact)
 					{
-						// We have stored the exact evaluation for this position, so return it
-						return correctedScore;
+						// We have stored the exact evaluation for this position, so we can use it for any kind of node
+						if (!failSoft)
+						{
+							// Cached at PV-Node but alpha-beta range could change
+							if (correctedScore >= beta) return beta; // respect Fail-hard beta cutoff (Cut-Node)
+							if (correctedScore <= alpha) return alpha; // Fail-hard fail-low (All-Node)
+							// if it's within the window it's still PV-Node
+						}
+						return correctedScore; // in Fail-soft even if alpha-beta range changed we would still return "bestScore"
 					}
 					else if (entry.nodeType == UpperBound && correctedScore <= alpha)
 					{
+						// All-Node
 						// We have stored the upper bound of the eval for this position. If it's less than alpha then we don't need to
 						// search the moves in this position as they won't interest us; otherwise we will have to search to find the exact value
-						return correctedScore;
+						return failSoft ? correctedScore : alpha; // in Fail-soft when we fail-low we don't clamp to alpha
 					}
 					else if (entry.nodeType == LowerBound && correctedScore >= beta)
 					{
+						// Cut-Node
 						// We have stored the lower bound of the eval for this position. Only return if it causes a beta cut-off.
-						return correctedScore;
+						return failSoft ? correctedScore : beta; // in Fail-soft when we fail-high we don't clamp to beta
 					}
 				}
 			}
@@ -114,11 +132,10 @@
 			{
 				return;
 			}
-			//ulong index = Index;
-			//if (depth >= entries[Index].depth) {
+
+			// We use Always Replace strategy (if we used more advanced one like Depth-Preferred then we would need to implement "Aging")
 			Entry entry = new Entry(board.ZobristKey, correctWinEvalForStorage(eval, numPlySearched), (byte)depth, (byte)evalType, move);
 			_entries[Index] = entry;
-			//}
 		}
 
 		private bool isWinEval(float eval) => eval == LaskaAI.ACTIVE_WIN || eval == LaskaAI.INACTIVE_WIN;

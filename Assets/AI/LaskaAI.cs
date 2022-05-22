@@ -341,6 +341,8 @@ namespace Laska
                     // Found a new best move so far. (PV-Node?)
                     if (score > alpha)
                     {
+                        // Exact score means that it's not influenced by cutoffs,
+                        // so even if alpha/beta changed it still would return the same score.
                         evalType = TranspositionTable.Exact;
                         alpha = score;
                     }
@@ -349,8 +351,8 @@ namespace Laska
                     if (score >= currentScore)
                     {
                         // If we haven't checked all the moves, then there might be a better one
-                        if (evalType == TranspositionTable.Exact && i != moves.Count - 1)
-                            evalType = TranspositionTable.LowerBound;
+                        // but we can still store it as Exact (if it's between [alpha, beta]),
+                        // bacause it's good enought to break the zugzwang search.
 
                         isZugzwang = false;
                         break; // We were just making sure the position is not zugzwang.
@@ -361,6 +363,8 @@ namespace Laska
             // We don't like any move (All-Node)
             if (isZugzwang && evalType == TranspositionTable.None)
             {
+                // We can be sure that it's upper bound only when we checked all the moves
+                // if we broke the search early (!isZugzwang) there may be a better move.
                 evalType = TranspositionTable.UpperBound;
 
                 if (!failSoft)
@@ -371,7 +375,7 @@ namespace Laska
             }
 
             if (useTranspositionTable && evalType != TranspositionTable.None && repetitions == 0)
-                transpositionTable.StoreEvaluation(0, plyFromRoot, bestScore, evalType, bestMove); // depth?
+                transpositionTable.StoreEvaluation(0, plyFromRoot, bestScore, evalType, bestMove);
 
             return bestScore;
         }
@@ -411,6 +415,9 @@ namespace Laska
         /// <summary>
         /// Alternative notation of the minimax algorithm in which in every node we maximize,
         /// it's achieved by negating values and applying perspective to eval.
+        /// (You can imagine this as if we were turning the eval bar upside down every move.
+        /// Alpha would be our lower bound and beta the upper one, and our goal is to find
+        /// the best move with a score that fits within that window.)
         /// </summary>
         /// <param name="alpha"> Value of the best move so far of the player to move in this node.</param>
         /// <param name="beta"> Value of the best move of the other player.</param>
