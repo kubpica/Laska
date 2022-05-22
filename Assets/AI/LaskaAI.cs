@@ -32,7 +32,10 @@ namespace Laska
 
         public const float ACTIVE_WIN = 1000000;
         public const float INACTIVE_WIN = -1000000;
-        public const float DRAW = -1;
+        /// <summary>
+        /// Contempt Factor - https://www.chessprogramming.org/Contempt_Factor
+        /// </summary>
+        public const float DRAW = -0.5f;
 
         private HashSet<ulong> _visitedNonTakePositions = new HashSet<ulong>(); // Zobrist keys
         private bool _isSearchingZugzwang;
@@ -43,7 +46,7 @@ namespace Laska
             var activeColumns = gameManager.ActivePlayer.GetOwnedColums();
             var inactiveColumns = gameManager.InactivePlayer.GetOwnedColums();
 
-            // Check for mate (We can skip it as we check it in the minimax func)
+            // Check for mate (We can skip it as we check it in the negamax func)
             //int activeColumnsCount = activeColumns.Count();
             //if (activeColumnsCount == 0)
             //{
@@ -56,7 +59,7 @@ namespace Laska
             //    return ACTIVE_WIN;
             //}
 
-            // Check for stalemate (We can skip it as we check it in the minimax func)
+            // Check for stalemate (We can skip it as we check it in the negamax func)
             //if (!playerToMove.HasNewPossibleMoves())
             //    return playerToMove == gameManager.ActivePlayer ? INACTIVE_WIN : ACTIVE_WIN;
 
@@ -299,7 +302,8 @@ namespace Laska
             movedColumn.ZobristAll(); // XOR-in column on previous square (with previous pieces)
         }
 
-        private float antyZugzwangSearch(float currentScore, float alpha, float beta, bool maximize, List<string> moves, int plyFromRoot)
+        private float antyZugzwangSearch(float currentScore, float alpha, float beta, bool maximize,
+            List<string> moves, int plyFromRoot, out int repetitions)
         {
             if (orderMoves)
                 moveOrdering.OrderMoves(moves);
@@ -308,12 +312,13 @@ namespace Laska
             string bestMove = null;
             float bestScore = float.MinValue;
             bool isZugzwang = true; // Remains true if every move leads to worse position
+            repetitions = 0;
 
             for (int i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
                 Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
-                float score = -negamax(-beta, -alpha, 0, !maximize, plyFromRoot + 1);
+                float score = -negamax(-beta, -alpha, 0, !maximize, plyFromRoot + 1, ref repetitions);
                 unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
                 if (score > bestScore)
@@ -365,7 +370,7 @@ namespace Laska
                     bestMove = null;
             }
 
-            if (useTranspositionTable && evalType != TranspositionTable.None)
+            if (useTranspositionTable && evalType != TranspositionTable.None && repetitions == 0)
                 transpositionTable.StoreEvaluation(0, plyFromRoot, bestScore, evalType, bestMove); // depth?
 
             return bestScore;
@@ -373,9 +378,11 @@ namespace Laska
 
         /// <returns> Should search be extended?</returns>
         private bool quiescenceSearch(float alpha, float beta, bool maximize,
-            Player playerToMove, List<string> moves, int plyFromRoot, out float eval)
+            Player playerToMove, List<string> moves, int plyFromRoot,
+            out float eval, out int repetitions)
         {
             eval = 0;
+            repetitions = 0;
 
             if (searchAllTakes && playerToMove.CanTake)
                 return true;
@@ -389,7 +396,7 @@ namespace Laska
             if (antyZugzwang && !_isSearchingZugzwang)
             {
                 _isSearchingZugzwang = true;
-                eval = antyZugzwangSearch(eval, alpha, beta, maximize, moves, plyFromRoot);
+                eval = antyZugzwangSearch(eval, alpha, beta, maximize, moves, plyFromRoot, out repetitions);
                 _isSearchingZugzwang = false;
             }
 
@@ -414,18 +421,20 @@ namespace Laska
         /// Whos move it is at this node; true if it's "root player".
         /// (As our eval func returns positive values when the position is good for <see cref="GameManager.ActivePlayer"/>.)
         /// </param>
-        /// <param name="plyFromRoot"> </param>
+        /// <param name="plyFromRoot"> Starts with 0 at root node and increases with every node checked.</param>
+        /// <param name="repetitionsLastNode"> How many draws by repetition were found starting from this/previous node.</param>
         /// <returns> 
         /// It depends on whether we are using fail-soft or fail-hard version
         /// and whether we fit in the [alpha, beta] window or not,
         /// but the general idea is to return value of the best move in a given position.
         /// </returns>
-        private float negamax(float alpha, float beta, int depth, bool maximize, int plyFromRoot)
+        private float negamax(float alpha, float beta, int depth, bool maximize, int plyFromRoot, ref int repetitionsLastNode)
         {
             // Detect draw by repetition.
             // Returns a draw score even if this position has only appeared once in the game history (for simplicity).
             if (_visitedNonTakePositions.Contains(board.ZobristKey))
             {
+                repetitionsLastNode++;
                 return applyPerspectiveToEval(DRAW, maximize);
             }
 
@@ -457,8 +466,12 @@ namespace Laska
             }
             else if (depth <= 0)
             {
-                if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, plyFromRoot, out float eval))
+                if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, plyFromRoot,
+                    out float eval, out int repetitions))
+                {
+                    repetitionsLastNode += repetitions;
                     return eval;
+                }
             }
 
             if(orderMoves)
@@ -470,11 +483,12 @@ namespace Laska
             int evalType = TranspositionTable.UpperBound;
             string bestMove = null;
             float bestScore = float.MinValue;
+            int repetitionsThisNode = 0;
 
             foreach (var move in moves)
             {
                 Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
-                float score = -negamax(-beta, -alpha, depth - 1, !maximize, plyFromRoot + 1);
+                float score = -negamax(-beta, -alpha, depth - 1, !maximize, plyFromRoot + 1, ref repetitionsThisNode);
                 unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
                 if (score > bestScore)
@@ -533,11 +547,18 @@ namespace Laska
                     bestMove = null;
             }
 
-            if(useTranspositionTable)
-                transpositionTable.StoreEvaluation(depth, plyFromRoot, bestScore, evalType, bestMove);
+            // We shoudn't store in TT scores that were influenced by repetiton draws, because scores stored in TT should only
+            // depend on deeper positions and not previous ones (as sometimes we can reach the same position by different path).
+            // Draws by repetition can depend on positions prior to this one so we shoudn't store scores based on them in TT.
+            //TODO Maybe I should check if the previous move was take, then we could know if repetition was only in deeper nodes.
+            //TODO Is it worth to store the "bestMove" anyway? Maybe it would still improve move ordering even if influenced by draws?
+            if (useTranspositionTable && repetitionsThisNode == 0)
+                transpositionTable.StoreEvaluation(Mathf.Max(1, depth), plyFromRoot, bestScore, evalType, bestMove);
 
             if (!canTake)
                 _visitedNonTakePositions.Remove(board.ZobristKey);
+
+            repetitionsLastNode += repetitionsThisNode;
 
             // In Fail-hard version bestScore is alpha for All-Node, beta for Cut-Node and exact for PV-Node.
             // In Fail-soft version bestScore is not clamped to [alpha, beta] range.
@@ -556,13 +577,14 @@ namespace Laska
             string bestMove = "";
 
             List<string> moves = gameManager.ActivePlayer.GetPossibleMovesAndMultiTakes();
-            float score;
             if (moves.Count == 1)
             {
                 bestMove = moves[0];
             }
             else
             {
+                int repetitions = 0;
+
                 if (orderMoves)
                     moveOrdering.OrderMoves(moves);
 
@@ -574,7 +596,7 @@ namespace Laska
                 {
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
-                    score = -negamax(float.MinValue, -bestScore, depth - 1, false, 1);
+                    float score = -negamax(float.MinValue, -bestScore, depth - 1, false, 1, ref repetitions);
                     if (score > bestScore)
                     {
                         bestScore = score;
@@ -583,6 +605,9 @@ namespace Laska
 
                     unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
                 }
+
+                if (useTranspositionTable && repetitions == 0)
+                    transpositionTable.StoreEvaluation(depth, 0, bestScore, TranspositionTable.Exact, bestMove);
             }
             PiecesManager.FakeMoves = false;
 

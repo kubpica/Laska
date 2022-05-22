@@ -419,7 +419,7 @@ MonoBehaviour:
   pointsPerExtraColumnStrength: 10000
   evalSpace: 1
   orderMoves: 1
-  useTranspositionTable: 0
+  useTranspositionTable: 1
   storeBestMoveForAllNodes: 1
   failSoft: 1
 --- !u!114 &26702259
@@ -1534,7 +1534,7 @@ MonoBehaviour:
   pointsPerExtraColumnStrength: 5000
   evalSpace: 1
   orderMoves: 1
-  useTranspositionTable: 0
+  useTranspositionTable: 1
   storeBestMoveForAllNodes: 1
   failSoft: 1
 --- !u!114 &281146564
