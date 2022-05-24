@@ -27,6 +27,7 @@ namespace Laska
         public bool evalSpace;
         public bool orderMoves;
         public bool useTranspositionTable;
+        public bool useTTForDirectEvals;
         public bool storeBestMoveForAllNodes;
         public bool failSoft;
 
@@ -308,10 +309,9 @@ namespace Laska
             if (orderMoves)
                 moveOrdering.OrderMoves(moves);
 
-            int evalType = TranspositionTable.None;
+            int evalType = TranspositionTable.UpperBound;
             string bestMove = null;
             float bestScore = float.MinValue;
-            bool isZugzwang = true; // Remains true if every move leads to worse position
             repetitions = 0;
 
             for (int i = 0; i < moves.Count; i++)
@@ -326,47 +326,44 @@ namespace Laska
                     bestScore = score;
                     bestMove = move;
 
-                    // Move was *too* good (Cut-Node)
-                    if (score >= beta)
-                    {
-                        evalType = TranspositionTable.LowerBound;
-
-                        if (!failSoft)
-                            bestScore = beta;
-
-                        isZugzwang = false;
-                        break; // beta-cutoff
-                    }
-
                     // Found a new best move so far. (PV-Node?)
                     if (score > alpha)
                     {
                         // Exact score means that it's not influenced by cutoffs,
                         // so even if alpha/beta changed it still would return the same score.
                         evalType = TranspositionTable.Exact;
-                        alpha = score;
-                    }
 
-                    // Found move that leads to better or equal position so it's not zugzwang.
-                    if (score >= currentScore)
-                    {
-                        // If we haven't checked all the moves, then there might be a better one
-                        // but we can still store it as Exact (if it's between [alpha, beta]),
-                        // bacause it's good enought to break the zugzwang search.
+                        // Move was *too* good (Cut-Node)
+                        if (score >= beta)
+                        {
+                            evalType = TranspositionTable.LowerBound;
 
-                        isZugzwang = false;
-                        break; // We were just making sure the position is not zugzwang.
+                            if (!failSoft)
+                                bestScore = beta;
+
+                            break; // beta-cutoff
+                        }
+                        else
+                        {
+                            alpha = score;
+                        }
+
+                        // Found move that leads to better or equal position so it's not zugzwang.
+                        if (score >= currentScore)
+                        {
+                            // If we haven't checked all the moves, then there might be a better one
+                            // but we can still store it as Exact (if it's between [alpha, beta]),
+                            // bacause it's good enought to break the zugzwang search.
+
+                            break; // We were just making sure the position is not zugzwang.
+                        }
                     }
                 }
             }
 
             // We don't like any move (All-Node)
-            if (isZugzwang && evalType == TranspositionTable.None)
+            if (evalType == TranspositionTable.UpperBound)
             {
-                // We can be sure that it's upper bound only when we checked all the moves
-                // if we broke the search early (!isZugzwang) there may be a better move.
-                evalType = TranspositionTable.UpperBound;
-
                 if (!failSoft)
                     bestScore = alpha;
 
@@ -374,7 +371,7 @@ namespace Laska
                     bestMove = null;
             }
 
-            if (useTranspositionTable && evalType != TranspositionTable.None && repetitions == 0)
+            if (useTranspositionTable && repetitions == 0)
                 transpositionTable.StoreEvaluation(0, plyFromRoot, bestScore, evalType, bestMove);
 
             return bestScore;
@@ -385,7 +382,7 @@ namespace Laska
             Player playerToMove, List<string> moves, int plyFromRoot,
             out float eval, out int repetitions)
         {
-            eval = 0;
+            eval = TranspositionTable.LookupFailed;
             repetitions = 0;
 
             if (searchAllTakes && playerToMove.CanTake)
@@ -394,7 +391,20 @@ namespace Laska
             if (searchUnsafePositions && !hasAnySafeMove(playerToMove, moves))
                 return true;
 
-            eval = applyPerspectiveToEval(EvaluatePosition(playerToMove), maximize);
+            // Get static evaluation
+            if (useTTForDirectEvals)
+            {
+                eval = transpositionTable.LookupDirectEvaluation(plyFromRoot);
+            }
+            if (eval == TranspositionTable.LookupFailed)
+            {
+                eval = applyPerspectiveToEval(EvaluatePosition(playerToMove), maximize);
+                // Save static evaluation into transposition table
+                if (useTTForDirectEvals)
+                {
+                    transpositionTable.StoreDirectEvaluation(plyFromRoot, eval);
+                }
+            }
 
             // Anty zugzwang
             if (antyZugzwang && !_isSearchingZugzwang)
@@ -450,7 +460,8 @@ namespace Laska
             // to the search we're doing now, we can just use the recorded evaluation.
             if (useTranspositionTable)
             {
-                float ttVal = transpositionTable.LookupEvaluation(depth, plyFromRoot, alpha, beta);
+                float ttVal = transpositionTable
+                    .LookupEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(0, depth), plyFromRoot, alpha, beta);
                 if (ttVal != TranspositionTable.LookupFailed)
                 {
                     return ttVal;
@@ -560,7 +571,10 @@ namespace Laska
             //TODO Maybe I should check if the previous move was take, then we could know if repetition was only in deeper nodes.
             //TODO Is it worth to store the "bestMove" anyway? Maybe it would still improve move ordering even if influenced by draws?
             if (useTranspositionTable && repetitionsThisNode == 0)
-                transpositionTable.StoreEvaluation(Mathf.Max(1, depth), plyFromRoot, bestScore, evalType, bestMove);
+            {
+                transpositionTable
+                    .StoreEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(1, depth), plyFromRoot, bestScore, evalType, bestMove);
+            }
 
             if (!canTake)
                 _visitedNonTakePositions.Remove(board.ZobristKey);

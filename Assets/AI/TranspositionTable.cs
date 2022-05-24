@@ -57,6 +57,7 @@
 		private void Start()
 		{
 			_entries = new Entry[size];
+			//Debug.Log("TT size: " + (ulong)Entry.GetSize()*size);
 		}
 
 		public void Clear()
@@ -78,6 +79,37 @@
 		public string GetStoredMove()
 		{
 			return _entries[Index].move;
+		}
+
+		public float LookupDirectEvaluation(int plyFromRoot)
+		{
+			if (!isEnabled)
+			{
+				return LookupFailed;
+			}
+			Entry entry = _entries[Index];
+
+			if (entry.key == board.ZobristKey && entry.nodeType == None)
+			{
+				return correctRetrievedWinEval(entry.value, plyFromRoot);
+			}
+			return LookupFailed;
+		}
+
+		public void StoreDirectEvaluation(int numPlySearched, float eval)
+		{
+			if (!isEnabled)
+			{
+				return;
+			}
+
+			var zobrist = board.ZobristKey;
+			// Let's not overwrite "indirect" evals (as they are deeper)
+			if (_entries[Index].key == zobrist)
+				return;
+
+			Entry entry = new Entry(zobrist, correctWinEvalForStorage(eval, numPlySearched), (sbyte)-1, (byte)None, null);
+			_entries[Index] = entry;
 		}
 
 		public float LookupEvaluation(int depth, int plyFromRoot, float alpha, float beta)
@@ -134,7 +166,7 @@
 			}
 
 			// We use Always Replace strategy (if we used more advanced one like Depth-Preferred then we would need to implement "Aging")
-			Entry entry = new Entry(board.ZobristKey, correctWinEvalForStorage(eval, numPlySearched), (byte)depth, (byte)evalType, move);
+			Entry entry = new Entry(board.ZobristKey, correctWinEvalForStorage(eval, numPlySearched), (sbyte)depth, (byte)evalType, move);
 			_entries[Index] = entry;
 		}
 
@@ -165,10 +197,10 @@
 			public readonly ulong key;
 			public readonly float value;
 			public readonly string move;
-			public readonly byte depth;
+			public readonly sbyte depth;
 			public readonly byte nodeType;
 
-			public Entry(ulong key, float value, byte depth, byte nodeType, string move)
+			public Entry(ulong key, float value, sbyte depth, byte nodeType, string move)
 			{
 				this.key = key;
 				this.value = value;
