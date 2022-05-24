@@ -10,7 +10,10 @@
 		
 		public const float LookupFailed = float.MinValue;
 
-		public const int None = 0;
+		/// <summary>
+		/// Value returned directly from <see cref="LaskaAI.EvaluatePosition(Player)"/>. (Not influenced by zugzwang-search) 
+		/// </summary>
+		public const int Direct = 0;
 
 		/// <summary>
 		/// The value for this position is the exact evaluation.
@@ -89,7 +92,7 @@
 			}
 			Entry entry = _entries[Index];
 
-			if (entry.key == board.ZobristKey && entry.nodeType == None)
+			if (entry.key == board.ZobristKey && entry.nodeType == Direct)
 			{
 				return correctRetrievedWinEval(entry.value, plyFromRoot);
 			}
@@ -108,12 +111,13 @@
 			if (_entries[Index].key == zobrist)
 				return;
 
-			Entry entry = new Entry(zobrist, correctWinEvalForStorage(eval, numPlySearched), (sbyte)-1, (byte)None, null);
+			Entry entry = new Entry(zobrist, correctWinEvalForStorage(eval, numPlySearched), (sbyte)-1, (byte)Direct, null);
 			_entries[Index] = entry;
 		}
 
-		public float LookupEvaluation(int depth, int plyFromRoot, float alpha, float beta)
+		public float LookupEvaluation(int depth, int plyFromRoot, float alpha, float beta, out string move)
 		{
+			move = null;
 			if (!isEnabled)
 			{
 				return LookupFailed;
@@ -122,6 +126,9 @@
 
 			if (entry.key == board.ZobristKey)
 			{
+				// Even if we don't get a score we can use, we can still use stored move to improve our move ordering
+				move = entry.move;
+
 				// Only use stored evaluation if it has been searched to at least the same depth as would be searched now
 				if (entry.depth >= depth)
 				{

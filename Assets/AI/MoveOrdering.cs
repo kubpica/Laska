@@ -8,7 +8,7 @@ namespace Laska
 		[GlobalComponent] private Board board;
 		private int[] moveScores = new int[44];
 
-		public void OrderMoves(List<string> moves)
+		public void OrderMoves(List<string> moves, string ttMove)
 		{
 			bool canTake = moves[0].Length > 5;
 
@@ -33,6 +33,9 @@ namespace Laska
 
 				// Prefer moves closer to the center
 				score += 3 - distanceToCenter(move.Substring(move.Length - 2));
+
+				if (move == ttMove)
+					score += 10000;
 
 				moveScores[i] = score;
 			}

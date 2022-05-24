@@ -307,7 +307,7 @@ namespace Laska
             List<string> moves, int plyFromRoot, out int repetitions)
         {
             if (orderMoves)
-                moveOrdering.OrderMoves(moves);
+                moveOrdering.OrderMoves(moves, null);
 
             int evalType = TranspositionTable.UpperBound;
             string bestMove = null;
@@ -458,10 +458,11 @@ namespace Laska
             // Try looking up the current position in the transposition table.
             // If the same position has already been searched to at least an equal depth
             // to the search we're doing now, we can just use the recorded evaluation.
+            string ttMove = null;
             if (useTranspositionTable)
             {
                 float ttVal = transpositionTable
-                    .LookupEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(0, depth), plyFromRoot, alpha, beta);
+                    .LookupEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(0, depth), plyFromRoot, alpha, beta, out ttMove);
                 if (ttVal != TranspositionTable.LookupFailed)
                 {
                     return ttVal;
@@ -493,7 +494,7 @@ namespace Laska
             }
 
             if(orderMoves)
-                moveOrdering.OrderMoves(moves);
+                moveOrdering.OrderMoves(moves, ttMove);
 
             if (!canTake)
                 _visitedNonTakePositions.Add(board.ZobristKey);
@@ -604,10 +605,47 @@ namespace Laska
             }
             else
             {
+                search();
+            }
+            PiecesManager.FakeMoves = false;
+
+            if (moves.Count == 1)
+            {
+                Debug.Log("forcedMove " + bestMove);
+            }
+            else
+            {
+                Debug.Log("bestMove/" + moves.Count + " " + bestMove + " (" + bestScore + ")");
+                if(bestScore >= ACTIVE_WIN-depth)
+                {
+                    Debug.LogError("ACTIVE_WIN found");
+                }
+                else if (bestScore <= INACTIVE_WIN+depth)
+                {
+                    Debug.LogError("INACTIVE_WIN found");
+                }
+            }
+            return bestMove;
+
+            void search()
+            {
+                string ttMove = null;
+                if (useTranspositionTable)
+                {
+                    float ttVal = transpositionTable
+                        .LookupEvaluation(depth, 0, float.MinValue, float.MaxValue, out ttMove);
+                    if (ttVal != TranspositionTable.LookupFailed)
+                    {
+                        bestMove = ttMove;
+                        bestScore = ttVal;
+                        return;
+                    }
+                }
+
                 int repetitions = 0;
 
                 if (orderMoves)
-                    moveOrdering.OrderMoves(moves);
+                    moveOrdering.OrderMoves(moves, ttMove);
 
                 _visitedNonTakePositions.Clear();
                 foreach (var p in board.GetPositionsSinceLastTake())
@@ -630,25 +668,6 @@ namespace Laska
                 if (useTranspositionTable && repetitions == 0)
                     transpositionTable.StoreEvaluation(depth, 0, bestScore, TranspositionTable.Exact, bestMove);
             }
-            PiecesManager.FakeMoves = false;
-
-            if (moves.Count == 1)
-            {
-                Debug.Log("forcedMove " + bestMove);
-            }
-            else
-            {
-                Debug.Log("bestMove/" + moves.Count + " " + bestMove + " (" + bestScore + ")");
-                if(bestScore >= ACTIVE_WIN-depth)
-                {
-                    Debug.LogError("ACTIVE_WIN found");
-                }
-                else if (bestScore <= INACTIVE_WIN+depth)
-                {
-                    Debug.LogError("INACTIVE_WIN found");
-                }
-            }
-            return bestMove;
         }
     }
 }
