@@ -180,11 +180,9 @@
 			_entries[Index] = entry;
 		}
 
-		private bool isWinEval(float eval) => eval == LaskaAI.ACTIVE_WIN || eval == LaskaAI.INACTIVE_WIN;
-
 		private float correctWinEvalForStorage(float eval, int numPlySearched)
 		{
-			if (isWinEval(eval))
+			if (LaskaAI.IsWinEval(eval))
 			{
 				int sign = System.Math.Sign(eval);
 				return (eval * sign + numPlySearched) * sign;
@@ -194,7 +192,7 @@
 
 		private float correctRetrievedWinEval(float eval, int numPlySearched)
 		{
-			if (isWinEval(eval))
+			if (LaskaAI.IsWinEval(eval))
 			{
 				int sign = System.Math.Sign(eval);
 				return (eval * sign - numPlySearched) * sign;

@@ -466,6 +466,17 @@ namespace Laska
                 return 0;
             }
 
+            // Skip this position if a mating sequence has already been found earlier in
+		    // the search, which would be shorter than any mate we could find from here.
+			// This is done by observing that alpha can't possibly be worse (and likewise
+			// beta can't possibly be better) than being mated in the current position.
+			alpha = Mathf.Max(alpha, INACTIVE_WIN + plyFromRoot);
+            beta = Mathf.Min(beta, ACTIVE_WIN - plyFromRoot);
+            if (alpha >= beta)
+            {
+                return alpha;
+            }
+
             // Detect draw by repetition.
             // Returns a draw score even if this position has only appeared once in the game history (for simplicity).
             if (_visitedNonTakePositions.Contains(board.ZobristKey))
@@ -494,8 +505,8 @@ namespace Laska
 
             if (moves.Count == 0)
             {
-                float eval = maximize ? INACTIVE_WIN + plyFromRoot : ACTIVE_WIN - plyFromRoot;
-                return applyPerspectiveToEval(eval, maximize);
+                // Current ply added to reward finding mate quicker, or avoiding mate longer.
+                return INACTIVE_WIN + plyFromRoot;
             }
             else if (moves.Count == 1)
             {
@@ -606,10 +617,21 @@ namespace Laska
             return bestScore;
         }
 
-        private bool isWinEval(float eval) 
+        public static bool IsWinEval(float eval) 
         {
             const int maxWinDepth = 1000;
             return Mathf.Abs(eval) > ACTIVE_WIN - maxWinDepth;
+        }
+
+        private void announceMate(float eval)
+        {
+            if (IsWinEval(eval))
+            {
+                var numPlyToMate = ACTIVE_WIN - Mathf.Abs(eval);
+                int numMovesToMate = Mathf.CeilToInt(numPlyToMate / 2f);
+                string sideWithMate = eval > 0 ? gameManager.ActivePlayer.GetName() : gameManager.InactivePlayer.GetName();
+                Debug.LogError($"{sideWithMate} can win in {numMovesToMate} move{((numMovesToMate > 1) ? "s" : "")}");
+            }
         }
 
         public string BestMoveMinimax()
@@ -618,6 +640,7 @@ namespace Laska
             _abortSearch = false;
             float bestScoreThisIteration, bestScore = float.MinValue;
             string bestMoveThisIteration, bestMove = null;
+            int bestDepth = 0;
 
             List<string> moves = gameManager.ActivePlayer.GetPossibleMovesAndMultiTakes();
             if (moves.Count == 1)
@@ -650,9 +673,10 @@ namespace Laska
                         {
                             bestMove = bestMoveThisIteration;
                             bestScore = bestScoreThisIteration;
+                            bestDepth = depth;
 
                             // Exit search if found a mate
-                            if (isWinEval(bestScore))
+                            if (IsWinEval(bestScore))
                             {
                                 break;
                             }
@@ -664,25 +688,20 @@ namespace Laska
                     search(searchDepth);
                     bestMove = bestMoveThisIteration;
                     bestScore = bestScoreThisIteration;
+                    bestDepth = searchDepth;
                 }
             }
             PiecesManager.FakeMoves = false;
 
             if (moves.Count == 1)
             {
-                Debug.Log("forcedMove " + bestMove);
+                Debug.Log(gameManager.ActivePlayer.GetName() + ": forcedMove " + bestMove);
             }
             else
             {
-                Debug.Log("bestMove/" + moves.Count + " " + bestMove + " (" + bestScore + ")");
-                if(bestScore >= ACTIVE_WIN-searchDepth)
-                {
-                    Debug.LogError("ACTIVE_WIN found");
-                }
-                else if (bestScore <= INACTIVE_WIN+searchDepth)
-                {
-                    Debug.LogError("INACTIVE_WIN found");
-                }
+                Debug.Log(gameManager.ActivePlayer.GetName() 
+                    + ": bestMove/" + moves.Count + " " + bestMove + " (" + bestScore + "), Depth: " + bestDepth);
+                announceMate(bestScore);
             }
             return bestMove;
 

@@ -42,6 +42,11 @@ namespace Laska
             return pieces.Where(p => p.IsFree).Select(p => p.Column);
         }
 
+        public string GetName()
+        {
+            return color == 'b' ? "Black" : "White";
+        }
+
         /// <summary>
         /// Recalculates owned columns and moves this player can make.
         /// </summary>
