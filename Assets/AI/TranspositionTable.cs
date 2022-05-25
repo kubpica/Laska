@@ -13,7 +13,7 @@
 		/// <summary>
 		/// Value returned directly from <see cref="LaskaAI.EvaluatePosition(Player)"/>. (Not influenced by zugzwang-search) 
 		/// </summary>
-		public const int Direct = 0;
+		public const byte Direct = 0;
 
 		/// <summary>
 		/// The value for this position is the exact evaluation.
@@ -23,7 +23,7 @@
 		/// Notice that it's not guaranteed to always be between [alpha, beta]. Exact score only means that
 		/// it was not influenced by cutoffs. So this value will not change when the alpha/beta changes.
 		/// </remarks>
-		public const int Exact = 1;
+		public const byte Exact = 1;
 
 		/// <summary>
 		/// A move was found during the search that was too good, meaning the opponent will play a different move earlier on,
@@ -36,7 +36,7 @@
 		/// Notice that it's not guaranteed to always be above beta, it only means that it was
 		/// cached at some point where it was bigger than some old-beta. New-beta may be different.
 		/// </remarks>
-		public const int LowerBound = 2;
+		public const byte LowerBound = 2;
 
 		/// <summary>
 		/// No move during the search resulted in a position that was better than the current player could get from playing a
@@ -49,7 +49,12 @@
 		/// Same as above, it's not guaranteed to be always lower than alpha. Alpha/beta values depend on previous positions we
 		/// searched and TT-entires don't know previous positions (the idea is that we could reach the same position different way).
 		/// </remarks>
-		public const int UpperBound = 3; 
+		public const byte UpperBound = 3;
+
+		/// <summary>
+		/// Used when we want to store "bestMove" but it's value.
+		/// </summary>
+		public const byte Invalid = byte.MaxValue;
 
 		public ulong size = 64000;
 		public bool isEnabled = true;
@@ -114,7 +119,7 @@
 			if (_entries[Index].key == zobrist)
 				return;
 
-			Entry entry = new Entry(zobrist, correctWinEvalForStorage(eval, numPlySearched), (sbyte)-1, (byte)Direct, null);
+			Entry entry = new Entry(zobrist, correctWinEvalForStorage(eval, numPlySearched), (sbyte)-1, Direct, null);
 			_entries[Index] = entry;
 		}
 
@@ -168,7 +173,7 @@
 			return LookupFailed;
 		}
 
-		public void StoreEvaluation(int depth, int numPlySearched, float eval, int evalType, string move)
+		public void StoreEvaluation(int depth, int numPlySearched, float eval, byte evalType, string move)
 		{
 			if (!isEnabled)
 			{
@@ -176,7 +181,7 @@
 			}
 
 			// We use Always Replace strategy (if we used more advanced one like Depth-Preferred then we would need to implement "Aging")
-			Entry entry = new Entry(board.ZobristKey, correctWinEvalForStorage(eval, numPlySearched), (sbyte)depth, (byte)evalType, move);
+			Entry entry = new Entry(board.ZobristKey, correctWinEvalForStorage(eval, numPlySearched), (sbyte)depth, evalType, move);
 			_entries[Index] = entry;
 		}
 

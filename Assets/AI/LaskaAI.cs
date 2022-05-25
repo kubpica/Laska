@@ -37,6 +37,7 @@ namespace Laska
         public bool useTranspositionTable;
         public bool useTTForDirectEvals;
         public bool storeBestMoveForAllNodes;
+        public bool storeMovesInfuencedByDraws;
         public bool failSoft;
 
         public const float ACTIVE_WIN = 1000000;
@@ -321,7 +322,7 @@ namespace Laska
             if (orderMoves)
                 moveOrdering.OrderMoves(moves, null);
 
-            int evalType = TranspositionTable.UpperBound;
+            byte evalType = TranspositionTable.UpperBound;
             string bestMove = null;
             float bestScore = float.MinValue;
             repetitions = 0;
@@ -529,7 +530,7 @@ namespace Laska
             if (!canTake)
                 _visitedNonTakePositions.Add(board.ZobristKey);
 
-            int evalType = TranspositionTable.UpperBound;
+            byte evalType = TranspositionTable.UpperBound;
             string bestMove = null;
             float bestScore = float.MinValue;
             int repetitionsThisNode = 0;
@@ -596,15 +597,22 @@ namespace Laska
                     bestMove = null;
             }
 
-            // We shoudn't store in TT scores that were influenced by repetiton draws, because scores stored in TT should only
-            // depend on deeper positions and not previous ones (as sometimes we can reach the same position by different path).
-            // Draws by repetition can depend on positions prior to this one so we shoudn't store scores based on them in TT.
-            //TODO Maybe I should check if the previous move was take, then we could know if repetition was only in deeper nodes.
-            //TODO Is it worth to store the "bestMove" anyway? Maybe it would still improve move ordering even if influenced by draws?
-            if (useTranspositionTable && !_abortSearch && repetitionsThisNode == 0)
+            if (useTranspositionTable && !_abortSearch)
             {
-                transpositionTable
-                    .StoreEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(1, depth), plyFromRoot, bestScore, evalType, bestMove);
+                // We shoudn't store in TT scores that were influenced by repetiton draws, because scores stored in TT should only
+                // depend on deeper positions and not previous ones (as sometimes we can reach the same position by different path).
+                // Draws by repetition can depend on positions prior to this one so we shoudn't store scores based on them in TT.
+                //TODO Maybe I should check if the previous move was take, then we could know if repetition was only in deeper nodes.
+                if (repetitionsThisNode == 0)
+                {
+                    transpositionTable
+                        .StoreEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(1, depth), plyFromRoot, bestScore, evalType, bestMove);
+                }
+                // Is it worth to store the "bestMove" anyway? Maybe it would still improve move ordering even if influenced by draws?
+                else if (storeMovesInfuencedByDraws)
+                {
+                    transpositionTable.StoreEvaluation(depth, plyFromRoot, bestScore, TranspositionTable.Invalid, bestMove);
+                }
             }
 
             if (!canTake)

@@ -425,7 +425,8 @@ MonoBehaviour:
   orderMoves: 1
   useTranspositionTable: 1
   useTTForDirectEvals: 1
-  storeBestMoveForAllNodes: 1
+  storeBestMoveForAllNodes: 0
+  storeMovesInfuencedByDraws: 0
   failSoft: 1
 --- !u!114 &26702259
 MonoBehaviour:
@@ -1548,6 +1549,7 @@ MonoBehaviour:
   useTranspositionTable: 1
   useTTForDirectEvals: 1
   storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
   failSoft: 1
 --- !u!114 &281146564
 MonoBehaviour:
