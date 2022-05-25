@@ -81,6 +81,9 @@
 
 		public string GetStoredMove()
 		{
+			if (_entries[Index].key != board.ZobristKey)
+				return null;
+
 			return _entries[Index].move;
 		}
 

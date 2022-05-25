@@ -404,6 +404,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useThreading: 1
+  useIterativeDeepening: 1
+  searchTime: 1000
+  limitDeepeningDepth: 0
   searchDepth: 6
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
@@ -1522,6 +1526,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  useThreading: 1
+  useIterativeDeepening: 1
+  searchTime: 1000
+  limitDeepeningDepth: 0
   searchDepth: 6
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1

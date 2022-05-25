@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Laska
@@ -8,9 +11,14 @@ namespace Laska
     {
         [GlobalComponent] private Board board;
         [GlobalComponent] private GameManager gameManager;
+        [GlobalComponent] MoveMaker moveMaker;
         [Component] private MoveOrdering moveOrdering;
         [Component] private TranspositionTable transpositionTable;
 
+        public bool useThreading;
+        public bool useIterativeDeepening;
+        public int searchTime;
+        public bool limitDeepeningDepth;
         public int searchDepth;
         public bool forcedSequencesAsOneMove;
         public bool searchAllTakes;
@@ -41,6 +49,10 @@ namespace Laska
         private HashSet<ulong> _visitedNonTakePositions = new HashSet<ulong>(); // Zobrist keys
         private bool _isSearchingZugzwang;
         private HashSet<string> _cachedSafeSquares = new HashSet<string>();
+        private bool _abortSearch;
+        private string _threadingMove;
+        private Exception _threadingException;
+        private CancellationTokenSource _cancelSearchTimer;
 
         public float EvaluatePosition(Player playerToMove)
         {
@@ -371,7 +383,7 @@ namespace Laska
                     bestMove = null;
             }
 
-            if (useTranspositionTable && repetitions == 0)
+            if (useTranspositionTable && !_abortSearch && repetitions == 0)
                 transpositionTable.StoreEvaluation(0, plyFromRoot, bestScore, evalType, bestMove);
 
             return bestScore;
@@ -400,7 +412,7 @@ namespace Laska
             {
                 eval = applyPerspectiveToEval(EvaluatePosition(playerToMove), maximize);
                 // Save static evaluation into transposition table
-                if (useTTForDirectEvals)
+                if (useTTForDirectEvals && !_abortSearch)
                 {
                     transpositionTable.StoreDirectEvaluation(plyFromRoot, eval);
                 }
@@ -447,6 +459,13 @@ namespace Laska
         /// </returns>
         private float negamax(float alpha, float beta, int depth, bool maximize, int plyFromRoot, ref int repetitionsLastNode)
         {
+            // If we use iterative deepening result from this iteration
+            // will be discarded and move from previous one will be used.
+            if (_abortSearch)
+            {
+                return 0;
+            }
+
             // Detect draw by repetition.
             // Returns a draw score even if this position has only appeared once in the game history (for simplicity).
             if (_visitedNonTakePositions.Contains(board.ZobristKey))
@@ -571,7 +590,7 @@ namespace Laska
             // Draws by repetition can depend on positions prior to this one so we shoudn't store scores based on them in TT.
             //TODO Maybe I should check if the previous move was take, then we could know if repetition was only in deeper nodes.
             //TODO Is it worth to store the "bestMove" anyway? Maybe it would still improve move ordering even if influenced by draws?
-            if (useTranspositionTable && repetitionsThisNode == 0)
+            if (useTranspositionTable && !_abortSearch && repetitionsThisNode == 0)
             {
                 transpositionTable
                     .StoreEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(1, depth), plyFromRoot, bestScore, evalType, bestMove);
@@ -587,16 +606,18 @@ namespace Laska
             return bestScore;
         }
 
-        public string BestMoveMinimax()
+        private bool isWinEval(float eval) 
         {
-            return BestMoveMinimax(searchDepth);
+            const int maxWinDepth = 1000;
+            return Mathf.Abs(eval) > ACTIVE_WIN - maxWinDepth;
         }
 
-        public string BestMoveMinimax(int depth)
+        public string BestMoveMinimax()
         {
             PiecesManager.FakeMoves = true;
-            float bestScore = float.MinValue;
-            string bestMove = "";
+            _abortSearch = false;
+            float bestScoreThisIteration, bestScore = float.MinValue;
+            string bestMoveThisIteration, bestMove = null;
 
             List<string> moves = gameManager.ActivePlayer.GetPossibleMovesAndMultiTakes();
             if (moves.Count == 1)
@@ -605,7 +626,45 @@ namespace Laska
             }
             else
             {
-                search();
+                if (useIterativeDeepening)
+                {
+                    int targetDepth = limitDeepeningDepth ? searchDepth : int.MaxValue;
+                    for (int depth = 1; depth <= targetDepth; depth++)
+                    {
+                        search(depth);
+                        if (_abortSearch)
+                        {
+                            if(bestMove == null)
+                            {
+                                Debug.LogError("Move not found - not enough time. Using TT-move...");
+                                bestMove = transpositionTable.GetStoredMove();
+                                if(bestMove == null)
+                                {
+                                    Debug.LogError("Move not found even in TT! Using first move...");
+                                    bestMove = moves[0];
+                                }
+                            }
+                            break;
+                        }
+                        else
+                        {
+                            bestMove = bestMoveThisIteration;
+                            bestScore = bestScoreThisIteration;
+
+                            // Exit search if found a mate
+                            if (isWinEval(bestScore))
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    search(searchDepth);
+                    bestMove = bestMoveThisIteration;
+                    bestScore = bestScoreThisIteration;
+                }
             }
             PiecesManager.FakeMoves = false;
 
@@ -616,19 +675,21 @@ namespace Laska
             else
             {
                 Debug.Log("bestMove/" + moves.Count + " " + bestMove + " (" + bestScore + ")");
-                if(bestScore >= ACTIVE_WIN-depth)
+                if(bestScore >= ACTIVE_WIN-searchDepth)
                 {
                     Debug.LogError("ACTIVE_WIN found");
                 }
-                else if (bestScore <= INACTIVE_WIN+depth)
+                else if (bestScore <= INACTIVE_WIN+searchDepth)
                 {
                     Debug.LogError("INACTIVE_WIN found");
                 }
             }
             return bestMove;
 
-            void search()
+            void search(int depth)
             {
+                bestScoreThisIteration = float.MinValue;
+                bestMoveThisIteration = null;
                 string ttMove = null;
                 if (useTranspositionTable)
                 {
@@ -636,8 +697,8 @@ namespace Laska
                         .LookupEvaluation(depth, 0, float.MinValue, float.MaxValue, out ttMove);
                     if (ttVal != TranspositionTable.LookupFailed)
                     {
-                        bestMove = ttMove;
-                        bestScore = ttVal;
+                        bestMoveThisIteration = ttMove;
+                        bestScoreThisIteration = ttVal;
                         return;
                     }
                 }
@@ -655,18 +716,68 @@ namespace Laska
                 {
                     Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
 
-                    float score = -negamax(float.MinValue, -bestScore, depth - 1, false, 1, ref repetitions);
-                    if (score > bestScore)
+                    float score = -negamax(float.MinValue, -bestScoreThisIteration, depth - 1, false, 1, ref repetitions);
+                    if (score > bestScoreThisIteration)
                     {
-                        bestScore = score;
-                        bestMove = move;
+                        bestScoreThisIteration = score;
+                        bestMoveThisIteration = move;
                     }
 
                     unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
                 }
 
-                if (useTranspositionTable && repetitions == 0)
-                    transpositionTable.StoreEvaluation(depth, 0, bestScore, TranspositionTable.Exact, bestMove);
+                if (useTranspositionTable && !_abortSearch && repetitions == 0)
+                    transpositionTable.StoreEvaluation(depth, 0, bestScoreThisIteration, TranspositionTable.Exact, bestMoveThisIteration);
+            }
+        }
+
+        public void MakeMove()
+        {
+            if (useThreading)
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    try
+                    {
+                        _threadingMove = BestMoveMinimax();
+                    }
+                    catch (Exception e)
+                    {
+                        _threadingException = e;
+                    }
+                    _cancelSearchTimer?.Cancel();
+                }, TaskCreationOptions.LongRunning);
+
+                _cancelSearchTimer = new CancellationTokenSource();
+                Task.Delay(searchTime, _cancelSearchTimer.Token).ContinueWith(_ => EndSearch());
+            }
+            else 
+            {
+                var move = BestMoveMinimax();
+                moveMaker.MakeMove(move);
+            }
+        }
+
+        public void EndSearch()
+        {
+            if (_cancelSearchTimer == null || !_cancelSearchTimer.IsCancellationRequested)
+            {
+                _abortSearch = true;
+            }
+        }
+
+        private void Update()
+        {
+            if (_threadingMove != null)
+            {
+                moveMaker.MakeMove(_threadingMove);
+                _threadingMove = null;
+            }
+
+            if(_threadingException != null)
+            {
+                Debug.LogException(_threadingException);
+                _threadingException = null;
             }
         }
     }

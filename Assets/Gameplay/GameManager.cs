@@ -75,11 +75,9 @@ namespace Laska
 
             if (player.isAI)
             {                
-                moveMaker.MoveSelectionEnabled = false;
                 // Make AI move
-                var move = player.AI.BestMoveMinimax();
-                moveMaker.MakeMove(move);
-
+                moveMaker.MoveSelectionEnabled = false;
+                player.AI.MakeMove();
             }
             else
             {
