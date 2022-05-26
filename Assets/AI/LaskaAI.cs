@@ -24,6 +24,7 @@ namespace Laska
         public bool searchAllTakes;
         public bool searchUnsafePositions;
         public bool antyZugzwang;
+        public bool seekWinInZugzwangSearch;
         public bool evalColumnsValue;
         public float officerValue = 10.296f;
         public float officerCaptivesShare = 0.208f;
@@ -103,15 +104,9 @@ namespace Laska
                     activeScore -= (c.Strength - 1) * pointsPerExtraColumnStrength;
             }
 
-            if (evalSpace)
+            if (evalSpace && !antyZugzwang)
             {
-                _cachedSafeSquares.Clear();
-                foreach (var c in activeColumns)
-                    activeScore += calcAccessibleSquares(c);
-
-                _cachedSafeSquares.Clear();
-                foreach (var c in inactiveColumns)
-                    activeScore -= calcAccessibleSquares(c);
+                activeScore += getSpaceScore();
             }
             else if (activeScore > 20000) //activePieceDiff > 2
             {
@@ -119,6 +114,20 @@ namespace Laska
             }
 
             return activeScore;
+        }
+
+        private int getSpaceScore()
+        {
+            int score = 0;
+            _cachedSafeSquares.Clear();
+            foreach (var c in gameManager.ActivePlayer.GetOwnedColums())
+                score += calcAccessibleSquares(c);
+
+            _cachedSafeSquares.Clear();
+            foreach (var c in gameManager.InactivePlayer.GetOwnedColums())
+                score -= calcAccessibleSquares(c);
+
+            return score;
         }
 
         /// <summary>
@@ -257,7 +266,8 @@ namespace Laska
             return score;
         }
 
-        private Column makeMove(string move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion)
+        private Column makeMove(string move, out Stack<Square> takenSquares, out Square previousSquare,
+            out bool promotion, out bool unrepeatable)
         {
             var squares = move.Split('-');
             Column movedColumn = board.GetColumnAt(squares[0]);
@@ -268,6 +278,7 @@ namespace Laska
             if (squares.Length >= 3)
             {
                 // Take
+                unrepeatable = true;
                 takenSquares = new Stack<Square>();
                 targetSquare = board.GetSquareAt(squares[squares.Length-1]);
 
@@ -282,6 +293,7 @@ namespace Laska
             else
             {
                 // Move
+                unrepeatable = !movedColumn.Commander.IsOfficer;
                 takenSquares = null;
                 targetSquare = board.GetSquareAt(squares[1]);
             }
@@ -317,7 +329,7 @@ namespace Laska
         }
 
         private float antyZugzwangSearch(float currentScore, float alpha, float beta, bool maximize,
-            List<string> moves, int plyFromRoot, out int repetitions)
+            List<string> moves, int plyFromRoot, bool wasLastMoveUnrepeatable, out int repetitions)
         {
             if (orderMoves)
                 moveOrdering.OrderMoves(moves, null);
@@ -330,8 +342,9 @@ namespace Laska
             for (int i = 0; i < moves.Count; i++)
             {
                 var move = moves[i];
-                Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
-                float score = -negamax(-beta, -alpha, 0, !maximize, plyFromRoot + 1, ref repetitions);
+                Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare,
+                    out bool promotion, out bool unrepeatable);
+                float score = -negamax(-beta, -alpha, 0, !maximize, plyFromRoot + 1, unrepeatable, ref repetitions);
                 unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
                 if (score > bestScore)
@@ -362,7 +375,7 @@ namespace Laska
                         }
 
                         // Found move that leads to better or equal position so it's not zugzwang.
-                        if (score >= currentScore)
+                        if (seekWinInZugzwangSearch ? score > currentScore : score >= currentScore)
                         {
                             // If we haven't checked all the moves, then there might be a better one
                             // but we can still store it as Exact (if it's between [alpha, beta]),
@@ -384,7 +397,7 @@ namespace Laska
                     bestMove = null;
             }
 
-            if (useTranspositionTable && !_abortSearch && repetitions == 0)
+            if (useTranspositionTable && !_abortSearch && (repetitions == 0 || wasLastMoveUnrepeatable))
                 transpositionTable.StoreEvaluation(0, plyFromRoot, bestScore, evalType, bestMove);
 
             return bestScore;
@@ -393,7 +406,7 @@ namespace Laska
         /// <returns> Should search be extended?</returns>
         private bool quiescenceSearch(float alpha, float beta, bool maximize,
             Player playerToMove, List<string> moves, int plyFromRoot,
-            out float eval, out int repetitions)
+            out float eval, bool wasLastMoveUnrepeatable, out int repetitions)
         {
             eval = TranspositionTable.LookupFailed;
             repetitions = 0;
@@ -423,8 +436,15 @@ namespace Laska
             if (antyZugzwang && !_isSearchingZugzwang)
             {
                 _isSearchingZugzwang = true;
-                eval = antyZugzwangSearch(eval, alpha, beta, maximize, moves, plyFromRoot, out repetitions);
+                eval = antyZugzwangSearch(eval, alpha, beta, maximize, moves, plyFromRoot,
+                    wasLastMoveUnrepeatable, out repetitions);
                 _isSearchingZugzwang = false;
+
+                // When antyZugzwang is on, space score is skiped in the eval func so let's add it now
+                if (evalSpace && !IsWinEval(eval))
+                {
+                    eval += getSpaceScore();
+                }
             }
 
             return false;
@@ -452,13 +472,18 @@ namespace Laska
         /// (As our eval func returns positive values when the position is good for <see cref="GameManager.ActivePlayer"/>.)
         /// </param>
         /// <param name="plyFromRoot"> Starts with 0 at root node and increases with every node checked.</param>
+        /// <param name="wasLastMoveUnrepeatable"> 
+        /// Was the move that led to this position Take or Soldier move? False if Officer move.
+        /// If true, only deeper positions can be repeated, so it's safe to store score from this node it in TT.
+        /// </param>
         /// <param name="repetitionsLastNode"> How many draws by repetition were found starting from this/previous node.</param>
         /// <returns> 
         /// It depends on whether we are using fail-soft or fail-hard version
         /// and whether we fit in the [alpha, beta] window or not,
         /// but the general idea is to return value of the best move in a given position.
         /// </returns>
-        private float negamax(float alpha, float beta, int depth, bool maximize, int plyFromRoot, ref int repetitionsLastNode)
+        private float negamax(float alpha, float beta, int depth, bool maximize, int plyFromRoot,
+            bool wasLastMoveUnrepeatable, ref int repetitionsLastNode)
         {
             // If we use iterative deepening result from this iteration
             // will be discarded and move from previous one will be used.
@@ -517,7 +542,7 @@ namespace Laska
             else if (depth <= 0)
             {
                 if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, plyFromRoot,
-                    out float eval, out int repetitions))
+                    out float eval, wasLastMoveUnrepeatable, out int repetitions))
                 {
                     repetitionsLastNode += repetitions;
                     return eval;
@@ -537,8 +562,9 @@ namespace Laska
 
             foreach (var move in moves)
             {
-                Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
-                float score = -negamax(-beta, -alpha, depth - 1, !maximize, plyFromRoot + 1, ref repetitionsThisNode);
+                Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare,
+                    out bool promotion, out bool unrepeatable);
+                float score = -negamax(-beta, -alpha, depth - 1, !maximize, plyFromRoot + 1, unrepeatable, ref repetitionsThisNode);
                 unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 
                 if (score > bestScore)
@@ -602,8 +628,7 @@ namespace Laska
                 // We shoudn't store in TT scores that were influenced by repetiton draws, because scores stored in TT should only
                 // depend on deeper positions and not previous ones (as sometimes we can reach the same position by different path).
                 // Draws by repetition can depend on positions prior to this one so we shoudn't store scores based on them in TT.
-                //TODO Maybe I should check if the previous move was take, then we could know if repetition was only in deeper nodes.
-                if (repetitionsThisNode == 0)
+                if (repetitionsThisNode == 0 || wasLastMoveUnrepeatable)
                 {
                     transpositionTable
                         .StoreEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(1, depth), plyFromRoot, bestScore, evalType, bestMove);
@@ -741,9 +766,10 @@ namespace Laska
 
                 foreach (var move in moves)
                 {
-                    Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare, out bool promotion);
+                    Column movedColumn = makeMove(move, out Stack<Square> takenSquares, out Square previousSquare,
+                        out bool promotion, out bool unrepeatable);
 
-                    float score = -negamax(float.MinValue, -bestScoreThisIteration, depth - 1, false, 1, ref repetitions);
+                    float score = -negamax(float.MinValue, -bestScoreThisIteration, depth - 1, false, 1, unrepeatable, ref repetitions);
                     if (score > bestScoreThisIteration)
                     {
                         bestScoreThisIteration = score;
@@ -753,7 +779,7 @@ namespace Laska
                     unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
                 }
 
-                if (useTranspositionTable && !_abortSearch && repetitions == 0)
+                if (useTranspositionTable && !_abortSearch && (repetitions == 0 || _visitedNonTakePositions.Count <= 1))
                     transpositionTable.StoreEvaluation(depth, 0, bestScoreThisIteration, TranspositionTable.Exact, bestMoveThisIteration);
             }
         }

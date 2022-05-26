@@ -413,6 +413,7 @@ MonoBehaviour:
   searchAllTakes: 1
   searchUnsafePositions: 1
   antyZugzwang: 1
+  seekWinInZugzwangSearch: 1
   evalColumnsValue: 1
   officerValue: 10.296
   officerCaptivesShare: 0.208
@@ -425,8 +426,8 @@ MonoBehaviour:
   orderMoves: 1
   useTranspositionTable: 1
   useTTForDirectEvals: 1
-  storeBestMoveForAllNodes: 0
-  storeMovesInfuencedByDraws: 0
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
   failSoft: 1
 --- !u!114 &26702259
 MonoBehaviour:
@@ -1535,7 +1536,8 @@ MonoBehaviour:
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
   searchUnsafePositions: 1
-  antyZugzwang: 1
+  antyZugzwang: 0
+  seekWinInZugzwangSearch: 0
   evalColumnsValue: 1
   officerValue: 10.296
   officerCaptivesShare: 0.208

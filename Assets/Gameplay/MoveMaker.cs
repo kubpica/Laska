@@ -278,11 +278,15 @@ namespace Laska
             if(takenPieces.Count == 0)
             {
                 // Just move
-                board.SavePositionInRepetitionHistory();
-                if(!justPromoted && selectedColumn.Commander is Officer)
+                if(!justPromoted && selectedColumn.Commander.IsOfficer)
+                {
                     board.OfficerMovesSinceLastTake++;
+                }
                 else
+                {
                     board.OfficerMovesSinceLastTake = 0;
+                    board.ClearRepetitionHistory(); // Previous positions can't repeat when Soldier (Private) is moved
+                }
             }
             else
             {
@@ -291,6 +295,7 @@ namespace Laska
                 board.OfficerMovesSinceLastTake = 0;
                 takenPieces.Clear();
             }
+            board.SavePositionInRepetitionHistory();
 
             selectedColumn = null;
             justPromoted = false;
