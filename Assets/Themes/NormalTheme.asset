@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36166ac0b1941874dae451362fb1a7f0, type: 3}
   m_Name: NormalTheme
   m_EditorClassIdentifier: 
-  soldierMianownik: "\u017Bo\u0142nierz"
-  soldierBiernik: "\u017Co\u0142nierza"
+  soldierMianownik: Szeregowy
+  soldierBiernik: szeregowego
   officerMianownik: Oficer
   officerBiernik: oficera
   takesMsg: bierze do niewoli

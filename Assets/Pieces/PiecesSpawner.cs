@@ -41,7 +41,7 @@ namespace Laska
             foreach (var piece in column.Pieces.Reverse())
             {
                 piece.transform.position = p;
-                p.y += piece.transform.localScale.y;
+                p.y += piece.transform.localScale.y/2.0f;
             }
 
             board.AddColumn(column, square);

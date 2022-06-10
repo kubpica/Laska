@@ -165,7 +165,7 @@ namespace Laska
 
             var oldPiece = Commander;
 
-            if(!PiecesManager.FakeMoves)
+            if(!PiecesManager.TempMoves)
                 newPiece.transform.position = oldPiece.transform.position;
             newPiece.Column = this;
 

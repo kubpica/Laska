@@ -18,7 +18,7 @@ namespace Laska
                 column.Square.Clear();
                 column.Square = null;
             }
-            if (!PiecesManager.FakeMoves)
+            if (!PiecesManager.TempMoves)
                 column.gameObject.SetActive(false);
             _columns.Push(column);
         }
@@ -26,14 +26,14 @@ namespace Laska
         public Column ReviveColumn()
         {
             var c = _columns.Pop();
-            if (!PiecesManager.FakeMoves)
+            if (!PiecesManager.TempMoves)
                 c.gameObject.SetActive(true);
             return c;
         }
 
         public void KillPiece(Piece piece)
         {
-            if (!PiecesManager.FakeMoves)
+            if (!PiecesManager.TempMoves)
                 piece.gameObject.SetActive(false);
             if (piece is Officer officer)
             {
@@ -51,7 +51,7 @@ namespace Laska
 
         public void KillOfficer(Officer officer)
         {
-            if (!PiecesManager.FakeMoves)
+            if (!PiecesManager.TempMoves)
                 officer.gameObject.SetActive(false);
             killOfficer(officer);
         }
@@ -72,7 +72,7 @@ namespace Laska
             else
                 p = _blackSoldiers.Pop();
 
-            if (!PiecesManager.FakeMoves)
+            if (!PiecesManager.TempMoves)
                 p.gameObject.SetActive(true);
             return p;
         }
@@ -85,7 +85,7 @@ namespace Laska
             else
                 o = _blackOfficers.Pop();
 
-            if (!PiecesManager.FakeMoves)
+            if (!PiecesManager.TempMoves)
                 o.gameObject.SetActive(true);
             return o;
         }

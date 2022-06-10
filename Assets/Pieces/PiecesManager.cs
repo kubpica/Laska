@@ -7,7 +7,7 @@ namespace Laska
         /// <summary>
         /// Set to true when AI analyzes moves (without actually making them) so some optimizations can be applied.
         /// </summary>
-        public static bool FakeMoves;
+        public static bool TempMoves;
 
         [Component] private Graveyard _graveyard;
         [Component] private PiecesSpawner _spawner;

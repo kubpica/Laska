@@ -45,7 +45,7 @@ namespace Laska
             {
                 _column = value;
 
-                if (!PiecesManager.FakeMoves)
+                if (!PiecesManager.TempMoves)
                 {
                     if (_column != null)
                         transform.parent = _column.transform;

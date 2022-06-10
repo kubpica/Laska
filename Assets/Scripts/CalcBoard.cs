@@ -14,8 +14,8 @@ namespace Laska
         private void Start()
         {
             calcTakenSquaresEvForAllSquares();
+            print(_inSquares);
             calcSoldierValueOnSquares();
-
             //calcSquaresSoldierOccupation();
         }
 
@@ -41,7 +41,7 @@ namespace Laska
             }
 
             // "Unsafe" positions - squares where a piece can be released
-            var deathsPerUnsafeSquare = _deadSquares.Sum()/13.0f;
+            var deathsPerUnsafeSquare = 1; // _deadSquares.Sum()/13.0f * 0.75f;
             Debug.Log("deathsPerUnsafeSquare: " + deathsPerUnsafeSquare);
             for (int rank = 1; rank < 6; rank++)
             {
@@ -250,9 +250,9 @@ namespace Laska
             }
 
             if (left != null)
-                visitSquare(left, value, progressiveSplit, forkSplit);
+                visitSquare(left, value, progressiveSplit, forkSplit, false, deathChance);
             if (right != null)
-                visitSquare(right, value, progressiveSplit, forkSplit);
+                visitSquare(right, value, progressiveSplit, forkSplit, false, deathChance);
         }
 
         private Square getSquare(int file, int rank)

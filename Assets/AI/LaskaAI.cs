@@ -40,6 +40,7 @@ namespace Laska
         public bool storeBestMoveForAllNodes;
         public bool storeMovesInfuencedByDraws;
         public bool failSoft;
+        public bool dontUseAlphaBeta;
 
         public const float ACTIVE_WIN = 1000000;
         public const float INACTIVE_WIN = -1000000;
@@ -55,6 +56,12 @@ namespace Laska
         private string _threadingMove;
         private Exception _threadingException;
         private CancellationTokenSource _cancelSearchTimer;
+
+        private System.Diagnostics.Stopwatch _searchStopwatch;
+        private int _numNodes;
+        private int _numExtensions;
+        private int _numCutoffs;
+        private int _numTranspositions;
 
         public float EvaluatePosition(Player playerToMove)
         {
@@ -367,6 +374,7 @@ namespace Laska
                             if (!failSoft)
                                 bestScore = beta;
 
+                            _numCutoffs++;
                             break; // beta-cutoff
                         }
                         else
@@ -492,15 +500,25 @@ namespace Laska
                 return 0;
             }
 
-            // Skip this position if a mating sequence has already been found earlier in
-		    // the search, which would be shorter than any mate we could find from here.
-			// This is done by observing that alpha can't possibly be worse (and likewise
-			// beta can't possibly be better) than being mated in the current position.
-			alpha = Mathf.Max(alpha, INACTIVE_WIN + plyFromRoot);
-            beta = Mathf.Min(beta, ACTIVE_WIN - plyFromRoot);
-            if (alpha >= beta)
+            _numNodes++;
+
+            if (dontUseAlphaBeta)
             {
-                return alpha;
+                alpha = float.MinValue;
+                beta = float.MaxValue;
+            }
+            else
+            {
+                // Skip this position if a mating sequence has already been found earlier in
+		        // the search, which would be shorter than any mate we could find from here.
+			    // This is done by observing that alpha can't possibly be worse (and likewise
+			    // beta can't possibly be better) than being mated in the current position.
+			    alpha = Mathf.Max(alpha, INACTIVE_WIN + plyFromRoot);
+                beta = Mathf.Min(beta, ACTIVE_WIN - plyFromRoot);
+                if (alpha >= beta)
+                {
+                    return alpha;
+                }
             }
 
             // Detect draw by repetition.
@@ -521,6 +539,7 @@ namespace Laska
                     .LookupEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(0, depth), plyFromRoot, alpha, beta, out ttMove);
                 if (ttVal != TranspositionTable.LookupFailed)
                 {
+                    _numTranspositions++;
                     return ttVal;
                 }
             }
@@ -544,8 +563,14 @@ namespace Laska
                 if (!quiescenceSearch(alpha, beta, maximize, playerToMove, moves, plyFromRoot,
                     out float eval, wasLastMoveUnrepeatable, out int repetitions))
                 {
+                    // Final depth, return eval
                     repetitionsLastNode += repetitions;
                     return eval;
+                }
+                else
+                {
+                    // Search extended
+                    _numExtensions++;
                 }
             }
 
@@ -587,6 +612,7 @@ namespace Laska
                         if (!failSoft)
                             bestScore = beta;
 
+                        _numCutoffs++;
                         break; // beta-cutoff
                     }
 
@@ -669,7 +695,7 @@ namespace Laska
 
         public string BestMoveMinimax()
         {
-            PiecesManager.FakeMoves = true;
+            PiecesManager.TempMoves = true;
             _abortSearch = false;
             float bestScoreThisIteration, bestScore = float.MinValue;
             string bestMoveThisIteration, bestMove = null;
@@ -682,6 +708,7 @@ namespace Laska
             }
             else
             {
+                initDiagnostics();
                 if (useIterativeDeepening)
                 {
                     int targetDepth = limitDeepeningDepth ? searchDepth : int.MaxValue;
@@ -723,8 +750,9 @@ namespace Laska
                     bestScore = bestScoreThisIteration;
                     bestDepth = searchDepth;
                 }
+                logDiagnostics();
             }
-            PiecesManager.FakeMoves = false;
+            PiecesManager.TempMoves = false;
 
             if (moves.Count == 1)
             {
@@ -782,6 +810,21 @@ namespace Laska
                 if (useTranspositionTable && !_abortSearch && (repetitions == 0 || _visitedNonTakePositions.Count <= 1))
                     transpositionTable.StoreEvaluation(depth, 0, bestScoreThisIteration, TranspositionTable.Exact, bestMoveThisIteration);
             }
+        }
+
+        private void initDiagnostics()
+        {
+            _searchStopwatch = System.Diagnostics.Stopwatch.StartNew();
+            _numNodes = 0;
+            _numExtensions = 0;
+            _numCutoffs = 0;
+            _numTranspositions = 0;
+        }
+
+        private void logDiagnostics()
+        {
+            Debug.Log($"Search time: {_searchStopwatch.ElapsedMilliseconds} ms." +
+                $" Nodes: {_numNodes} Extensions: {_numExtensions} Cutoffs: {_numCutoffs} TThits: {_numTranspositions}");
         }
 
         public void MakeMove()

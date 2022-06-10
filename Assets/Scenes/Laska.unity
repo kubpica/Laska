@@ -404,31 +404,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useThreading: 1
-  useIterativeDeepening: 1
+  useThreading: 0
+  useIterativeDeepening: 0
   searchTime: 1000
   limitDeepeningDepth: 0
-  searchDepth: 6
-  forcedSequencesAsOneMove: 1
-  searchAllTakes: 1
-  searchUnsafePositions: 1
-  antyZugzwang: 1
-  seekWinInZugzwangSearch: 1
-  evalColumnsValue: 1
+  searchDepth: 12
+  forcedSequencesAsOneMove: 0
+  searchAllTakes: 0
+  searchUnsafePositions: 0
+  antyZugzwang: 0
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 0
   officerValue: 10.296
   officerCaptivesShare: 0.208
-  soldierValue: 4.160353
-  soldierCaptivesShare: 0.5231462
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
   pointsPerOwnedColumn: 0
   evalColumnsStrength: 0
-  pointsPerExtraColumnStrength: 10000
+  pointsPerExtraColumnStrength: 5000
   evalSpace: 1
   orderMoves: 1
   useTranspositionTable: 1
-  useTTForDirectEvals: 1
-  storeBestMoveForAllNodes: 1
-  storeMovesInfuencedByDraws: 1
+  useTTForDirectEvals: 0
+  storeBestMoveForAllNodes: 0
+  storeMovesInfuencedByDraws: 0
   failSoft: 1
+  dontUseAlphaBeta: 0
 --- !u!114 &26702259
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -441,7 +442,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2dde9cd0fa1de24e85625aec696b305, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 64000
+  size: 128000
   isEnabled: 1
   failSoft: 1
 --- !u!1 &57619628
@@ -1513,7 +1514,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 98
-  isAI: 1
+  isAI: 0
   timer: 180
   pieces: []
 --- !u!114 &281146563
@@ -1532,20 +1533,20 @@ MonoBehaviour:
   useIterativeDeepening: 1
   searchTime: 1000
   limitDeepeningDepth: 0
-  searchDepth: 6
+  searchDepth: 1
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
   searchUnsafePositions: 1
-  antyZugzwang: 0
-  seekWinInZugzwangSearch: 0
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 1
   evalColumnsValue: 1
   officerValue: 10.296
   officerCaptivesShare: 0.208
-  soldierValue: 4.08477
-  soldierCaptivesShare: 0.523585
+  soldierValue: 4.132272
+  soldierCaptivesShare: 0.5233092
   pointsPerOwnedColumn: 0
   evalColumnsStrength: 0
-  pointsPerExtraColumnStrength: 5000
+  pointsPerExtraColumnStrength: 10000
   evalSpace: 1
   orderMoves: 1
   useTranspositionTable: 1
@@ -1553,6 +1554,7 @@ MonoBehaviour:
   storeBestMoveForAllNodes: 1
   storeMovesInfuencedByDraws: 1
   failSoft: 1
+  dontUseAlphaBeta: 0
 --- !u!114 &281146564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1565,7 +1567,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2dde9cd0fa1de24e85625aec696b305, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 64000
+  size: 128000
   isEnabled: 1
   failSoft: 1
 --- !u!1 &306729858
