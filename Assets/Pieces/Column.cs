@@ -83,10 +83,15 @@ namespace Laska
             }
         }
 
+        #region Value
+
         private bool _isValueDirtyWhite = true;
         private float _cachedValueWhite;
+        private float _cachedSubValueWhite;
         private bool _isValueDirtyBlack = true;
         private float _cachedValueBlack;
+        private float _cachedSubValueBlack;
+
         public float Value
         {
             get
@@ -95,8 +100,7 @@ namespace Laska
                 {
                     if (_isValueDirtyWhite)
                     {
-                        _isValueDirtyWhite = false;
-                        _cachedValueWhite = calcValue();
+                        updateValueWhite();
                     }
                     return _cachedValueWhite;
                 }
@@ -104,19 +108,85 @@ namespace Laska
                 {
                     if (_isValueDirtyBlack)
                     {
-                        _isValueDirtyBlack = false;
-                        _cachedValueBlack = calcValue();
+                        updateValueBlack();
                     }
                     return _cachedValueBlack;
                 }
             }
         }
 
-        private float calcValue()
+        /// <summary>
+        /// The value of the column obtained by removing the current commander.
+        /// </summary>
+        public float SubValue
+        {
+            get
+            {
+                if (gameManager.ActivePlayer.color == 'w')
+                {
+                    if (_isValueDirtyWhite)
+                    {
+                        updateValueWhite();
+                    }
+                    return _cachedSubValueWhite;
+                }
+                else
+                {
+                    if (_isValueDirtyBlack)
+                    {
+                        updateValueBlack();
+                    }
+                    return _cachedSubValueBlack;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Value-SubValue
+        /// </summary>
+        public float Risk
+        {
+            get
+            {
+                if (gameManager.ActivePlayer.color == 'w')
+                {
+                    if (_isValueDirtyWhite)
+                    {
+                        updateValueWhite();
+                    }
+                    return _cachedValueWhite - _cachedSubValueWhite;
+                }
+                else
+                {
+                    if (_isValueDirtyBlack)
+                    {
+                        updateValueBlack();
+                    }
+                    return _cachedValueBlack - _cachedSubValueBlack;
+                }
+            }
+        }
+
+        private void updateValueWhite()
+        {
+            _isValueDirtyWhite = false;
+            _cachedValueWhite = calcValue(out _cachedSubValueWhite);
+        }
+
+        private void updateValueBlack()
+        {
+            _isValueDirtyBlack = false;
+            _cachedValueBlack = calcValue(out _cachedSubValueBlack);
+        }
+
+        private float calcValue(out float returnedSubValue)
         {
             var playerAi = gameManager.ActivePlayer.AI;
             var commanderColor = Commander.Color;
-            return visitNode(_pieces.First);
+            float subValue;
+            var returnedValue = visitNode(_pieces.First);
+            returnedSubValue = subValue;
+            return returnedValue;
 
             float visitNode(LinkedListNode<Piece> node)
             {
@@ -131,17 +201,20 @@ namespace Laska
                 if (node.Next != null)
                 {
                     // Calc value of captives
-                    value += visitNode(node.Next) * captivesShare;
+                    subValue = visitNode(node.Next);
                 }
                 else
                 {
                     // No more captives - penalty for losing a column
-                    value -= captivesShare * isTeammate;
+                    subValue = -1 * isTeammate;
                 }
+                value += subValue * captivesShare;
 
                 return value;
             }
         }
+
+        #endregion
 
         public void Init(Piece commander)
         {

@@ -6,7 +6,10 @@ namespace Laska
 	public class MoveOrdering : MonoBehaviourExtended
 	{
 		[GlobalComponent] private Board board;
-		private int[] moveScores = new int[44];
+		private float[] moveScores = new float[44];
+
+		public bool evalStrengthByRisk;
+		public bool evalTakesByRisk;
 
 		public void OrderMoves(List<string> moves, string ttMove)
 		{
@@ -16,18 +19,37 @@ namespace Laska
 			{
 				string move = moves[i];
 				
-				int score = 0;
+				float score = 0;
 
 				if (canTake)
 				{
-					// Prefer longer takes
-					score += move.Length * 100;
-
-					//TODO Prefer more valuable takes (taking officers, releasing captives etc)
+					if (evalTakesByRisk)
+					{
+						// Prefer more valuable takes (taking officers, releasing captives etc)
+						for (int j = 3; j < move.Length; j += 6)
+						{
+							var takenColumn = board.GetColumnAt(move.Substring(j, 2));
+							score += takenColumn.Risk;
+						}
+					}
+					else
+					{
+						// Prefer longer takes
+						score += move.Length;
+					}
+					score *= 100000;
 				}
 
 				// Prefer moving stronger columns
-				score += board.GetColumnAt(move.Substring(0, 2)).Strength * 10;
+				var column = board.GetColumnAt(move.Substring(0, 2));
+				if (evalStrengthByRisk)
+				{
+					score += (100 - column.Risk) * 1000;
+				}
+				else
+				{
+					score += column.Strength * 10;
+				}
 
 				//TODO Prefer moves close to other pieces
 
