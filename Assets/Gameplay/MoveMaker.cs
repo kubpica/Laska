@@ -12,6 +12,7 @@ namespace Laska
         [GlobalComponent] private GameManager gameManager;
         [GlobalComponent] private Board board;
         [GlobalComponent] private IngameMessages msg;
+        [GlobalComponent] private CameraController cameraController;
 
         public StringEvent onMoveStarted;
         public UnityEvent onMoveEnded;
@@ -272,6 +273,8 @@ namespace Laska
 
         private void endMove()
         {
+            cameraController.MakeSureObjectCanBeSeen(selectedColumn.Commander.gameObject);
+
             selectedColumn.ZobristAll(); // XOR-in moved column
             board.ZobristSideToMove();
 
@@ -448,7 +451,7 @@ namespace Laska
                 && gameManager.CurrentGameState != GameManager.GameState.PreGame)
                 return;
 
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
                 var clicked = cam.GetColliderUnderMouse();
                 //if (clicked != null)

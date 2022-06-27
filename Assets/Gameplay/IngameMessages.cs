@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Laska
 {
@@ -8,6 +9,11 @@ namespace Laska
 
         private GUIStyle _currentStyle = new GUIStyle();
         private GUIStyle _lastStyle = new GUIStyle();
+        private GUIStyle _buttonStyle = new GUIStyle();
+
+        private int _level = 1;
+        private float _widthScale;
+        private float _heightScale;
 
         public string DisplayedMsg { get; set; }
 
@@ -15,8 +21,13 @@ namespace Laska
         {
             _currentStyle.fontStyle = FontStyle.Bold;
             _currentStyle.normal.textColor = Color.green;
+            _currentStyle.fontSize = 13;
             _lastStyle.fontStyle = FontStyle.Bold;
             _lastStyle.normal.textColor = Color.green;
+            _lastStyle.fontSize = 13;
+
+            _buttonStyle = new GUIStyle("button");
+            _buttonStyle.fontSize = 13;
         }
 
         public void SetCurrentTextColor(Player player)
@@ -58,32 +69,79 @@ namespace Laska
             //style = backupStyle;
         }
 
+        private Rect scaleRect(float x, float y, float width, float height)
+        {
+            return new Rect(x * _widthScale, y * _heightScale, width * _widthScale, height * _heightScale);
+        }
+
         private void OnGUI()
         {
-            //GUI.Label(new Rect(Screen.width-126, 10, 200, 20), "Tiktok: @warcoins", currentStyle);
+            _widthScale = Mathf.Max(Screen.width / 1917f, 0.5f);
+            _heightScale = Mathf.Max(Screen.height / 908f, 0.5f);
+
+            _currentStyle.fontSize = (int)(21 * _heightScale);
+            _lastStyle.fontSize = (int)(21 * _heightScale);
+            _buttonStyle.fontSize = (int)(26 * _heightScale);
+
+            if (GUI.Button(scaleRect(Screen.width / _widthScale - 340, 10, 300, 80), _level == 7 ? "Bot wyłączony" : (_level == 0 ? "Poziom X" : "Poziom " + _level), _buttonStyle))
+            {
+                var blackPlayer = GameManager.Instance.GetPlayer('b');
+                var ai = blackPlayer.AI;
+                _level++;
+                _level %= 8;
+                if (_level == 7)
+                {
+                    blackPlayer.isAI = false;
+                }
+                else if (_level > 0)
+                {
+                    blackPlayer.isAI = true;
+                    ai.limitDeepeningDepth = true;
+                    ai.searchDepth = _level;
+                }
+                else
+                {
+                    blackPlayer.isAI = true;
+                    ai.limitDeepeningDepth = false;
+                }
+            }
+
+            if (GUI.Button(scaleRect(Screen.width / _widthScale - 340, 100, 300, 80), "Nowa gra", _buttonStyle))
+            {
+                PiecesManager.TempMoves = false;
+                SceneManager.LoadScene("Laska");
+            }
+
+            if (GUI.Button(scaleRect(Screen.width / _widthScale - 340, 190, 300, 80), "Obróć", _buttonStyle))
+            {
+                CameraController.Instance.ChangePerspective();
+            }
+
+            //GUI.Label(new Rect(Screen.width-126, 10, 200, 20), "Tiktok: @warcoins", _currentStyle);
+
             string player = game.ActivePlayer.color == 'b' ? "czerwonego" : "zielonego";
             if (game.Mate)
             {
-                GUI.Label(new Rect(10, 10, 200, 20), "Pat-mat! Wygrana gracza " + player, _currentStyle);
+                GUI.Label(scaleRect(60, 10, 200, 20), "Pat-mat! Wygrana gracza " + player, _currentStyle);
                 return;
             }
             else if (game.DrawByRepetition)
             {
-                GUI.Label(new Rect(10, 10, 200, 20), "Remis przez powtórzenie!", _currentStyle);
+                GUI.Label(scaleRect(60, 10, 200, 20), "Remis przez powtórzenie!", _currentStyle);
                 return;
             }
             else if (game.DrawByFiftyMoveRule)
             {
-                GUI.Label(new Rect(10, 10, 200, 20), "Remis przez 50 ruchów bez bicia!", _currentStyle);
+                GUI.Label(scaleRect(60, 10, 200, 20), "Remis przez 50 ruchów bez bicia!", _currentStyle);
                 return;
             }
 
-            GUI.Label(new Rect(10, 10, 200, 20), "Ruch gracza " + player, _currentStyle);
+            GUI.Label(scaleRect(60, 10, 200, 20), "Ruch gracza " + player, _currentStyle);
             if (DisplayedMsg != null)
             {
                 var msg = DisplayedMsg;
 
-                DrawOutline(new Rect(10, 30, 1900, 1000), msg, _lastStyle, Color.black, _lastStyle.normal.textColor);
+                DrawOutline(scaleRect(60, 40, 1900, 1000), msg, _lastStyle, Color.black, _lastStyle.normal.textColor);
             }
         }
     }

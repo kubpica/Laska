@@ -102,7 +102,7 @@ namespace Laska
 		{
 			get
 			{
-				return Path.Combine(Application.streamingAssetsPath, randomNumbersFileName);
+				return Path.Combine(Application.persistentDataPath, randomNumbersFileName);
 			}
 		}
 

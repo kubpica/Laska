@@ -223,7 +223,7 @@ namespace Laska
             board.GetSquareIds(s.coordinate, out int file, out int rank);
 
             // Check if the square is not safe (not near border)
-            if (!firstSafe && file != 0 && file != 6 && rank != 0 && rank != 6) //
+            if (!firstSafe && file != 0 && file != 6 && rank != 0 && rank != 6)
             {
                 // 60% for surviving
                 var deadValue = value * deathChance;

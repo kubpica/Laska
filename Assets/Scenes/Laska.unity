@@ -389,7 +389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 119
-  isAI: 1
+  isAI: 0
   timer: 180
   pieces: []
 --- !u!114 &26702258
@@ -404,17 +404,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68f63a11004ae99479454f2366807b53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useThreading: 0
+  useThreading: 1
+  searchTime: 600000
   useIterativeDeepening: 0
-  searchTime: 1000
   limitDeepeningDepth: 0
-  searchDepth: 12
+  searchDepth: 13
   forcedSequencesAsOneMove: 0
   searchAllTakes: 0
   searchUnsafePositions: 0
   antyZugzwang: 0
   seekWinInZugzwangSearch: 0
-  evalColumnsValue: 0
+  evalColumnsValue: 1
   officerValue: 10.296
   officerCaptivesShare: 0.208
   soldierValue: 4.08477
@@ -423,12 +423,12 @@ MonoBehaviour:
   evalColumnsStrength: 0
   pointsPerExtraColumnStrength: 5000
   evalSpace: 1
-  orderMoves: 1
-  useTranspositionTable: 1
+  orderMoves: 0
+  useTranspositionTable: 0
   useTTForDirectEvals: 0
-  storeBestMoveForAllNodes: 0
-  storeMovesInfuencedByDraws: 0
-  failSoft: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 0
   dontUseAlphaBeta: 0
 --- !u!114 &26702259
 MonoBehaviour:
@@ -1514,7 +1514,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 98
-  isAI: 0
+  isAI: 1
   timer: 180
   pieces: []
 --- !u!114 &281146563
@@ -1530,15 +1530,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  useIterativeDeepening: 1
   searchTime: 1000
-  limitDeepeningDepth: 0
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 1
   searchDepth: 1
   forcedSequencesAsOneMove: 1
   searchAllTakes: 1
   searchUnsafePositions: 1
-  antyZugzwang: 1
-  seekWinInZugzwangSearch: 1
+  antyZugzwang: 0
+  seekWinInZugzwangSearch: 0
   evalColumnsValue: 1
   officerValue: 10.296
   officerCaptivesShare: 0.208
@@ -3690,7 +3690,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &711401399
 MonoBehaviour:
@@ -5407,7 +5407,6 @@ GameObject:
   - component: {fileID: 1175026849}
   - component: {fileID: 1175026851}
   - component: {fileID: 1175026852}
-  - component: {fileID: 1175026850}
   m_Layer: 0
   m_Name: Board
   m_TagString: Untagged
@@ -5436,20 +5435,8 @@ Transform:
   - {fileID: 1418045929}
   - {fileID: 393469054}
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1175026850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1175026848}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69d113f724eae6a428b2d466e8abee73, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1175026851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5474,7 +5461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 918db39e10b407343b779eb0137c741d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laskaFen: b,b,b,b/b,b,b/b,b,b,b/,,/w,w,w,w/w,w,w/w,w,w,w w
+  laskaFen: ',,,b/,,bB/,,,/W,wwBb,bB/W,ww,,/w,Wwb,/,,Bbw,Bw w'
 --- !u!1 &1245977302
 GameObject:
   m_ObjectHideFlags: 0
@@ -5601,7 +5588,7 @@ Transform:
   - {fileID: 26702256}
   - {fileID: 281146561}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1290523156
 MonoBehaviour:
@@ -6371,6 +6358,63 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   coordinate: e5
   draughtsNotationIndex: 17
+--- !u!1 &1439416672
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1439416675}
+  - component: {fileID: 1439416674}
+  - component: {fileID: 1439416673}
+  m_Layer: 0
+  m_Name: Benchmarks
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1439416673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1439416672}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d86d07c1a6e9e1489294f503db57c0f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ai: {fileID: 26702258}
+--- !u!114 &1439416674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1439416672}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69d113f724eae6a428b2d466e8abee73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1439416675
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1439416672}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.418901, y: -2.4283535, z: -0.5516052}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1443625621
 GameObject:
   m_ObjectHideFlags: 0
@@ -6793,9 +6837,9 @@ GameObject:
   - component: {fileID: 1543482715}
   - component: {fileID: 1543482714}
   - component: {fileID: 1543482718}
-  - component: {fileID: 1543482720}
   - component: {fileID: 1543482717}
   - component: {fileID: 1543482719}
+  - component: {fileID: 1543482720}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -6866,7 +6910,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 60, y: 180, z: 0}
 --- !u!114 &1543482717
 MonoBehaviour:
@@ -6917,6 +6961,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abe5f6f00ae68b54596e558001d689b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controlsEnabled: 0
   movementSpeed: 10
   fastMovementSpeed: 50
   freeLookSensitivity: 3
@@ -6932,7 +6977,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1543482713}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82fff64ada7331c4a967066f82ab9e39, type: 3}
   m_Name: 
@@ -8680,7 +8725,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &1887915752
 GameObject:

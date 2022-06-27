@@ -52,7 +52,7 @@
 		public const byte UpperBound = 3;
 
 		/// <summary>
-		/// Used when we want to store "bestMove" but it's value.
+		/// Used when we want to store "bestMove" but not its value.
 		/// </summary>
 		public const byte Invalid = byte.MaxValue;
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 /// <summary>
 /// A simple free camera to be added to a Unity game object.
@@ -13,9 +14,11 @@
 ///	mouse			- free look / rotation
 ///     
 /// </summary>
-public class CameraController : MonoBehaviourExtended
+public class CameraController : MonoBehaviourSingleton<CameraController>
 {
     [Component] private Camera cam;
+
+    public bool controlsEnabled;
 
     /// <summary>
     /// Normal speed of camera movement.
@@ -45,6 +48,7 @@ public class CameraController : MonoBehaviourExtended
     public float dragSpeed = 1f;
     public float fastDragSpeed = 5f;
 
+
     public GameObject d4;
 
     /// <summary>
@@ -54,13 +58,11 @@ public class CameraController : MonoBehaviourExtended
 
     private Vector3 pivotPoint;
 
-    private void Start()
-    {
-        
-    }
-
     private void Update()
     {
+        if (!controlsEnabled)
+            return;
+
         var fastMode = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         var movementSpeed = fastMode ? this.fastMovementSpeed : this.movementSpeed;
 
@@ -203,5 +205,37 @@ public class CameraController : MonoBehaviourExtended
         looking = false;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+    }
+
+    public bool CanSee(Vector3 point)
+    {
+        Vector3 viewPos = cam.WorldToViewportPoint(point);
+        if (viewPos.x < 0 || viewPos.x > 1 ||
+            viewPos.y < 0 || viewPos.y > 1 ||
+            viewPos.z < 0)
+            return false;
+
+        return true;
+    }
+
+    public void MakeSureObjectCanBeSeen(GameObject go)
+    {
+        var p = go.transform.position.Y(go.transform.position.y + 1.5f);
+        StartCoroutine(makeSureObjectCanBeSeen());
+
+        IEnumerator makeSureObjectCanBeSeen()
+        {
+            while (!CanSee(p))
+            { 
+                transform.position = transform.position + Vector3.up * 2 * Time.deltaTime; // Lift-up
+                //transform.position = transform.position + transform.forward * 2 * Time.deltaTime; // Zoom-out
+                yield return null;
+            }
+        }
+    }
+
+    public void ChangePerspective()
+    {
+        transform.RotateAround(d4.transform.position, Vector3.up, 180);
     }
 }

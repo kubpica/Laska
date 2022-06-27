@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Laska
 {
@@ -143,23 +144,25 @@ namespace Laska
 
             var multiMoves = new List<string>();
             var takenSquares = new Stack<string>();
+            StringBuilder sb = new StringBuilder();
             // Check for multi-takes
             foreach(var move in moves)
             {
-                visitMultiTake(multiMoves, takenSquares, move);
+                visitMultiTake(sb, multiMoves, takenSquares, move);
+                sb.Clear();
             }
             return multiMoves; // All possible take paths
         }
 
-        private void visitMultiTake(List<string> movesList, Stack<string> takenSquares, string nextMove,
-            Column movedColumn = null, string multiMove = null)
+        private void visitMultiTake(StringBuilder sb, List<string> movesList, Stack<string> takenSquares, string nextMove,
+            Column movedColumn = null)
         {
             // Parse next move
             var squares = nextMove.Split('-');
             if(movedColumn == null)
             {
                 movedColumn = board.GetColumnAt(squares[0]);
-                multiMove = squares[0];
+                sb.Append(squares[0]);
             }
             Square previousSquare = movedColumn.Square;
             string takenSquare = squares[1];
@@ -170,7 +173,7 @@ namespace Laska
             bool promotion = movedColumn.Move(targetSquare, true);
 
             // Save multi-take move notation
-            multiMove += "-" + takenSquare + "-" + targetSquare.coordinate;
+            sb.Append("-").Append(takenSquare).Append("-").Append(targetSquare.coordinate);
 
             // Check for next takes
             bool noMoreTakes = true;
@@ -182,7 +185,7 @@ namespace Laska
                     noMoreTakes = false;
                     for (int i = 0; i < possibleMoves.Count; i++)
                     {
-                        visitMultiTake(movesList, takenSquares, possibleMoves[i], movedColumn, multiMove);
+                        visitMultiTake(sb, movesList, takenSquares, possibleMoves[i], movedColumn);
                     }
                 }
             }
@@ -190,12 +193,13 @@ namespace Laska
             // If no more takes add the multi-take move to the list
             if (noMoreTakes)
             {
-                movesList.Add(multiMove);
+                movesList.Add(sb.ToString());
             }
 
             // Undo move
             takenSquares.Pop();
             movedColumn.Move(previousSquare);
+            sb.Remove(sb.Length - 6, 6);
         }
     }
 }
