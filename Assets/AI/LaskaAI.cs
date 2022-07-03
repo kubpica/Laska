@@ -15,32 +15,7 @@ namespace Laska
 		[Component] private MoveOrdering moveOrdering;
 		[Component] private TranspositionTable transpositionTable;
 
-		public bool useThreading;
-		public int searchTime;
-		public bool useIterativeDeepening;
-		public bool limitDeepeningDepth;
-		public int searchDepth;
-		public bool forcedSequencesAsOneMove;
-		public bool searchAllTakes;
-		public bool searchUnsafePositions;
-		public bool antyZugzwang;
-		public bool seekWinInZugzwangSearch;
-		public bool evalColumnsValue;
-		public float officerValue = 10.296f;
-		public float officerCaptivesShare = 0.208f;
-		public float soldierValue = 4.08477f; //4.160353f; //4.08477f; //6.94963f; //5.610073f; //4.456758f;
-		public float soldierCaptivesShare = 0.523585f; //0.5231462f; //0.523585f; //0.2609079f; //0.3636922f; //0.3041386f;
-		public float pointsPerOwnedColumn = 10000;
-		public bool evalColumnsStrength;
-		public float pointsPerExtraColumnStrength = 10000;
-		public bool evalSpace;
-		public bool orderMoves;
-		public bool useTranspositionTable;
-		public bool useTTForDirectEvals;
-		public bool storeBestMoveForAllNodes;
-		public bool storeMovesInfuencedByDraws;
-		public bool failSoft;
-		public bool dontUseAlphaBeta;
+		[Component] public AIConfig cfg;
 
 		public const float ACTIVE_WIN = 1000000;
 		public const float INACTIVE_WIN = -1000000;
@@ -87,13 +62,13 @@ namespace Laska
 
 			float activeScore = 0;
 			
-			if(pointsPerOwnedColumn != 0)
+			if(cfg.pointsPerOwnedColumn != 0)
 			{
 				var activePieceDiff = activeColumns.Count() - inactiveColumns.Count();
-				activeScore = activePieceDiff * pointsPerOwnedColumn;
+				activeScore = activePieceDiff * cfg.pointsPerOwnedColumn;
 			}
 
-			if (evalColumnsValue)
+			if (cfg.evalColumnsValue)
 			{
 				foreach (var c in activeColumns)
 					activeScore += c.Value * 2808.054061f; //2408.118596f;
@@ -102,16 +77,16 @@ namespace Laska
 					activeScore -= c.Value * 2808.054061f; //2408.118596f;
 			}
 
-			if (evalColumnsStrength)
+			if (cfg.evalColumnsStrength)
 			{
 				foreach (var c in activeColumns)
-					activeScore += (c.Strength - 1) * pointsPerExtraColumnStrength;
+					activeScore += (c.Strength - 1) * cfg.pointsPerExtraColumnStrength;
 
 				foreach (var c in inactiveColumns)
-					activeScore -= (c.Strength - 1) * pointsPerExtraColumnStrength;
+					activeScore -= (c.Strength - 1) * cfg.pointsPerExtraColumnStrength;
 			}
 
-			if (evalSpace && !antyZugzwang)
+			if (cfg.evalSpace && !cfg.antyZugzwang)
 			{
 				activeScore += getSpaceScore();
 			}
@@ -338,7 +313,7 @@ namespace Laska
 		private float antyZugzwangSearch(float currentScore, float alpha, float beta, bool maximize,
 			List<string> moves, int plyFromRoot, bool wasLastMoveUnrepeatable, out int repetitions)
 		{
-			if (orderMoves)
+			if (cfg.orderMoves)
 				moveOrdering.OrderMoves(moves, null);
 
 			byte evalType = TranspositionTable.UpperBound;
@@ -371,7 +346,7 @@ namespace Laska
 						{
 							evalType = TranspositionTable.LowerBound;
 
-							if (!failSoft)
+							if (!cfg.failSoft)
 								bestScore = beta;
 
 							_numCutoffs++;
@@ -383,7 +358,7 @@ namespace Laska
 						}
 
 						// Found move that leads to better or equal position so it's not zugzwang.
-						if (seekWinInZugzwangSearch ? score > currentScore : score >= currentScore)
+						if (cfg.seekWinInZugzwangSearch ? score > currentScore : score >= currentScore)
 						{
 							// If we haven't checked all the moves, then there might be a better one
 							// but we can still store it as Exact (if it's between [alpha, beta]),
@@ -398,14 +373,14 @@ namespace Laska
 			// We don't like any move (All-Node)
 			if (evalType == TranspositionTable.UpperBound)
 			{
-				if (!failSoft)
+				if (!cfg.failSoft)
 					bestScore = alpha;
 
-				if (!storeBestMoveForAllNodes)
+				if (!cfg.storeBestMoveForAllNodes)
 					bestMove = null;
 			}
 
-			if (useTranspositionTable && !_abortSearch && (repetitions == 0 || wasLastMoveUnrepeatable))
+			if (cfg.useTranspositionTable && !_abortSearch && (repetitions == 0 || wasLastMoveUnrepeatable))
 				transpositionTable.StoreEvaluation(0, plyFromRoot, bestScore, evalType, bestMove);
 
 			return bestScore;
@@ -419,14 +394,14 @@ namespace Laska
 			eval = TranspositionTable.LookupFailed;
 			repetitions = 0;
 
-			if (searchAllTakes && playerToMove.CanTake)
+			if (cfg.searchAllTakes && playerToMove.CanTake)
 				return true;
 
-			if (searchUnsafePositions && !hasAnySafeMove(playerToMove, moves))
+			if (cfg.searchUnsafePositions && !hasAnySafeMove(playerToMove, moves))
 				return true;
 
 			// Get static evaluation
-			if (useTTForDirectEvals)
+			if (cfg.useTTForDirectEvals)
 			{
 				eval = transpositionTable.LookupDirectEvaluation(plyFromRoot);
 			}
@@ -434,14 +409,14 @@ namespace Laska
 			{
 				eval = applyPerspectiveToEval(EvaluatePosition(playerToMove), maximize);
 				// Save static evaluation into transposition table
-				if (useTTForDirectEvals && !_abortSearch)
+				if (cfg.useTTForDirectEvals && !_abortSearch)
 				{
 					transpositionTable.StoreDirectEvaluation(plyFromRoot, eval);
 				}
 			}
 
 			// Anty zugzwang
-			if (antyZugzwang && !_isSearchingZugzwang)
+			if (cfg.antyZugzwang && !_isSearchingZugzwang)
 			{
 				_isSearchingZugzwang = true;
 				eval = antyZugzwangSearch(eval, alpha, beta, maximize, moves, plyFromRoot,
@@ -449,7 +424,7 @@ namespace Laska
 				_isSearchingZugzwang = false;
 
 				// When antyZugzwang is on, space score is skipped in the eval func so let's add it now
-				if (evalSpace && !IsWinEval(eval))
+				if (cfg.evalSpace && !IsWinEval(eval))
 				{
 					eval += getSpaceScore();
 				}
@@ -502,7 +477,7 @@ namespace Laska
 
 			_numNodes++;
 
-			if (dontUseAlphaBeta)
+			if (cfg.dontUseAlphaBeta)
 			{
 				alpha = float.MinValue;
 				beta = float.MaxValue;
@@ -533,7 +508,7 @@ namespace Laska
 			// If the same position has already been searched to at least an equal depth
 			// to the search we're doing now, we can just use the recorded evaluation.
 			string ttMove = null;
-			if (useTranspositionTable)
+			if (cfg.useTranspositionTable)
 			{
 				float ttVal = transpositionTable
 					.LookupEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(0, depth), plyFromRoot, alpha, beta, out ttMove);
@@ -555,7 +530,7 @@ namespace Laska
 			}
 			else if (moves.Count == 1)
 			{
-				if (forcedSequencesAsOneMove)
+				if (cfg.forcedSequencesAsOneMove)
 					depth++;
 			}
 			else if (depth <= 0)
@@ -574,7 +549,7 @@ namespace Laska
 				}
 			}
 
-			if(orderMoves)
+			if(cfg.orderMoves)
 				moveOrdering.OrderMoves(moves, ttMove);
 
 			if (!canTake)
@@ -609,7 +584,7 @@ namespace Laska
 						evalType = TranspositionTable.LowerBound;
 
 						// In Fail-hard version we clamp returned/stored score to beta when we fail-high
-						if (!failSoft)
+						if (!cfg.failSoft)
 							bestScore = beta;
 
 						_numCutoffs++;
@@ -638,18 +613,18 @@ namespace Laska
 				// The opponent deeper may have even better moves than the ones we checked, so bestScore is our upper bound.
 
 				// bestScore may be lower than alpha here, so in Fail-hard version we clamp it to alpha
-				if (!failSoft)
+				if (!cfg.failSoft)
 					bestScore = alpha;
 
 				// Some engines store "bestMove" for All-Nodes, while other don't save any move when all of them failed-low (e.g. Stockfish).
 				// I found some old online discussion (https://groups.google.com/g/rec.games.chess.computer/c/p8GbiiLjp0o)
 				// where people claim that storing "bestMove" for "All-Nodes" (AlphaFlag) resulted in faster search for them
 				// but they are woried that it may not necessery mean stronger play because of increased search instability.
-				if (!storeBestMoveForAllNodes)
+				if (!cfg.storeBestMoveForAllNodes)
 					bestMove = null;
 			}
 
-			if (useTranspositionTable && !_abortSearch)
+			if (cfg.useTranspositionTable && !_abortSearch)
 			{
 				// We shoudn't store in TT scores that were influenced by repetiton draws, because scores stored in TT should only
 				// depend on deeper positions and not previous ones (as sometimes we can reach the same position by different path).
@@ -660,7 +635,7 @@ namespace Laska
 						.StoreEvaluation(_isSearchingZugzwang ? -1 : Mathf.Max(1, depth), plyFromRoot, bestScore, evalType, bestMove);
 				}
 				// Is it worth to store the "bestMove" anyway? Maybe it would still improve move ordering even if influenced by draws?
-				else if (storeMovesInfuencedByDraws)
+				else if (cfg.storeMovesInfuencedByDraws)
 				{
 					transpositionTable.StoreEvaluation(depth, plyFromRoot, bestScore, TranspositionTable.Invalid, bestMove);
 				}
@@ -709,9 +684,9 @@ namespace Laska
 			else
 			{
 				initDiagnostics();
-				if (useIterativeDeepening)
+				if (cfg.useIterativeDeepening)
 				{
-					int targetDepth = limitDeepeningDepth ? searchDepth : int.MaxValue;
+					int targetDepth = cfg.limitDeepeningDepth ? cfg.searchDepth : int.MaxValue;
 					for (int depth = 1; depth <= targetDepth; depth++)
 					{
 						search(depth);
@@ -745,10 +720,10 @@ namespace Laska
 				}
 				else
 				{
-					search(searchDepth);
+					search(cfg.searchDepth);
 					bestMove = bestMoveThisIteration;
 					bestScore = bestScoreThisIteration;
-					bestDepth = searchDepth;
+					bestDepth = cfg.searchDepth;
 				}
 				logDiagnostics();
 			}
@@ -771,7 +746,7 @@ namespace Laska
 				bestScoreThisIteration = float.MinValue;
 				bestMoveThisIteration = null;
 				string ttMove = null;
-				if (useTranspositionTable)
+				if (cfg.useTranspositionTable)
 				{
 					float ttVal = transpositionTable
 						.LookupEvaluation(depth, 0, float.MinValue, float.MaxValue, out ttMove);
@@ -785,7 +760,7 @@ namespace Laska
 
 				int repetitions = 0;
 
-				if (orderMoves)
+				if (cfg.orderMoves)
 					moveOrdering.OrderMoves(moves, ttMove);
 
 				_visitedNonTakePositions.Clear();
@@ -807,7 +782,7 @@ namespace Laska
 					unmakeMove(movedColumn, takenSquares, previousSquare, promotion);
 				}
 
-				if (useTranspositionTable && !_abortSearch && (repetitions == 0 || _visitedNonTakePositions.Count <= 1))
+				if (cfg.useTranspositionTable && !_abortSearch && (repetitions == 0 || _visitedNonTakePositions.Count <= 1))
 					transpositionTable.StoreEvaluation(depth, 0, bestScoreThisIteration, TranspositionTable.Exact, bestMoveThisIteration);
 			}
 		}
@@ -829,7 +804,7 @@ namespace Laska
 
 		public void MakeMove()
 		{
-			if (useThreading)
+			if (cfg.useThreading)
 			{
 				Task.Factory.StartNew(() =>
 				{
@@ -845,7 +820,7 @@ namespace Laska
 				}, TaskCreationOptions.LongRunning);
 
 				_cancelSearchTimer = new CancellationTokenSource();
-				Task.Delay(searchTime, _cancelSearchTimer.Token).ContinueWith(_ => EndSearch());
+				Task.Delay(cfg.searchTime, _cancelSearchTimer.Token).ContinueWith(_ => EndSearch());
 			}
 			else 
 			{

@@ -17,5 +17,16 @@ namespace Laska
         public Graveyard Graveyard => _graveyard;
         public PiecesSpawner Spawner => _spawner;
         public GameManager GameManager => _gameManager;
+
+        public void Clear()
+        {
+            var holder = ColumnHolder.transform;
+            for (int i = 0; i<holder.childCount; i++)
+            {
+                Destroy(holder.GetChild(i).gameObject);
+            }
+
+            Graveyard.Clear();
+        }
     }
 }

@@ -31,7 +31,9 @@ namespace Laska
                         _ai = gameObject.AddComponent<LaskaAI>();
                 }
                 return _ai;
-            } 
+            }
+
+            set => _ai = value;
         }
 
         /// <summary>

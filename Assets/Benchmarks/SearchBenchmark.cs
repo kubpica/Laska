@@ -16,39 +16,39 @@ public class SearchBenchmark : MonoBehaviour
 
     private void failHard()
     {
-        ai.failSoft = false;
+        ai.cfg.failSoft = false;
         ai.GetComponent<TranspositionTable>().failSoft = false;
     }
     private void failSoft()
     {
-        ai.failSoft = true;
+        ai.cfg.failSoft = true;
         ai.GetComponent<TranspositionTable>().failSoft = true;
     }
     private void transpositionTable()
     {
-        ai.useTranspositionTable = true;
-        ai.useTTForDirectEvals = true;
+        ai.cfg.useTranspositionTable = true;
+        ai.cfg.useTTForDirectEvals = true;
     }
-    private void alfaBeta() => ai.dontUseAlphaBeta = false;
-    private void disableAlfaBeta() => ai.dontUseAlphaBeta = true;
-    private void orderMoves() => ai.orderMoves = true;
-    private void antyZugzwang() => ai.antyZugzwang = true;
+    private void alfaBeta() => ai.cfg.dontUseAlphaBeta = false;
+    private void disableAlfaBeta() => ai.cfg.dontUseAlphaBeta = true;
+    private void orderMoves() => ai.cfg.orderMoves = true;
+    private void antyZugzwang() => ai.cfg.antyZugzwang = true;
     private void iterativeDeepening()
     {
-        ai.useIterativeDeepening = true;
-        ai.limitDeepeningDepth = true;
+        ai.cfg.useIterativeDeepening = true;
+        ai.cfg.limitDeepeningDepth = true;
     }
     private void orderByRisk() 
     {
         orderMoves();
-        var ordering = ai.GetComponentInParent<MoveOrdering>();
+        var ordering = ai.cfg.GetComponentInParent<MoveOrdering>();
         ordering.evalStrengthByRisk = true;
         ordering.evalTakesByRisk = true;
     }
     private void classicOrdering()
     {
         orderMoves();
-        var ordering = ai.GetComponentInParent<MoveOrdering>();
+        var ordering = ai.cfg.GetComponentInParent<MoveOrdering>();
         ordering.evalStrengthByRisk = false;
         ordering.evalTakesByRisk = false;
     }
@@ -126,7 +126,7 @@ public class SearchBenchmark : MonoBehaviour
         failSoft();
         transpositionTable();
         orderMoves();
-        var ordering = ai.GetComponentInParent<MoveOrdering>();
+        var ordering = ai.cfg.GetComponentInParent<MoveOrdering>();
         ordering.evalStrengthByRisk = true;
         ordering.evalTakesByRisk = false;
     }
@@ -138,7 +138,7 @@ public class SearchBenchmark : MonoBehaviour
         failSoft();
         transpositionTable();
         orderMoves();
-        var ordering = ai.GetComponentInParent<MoveOrdering>();
+        var ordering = ai.cfg.GetComponentInParent<MoveOrdering>();
         ordering.evalStrengthByRisk = false;
         ordering.evalTakesByRisk = true;
     }
@@ -161,7 +161,7 @@ public class SearchBenchmark : MonoBehaviour
         transpositionTable();
         orderByRisk();
         antyZugzwang();
-        ai.seekWinInZugzwangSearch = true;
+        ai.cfg.seekWinInZugzwangSearch = true;
     }
 
     private void test13()
@@ -183,7 +183,7 @@ public class SearchBenchmark : MonoBehaviour
         transpositionTable();
         orderByRisk();
         antyZugzwang();
-        ai.seekWinInZugzwangSearch = true;
+        ai.cfg.seekWinInZugzwangSearch = true;
         iterativeDeepening();
     }
 

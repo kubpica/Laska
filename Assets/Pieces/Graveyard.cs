@@ -11,6 +11,15 @@ namespace Laska
         private Stack<WhiteSoldier> _whileSoldiers = new Stack<WhiteSoldier>();
         private Stack<BlackSoldier> _blackSoldiers = new Stack<BlackSoldier>();
 
+        public void Clear()
+        {
+            _columns.Clear();
+            _whileOfficers.Clear();
+            _blackOfficers.Clear();
+            _whileSoldiers.Clear();
+            _blackSoldiers.Clear();
+        }
+
         public void KillColumn(Column column)
         {
             if(column.Square != null)

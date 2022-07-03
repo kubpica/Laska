@@ -20,6 +20,14 @@ namespace Laska
 
         [GlobalComponent] GameManager gameManager;
 
+        public void Clear()
+        {
+            UnmarkAll();
+            ClearRepetitionHistory();
+            ZobristKey = 0;
+            OfficerMovesSinceLastTake = 0;
+        }
+
         private void Start()
         {
             // Init squares

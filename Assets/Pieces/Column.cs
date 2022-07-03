@@ -191,8 +191,8 @@ namespace Laska
             float visitNode(LinkedListNode<Piece> node)
             {
                 var piece = node.Value;
-                float value = piece.IsOfficer ? playerAi.officerValue : playerAi.soldierValue;
-                float captivesShare = piece.IsOfficer ? playerAi.officerCaptivesShare : playerAi.soldierCaptivesShare;
+                float value = piece.IsOfficer ? playerAi.cfg.officerValue : playerAi.cfg.soldierValue;
+                float captivesShare = piece.IsOfficer ? playerAi.cfg.officerCaptivesShare : playerAi.cfg.soldierCaptivesShare;
 
                 // Is it enemy piece?
                 int isTeammate = piece.Color == commanderColor ? 1 : -1;

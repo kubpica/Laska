@@ -5,6 +5,7 @@
         public string laskaFen;
 
         [GlobalComponent] private PiecesManager piecesManager;
+        [GlobalComponent] private GameManager gameManager;
 
         void Start()
         {
@@ -41,7 +42,9 @@
 
             char colorToMove = playerToMove[0];
             Board.Instance.ZobristKey = Zobrist.CalcZobristKey(colorToMove);
-            GameManager.Instance.SetActivePlayer(colorToMove);
+            gameManager.SetActivePlayer(colorToMove);
+            gameManager.onGameStarted.Invoke();
+
         }
 
         /// <summary>

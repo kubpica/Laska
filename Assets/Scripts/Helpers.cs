@@ -13,6 +13,7 @@ using UnityEngine.Events;
 [System.Serializable] public class FloatEvent : UnityEvent<float> { }
 [System.Serializable] public class LongEvent : UnityEvent<long> { }
 [System.Serializable] public class StringEvent : UnityEvent<string> { }
+[System.Serializable] public class CharEvent : UnityEvent<char> { }
 [System.Serializable] public class GameObjectEvent : UnityEvent<GameObject> { }
 
 /// <summary>

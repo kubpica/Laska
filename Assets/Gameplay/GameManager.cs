@@ -1,11 +1,16 @@
 ﻿using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Laska
 {
     public class GameManager : MonoBehaviourSingleton<GameManager>
     {
         public Player[] players;
+
+        public UnityEvent onPlayerDecision;
+        public UnityEvent onGameStarted;
+        public CharEvent onGameEnded;  
 
         /// <summary>
         /// Player to make move.
@@ -23,6 +28,14 @@ namespace Laska
 
         [GlobalComponent] MoveMaker moveMaker;
         [GlobalComponent] Board board;
+
+        public void Reset()
+        {
+            _gameState = GameState.PreGame;
+            Mate = false;
+            DrawByRepetition = false;
+            DrawByFiftyMoveRule = false;
+        }
 
         public enum GameState
         {
@@ -65,6 +78,7 @@ namespace Laska
                 Debug.Log("Player " + player.color + " (AI: " + player.isAI + ") has no moves!");
                 Mate = true;
                 setGameState(GameState.Ended);
+                onGameEnded.Invoke(ActivePlayer.color);
                 return;
             }
             else
@@ -82,6 +96,7 @@ namespace Laska
             else
             {
                 moveMaker.MoveSelectionEnabled = true;
+                onPlayerDecision.Invoke();
             }
         }
 
@@ -95,16 +110,18 @@ namespace Laska
             if (board.OfficerMovesSinceLastTake >= 100)
             {
                 // Fifty-move rule - it's draw when it's 100th half-move without take or Soldier move
-                setGameState(GameState.Ended);
                 DrawByFiftyMoveRule = true;
+                setGameState(GameState.Ended);
+                onGameEnded.Invoke('-');
                 IngameMessages.Instance.SetCurrentTextColor(Color.yellow);
             }
             else if (board.IsThreefoldRepetition())
             {
                 //TODO check if the position actually repeated 3 times and it's not just hashing collision
 
-                setGameState(GameState.Ended);
                 DrawByRepetition = true;
+                setGameState(GameState.Ended);
+                onGameEnded.Invoke('-');
                 IngameMessages.Instance.SetCurrentTextColor(Color.yellow);
             }
             else

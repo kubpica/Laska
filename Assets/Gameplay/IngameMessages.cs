@@ -96,13 +96,13 @@ namespace Laska
                 else if (_level > 0)
                 {
                     blackPlayer.isAI = true;
-                    ai.limitDeepeningDepth = true;
-                    ai.searchDepth = _level;
+                    ai.cfg.limitDeepeningDepth = true;
+                    ai.cfg.searchDepth = _level;
                 }
                 else
                 {
                     blackPlayer.isAI = true;
-                    ai.limitDeepeningDepth = false;
+                    ai.cfg.limitDeepeningDepth = false;
                 }
             }
 
