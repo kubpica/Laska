@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Laska
@@ -6,6 +7,7 @@ namespace Laska
     public class IngameMessages : MonoBehaviourSingleton<IngameMessages>
     {
         [GlobalComponent] private GameManager game;
+        [GlobalComponent] private MoveMaker moveMaker;
 
         private GUIStyle _currentStyle = new GUIStyle();
         private GUIStyle _lastStyle = new GUIStyle();
@@ -14,8 +16,26 @@ namespace Laska
         private int _level = 1;
         private float _widthScale;
         private float _heightScale;
+        private Square _selectedSquare;
 
-        public string DisplayedMsg { get; set; }
+        private int _displayedLines;
+        private string _displayedMsg;
+        public string DisplayedMsg 
+        {
+            get => _displayedMsg;
+            set
+            {
+                _displayedMsg = value;
+                if (!string.IsNullOrEmpty(_displayedMsg))
+                {
+                    _displayedLines = _displayedMsg.Count(c => c == '\n');
+                }
+                else
+                {
+                    _displayedLines = 0;
+                }
+            }
+        }
 
         private void Start()
         {
@@ -28,11 +48,25 @@ namespace Laska
 
             _buttonStyle = new GUIStyle("button");
             _buttonStyle.fontSize = 13;
+
+            moveMaker.onColumnSelected.AddListener(() => SelectColumn(moveMaker.SelectedColumn));
+        }
+
+        private Color getColor(char c) => c == 'b' ? Color.red : Color.green;
+
+        public void SelectColumn(Column column)
+        {
+            _selectedSquare = column == null ? null : column.Square;
+        }
+
+        public void SelectSquare(Square square)
+        {
+            _selectedSquare = square.draughtsNotationIndex == 0 ? null : square;
         }
 
         public void SetCurrentTextColor(Player player)
         {
-            SetCurrentTextColor(player.color == 'b' ? Color.red : Color.green);
+            SetCurrentTextColor(getColor(player.color));
         }
 
         public void SetCurrentTextColor(Color color)
@@ -42,7 +76,7 @@ namespace Laska
 
         public void SetLastTextColor(Player player)
         {
-            SetLastTextColor(player.color == 'b' ? Color.red : Color.green);
+            SetLastTextColor(getColor(player.color));
         }
 
         public void SetLastTextColor(Color color)
@@ -52,7 +86,7 @@ namespace Laska
 
         public static void DrawOutline(Rect pos, string text, GUIStyle style, Color outColor, Color inColor)
         {
-            //GUIStyle backupStyle = style;
+            var backupColor = style.normal.textColor;
             style.normal.textColor = outColor;
             pos.x--;
             GUI.Label(pos, text, style);
@@ -66,7 +100,7 @@ namespace Laska
             pos.y--;
             style.normal.textColor = inColor;
             GUI.Label(pos, text, style);
-            //style = backupStyle;
+            style.normal.textColor = backupColor;
         }
 
         private Rect scaleRect(float x, float y, float width, float height)
@@ -139,9 +173,38 @@ namespace Laska
             GUI.Label(scaleRect(60, 10, 200, 20), "Ruch gracza " + player, _currentStyle);
             if (DisplayedMsg != null)
             {
-                var msg = DisplayedMsg;
+                DrawOutline(scaleRect(60, 40, 1900, 1000), DisplayedMsg, _lastStyle, Color.black, _lastStyle.normal.textColor);
+            }
+            displaySelectedMsg();
+        }
 
-                DrawOutline(scaleRect(60, 40, 1900, 1000), msg, _lastStyle, Color.black, _lastStyle.normal.textColor);
+        private void displaySelectedMsg()
+        {
+            if (_selectedSquare == null || game.CurrentGameState == GameManager.GameState.TurnResults)
+                return;
+
+            var column = _selectedSquare.Column;
+            if (column == null)
+                displaySquareDescription(_selectedSquare);
+            else
+                displayColumnDescription(column);
+        }
+
+        private void displaySquareDescription(Square square)
+        {
+            DrawOutline(scaleRect(60, 70 + 30 * _displayedLines, 1900, 1000),
+                $"Pole {square.coordinate}.", _lastStyle, Color.black, new Color(0.855f, 0.855f, 0.855f));
+        }
+
+        private void displayColumnDescription(Column column)
+        {
+            DrawOutline(scaleRect(60, 70 + 30 * _displayedLines, 1900, 1000),
+                $"Kolumna na {column.Position}:", _lastStyle, Color.black, getColor(column.Commander.Color));
+            int i = 0;
+            foreach (var p in column.Pieces)
+            {
+                DrawOutline(scaleRect(60, 100 + 30*(_displayedLines+i), 1900, 1000), $"{i+1}. {p.Mianownik}", _lastStyle, Color.black, getColor(p.Color));
+                i++;
             }
         }
     }

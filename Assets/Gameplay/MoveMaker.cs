@@ -17,26 +17,45 @@ namespace Laska
         public StringEvent onMoveStarted;
         public UnityEvent onMoveEnded;
         public UnityEvent onMultiTakeDecision;
+        public UnityEvent onColumnSelected;
+
+        public bool MoveSelectionEnabled { get; set; } = true;
+
+        private Column _selectedColumn;
+        public Column SelectedColumn 
+        {
+            get => _selectedColumn;
+            private set
+            {
+                if (_selectedColumn != value)
+                {
+                    _selectedColumn = value;
+                    onColumnSelected.Invoke();
+                }
+            }
+        }
 
         public Camera cam;
-        private Player playerToMove;
-        private Column selectedColumn;
-        private List<Piece> takenPieces = new List<Piece>();
-        private bool justPromoted;
+        private Player _playerToMove;
+        private List<Piece> _takenPieces = new List<Piece>();
+        private bool _justPromoted;
+        private Color _halfSelectionColor;
+        private Color _moreHalfSelectionColor;
 
         private const float PIECE_HEIGHT = 0.5f;
 
-        public bool MoveSelectionEnabled { get; set; } = true;
-        
         private void Start()
         {
             if (cam == null)
                 cam = Camera.main;
+
+            _halfSelectionColor = Color.Lerp(new Color(0.855f, 0.855f, 0.855f), Color.yellow, 0.5f);
+            _moreHalfSelectionColor = Color.Lerp(new Color(0.855f, 0.855f, 0.855f), Color.yellow, 0.6f);
         }
 
         public void SetPlayerToMove(Player player)
         {
-            playerToMove = player;
+            _playerToMove = player;
             msg.SetCurrentTextColor(player);
         }
 
@@ -60,6 +79,56 @@ namespace Laska
             return SelectColumn(square.Column);
         }
 
+        private bool markOnlyOneMovableColumn()
+        {
+            if (_playerToMove.CanOnlyOneColumnMove(out Column column))
+            {
+                MarkPossibleMoves(column);
+                return true;
+            }
+            return false;
+        }
+
+        private void markColumnsThatCanTake()
+        {
+            if (markOnlyOneMovableColumn())
+                return;
+
+            var columns = _playerToMove.Columns;
+            foreach (var c in columns)
+            {
+                if (c.CanTake)
+                {
+                    board.MarkSquare(c.Position, c.PossibleMoves.Count > 1 ? _moreHalfSelectionColor : Color.yellow);
+                }
+            }
+        }
+
+        private void markMovableColumns()
+        {
+            if (markOnlyOneMovableColumn())
+                return;
+
+            var columns = _playerToMove.Columns;
+            foreach (var c in columns)
+            {
+                if (c.PossibleMoves.Count > 0)
+                    board.MarkSquare(c.Position, _halfSelectionColor);
+            }
+        }
+
+        private void markColumnsWithLegalMoves()
+        {
+            if (_playerToMove.CanTake)
+            {
+                markColumnsThatCanTake();
+            }
+            else
+            {
+                markMovableColumns();
+            }
+        }
+
         /// <summary>
         /// Selects column to be moved. 
         /// If there is only one possible move - it will do it;
@@ -69,37 +138,57 @@ namespace Laska
         /// <returns> True, if the player can move the piece; otherwise false.</returns>
         private bool SelectColumn(Column column)
         {
-            if (column.Commander.Color != playerToMove.color)
+            if (column.Commander.Color != _playerToMove.color)
             {
                 Debug.Log("Tried to select enemy column at " + column.Position);
+                markColumnsWithLegalMoves();
                 return false;
             }
 
             if (column.PossibleMoves.Count == 0)
             {
                 Debug.Log("This piece on " + column.Position + " has no legal moves.");
+                markColumnsWithLegalMoves();
                 return false;
             }
 
             
-            if (selectedColumn != null)
+            if (SelectedColumn != null)
             {
-                if(takenPieces.Count > 0)
+                // Block deselecting the only movable column
+                if(_playerToMove.CanOnlyOneColumnMove(out _))
+                {
+                    if (SelectedColumn == column)
+                    {
+                        // instead, if only one move is possible, make it
+                        if (column.PossibleMoves.Count == 1)
+                        {
+                            board.UnmarkAll();
+                            MakeMove(column.PossibleMoves.First());
+                            return true;
+                        }
+                    }
+                    Debug.Log("Only selected moves are legal, choose one.");
+                    return false;
+                }
+
+                if(_takenPieces.Count > 0)
                 {
                     Debug.Log("You have to take with the same column as the last time.");
                     return false;
                 }
 
                 // Deselect
-                board.UnmarkAll();
-                if (selectedColumn == column)
+                if (SelectedColumn == column)
                 {
-                    selectedColumn = null;
+                    board.UnmarkAll();
+                    SelectedColumn = null;
                     return true;
                 }
             }
 
-            selectedColumn = column;
+            board.UnmarkAll();
+            SelectedColumn = column;
 
             // If the piece has only one move - do it
             if (column.PossibleMoves.Count == 1)
@@ -109,21 +198,34 @@ namespace Laska
             }
             else
             {
-                markPossibleMoves(column);
+                MarkPossibleMoves(column);
             }
 
             return true;
         }
 
-        private void markPossibleMoves(Column column)
+        public void MarkPossibleMoves(Column column)
         {
+            SelectedColumn = column;
             board.MarkSquare(column.Position, Color.yellow);
 
             // Mark possible moves
-            foreach (var m in column.PossibleMoves)
+            if(column.PossibleMoves.Count > 1)
             {
-                var s = m.Substring(m.LastIndexOf("-") + 1, 2);
-                board.MarkSquare(s, Color.green);
+                foreach (var m in column.PossibleMoves)
+                {
+                    var s = m.Substring(m.LastIndexOf("-") + 1, 2);
+                    board.MarkSquare(s, Color.green);
+                }
+            }
+        }
+
+        private void deselectColumn()
+        {
+            if (!_playerToMove.CanOnlyOneColumnMove(out _))
+            {
+                SelectedColumn = null;
+                board.UnmarkAll();
             }
         }
 
@@ -134,21 +236,21 @@ namespace Laska
         /// <returns> True if the move can be made, false if the move is illegal.</returns>
         private bool SelectMove(string square)
         {
-            if (selectedColumn == null)
+            if (SelectedColumn == null)
             {
                 Debug.Log("Column to move not selected yet!");
                 return false;
             }
 
-            board.UnmarkAll();
-
-            string move = selectedColumn.PossibleMoves.FirstOrDefault(m => m.Contains(square));
+            string move = SelectedColumn.PossibleMoves.FirstOrDefault(m => m.Contains(square));
             if(move == null)
             {
                 Debug.Log("This move is not legal.");
+                deselectColumn();
                 return false;
             }
 
+            board.UnmarkAll();
             MakeMove(move);
             return true;
         }
@@ -158,15 +260,15 @@ namespace Laska
             onMoveStarted.Invoke(move);
 
             var squares = move.Split('-');
-            if (selectedColumn == null)
-                selectedColumn = board.GetColumnAt(squares[0]);
+            if (SelectedColumn == null)
+                SelectedColumn = board.GetColumnAt(squares[0]);
 
-            if (takenPieces.Count == 0)
+            if (_takenPieces.Count == 0)
             {
                 msg.DisplayedMsg = "";
-                msg.SetLastTextColor(playerToMove);
+                msg.SetLastTextColor(_playerToMove);
 
-                selectedColumn.ZobristAll(); // XOR-out moved column
+                SelectedColumn.ZobristAll(); // XOR-out moved column
             }
 
             if (squares.Length > 3)
@@ -186,7 +288,7 @@ namespace Laska
                 // Move
                 var targetSquare = board.GetSquareAt(squares[1]);
 
-                var piece = selectedColumn.Commander;
+                var piece = SelectedColumn.Commander;
                 msg.DisplayedMsg += piece.Mianownik + " " + theme.MovesMsg + " " + piece.Position + " na " + targetSquare.coordinate + "\n";
                 StartCoroutine(animateMove(targetSquare));
             }
@@ -194,7 +296,7 @@ namespace Laska
 
         private void displayKillMsg(Column takenColumn, Square targetSquare)
         {
-            var killer = selectedColumn.Commander;
+            var killer = SelectedColumn.Commander;
             var victim = takenColumn.Commander;
             msg.DisplayedMsg += killer.Mianownik + " z " + killer.Position
                 + " " + theme.TakesMsg + " " + victim.Biernik + " z " + victim.Position
@@ -216,7 +318,7 @@ namespace Laska
                 yield return jump(targetSquare, 1.5f + 0.5f * takenColumn.Pieces.Count);
 
                 // Save taken pieces on the list
-                takenPieces.Add(takenColumn.Commander);
+                _takenPieces.Add(takenColumn.Commander);
                 takenColumn.Commander.MarkDark(); // Darken the taken piece
             }
 
@@ -233,25 +335,25 @@ namespace Laska
             yield return jump(targetSquare, 1.5f + 0.5f * takenColumn.Pieces.Count);
 
             // Save taken pieces on the list
-            takenPieces.Add(takenColumn.Commander);
+            _takenPieces.Add(takenColumn.Commander);
             takenColumn.Commander.MarkDark(); // Darken the taken piece
 
             // Can continue taking?
-            if (!justPromoted) // End move on promotion 
-                selectedColumn.CalcPossibleMoves(takenPieces);
+            if (!_justPromoted) // End move on promotion 
+                SelectedColumn.CalcPossibleMoves(_takenPieces);
 
-            if (!justPromoted && selectedColumn.CanTake)
+            if (!_justPromoted && SelectedColumn.CanTake)
             {
                 // Make the only possible take or mark if there are more (and wait for the player)
-                if (selectedColumn.PossibleMoves.Count == 1)
+                if (SelectedColumn.PossibleMoves.Count == 1)
                 {
                     yield return new WaitForSeconds(0.1f);
-                    MakeMove(selectedColumn.PossibleMoves.First());
+                    MakeMove(SelectedColumn.PossibleMoves.First());
                 }
                 else
                 {
                     board.UnmarkAll();
-                    markPossibleMoves(selectedColumn);
+                    MarkPossibleMoves(SelectedColumn);
                     onMultiTakeDecision.Invoke();
                 }
             }
@@ -273,15 +375,15 @@ namespace Laska
 
         private void endMove()
         {
-            cameraController.MakeSureObjectCanBeSeen(selectedColumn.Commander.gameObject);
+            cameraController.MakeSureObjectCanBeSeen(SelectedColumn.Commander.gameObject);
 
-            selectedColumn.ZobristAll(); // XOR-in moved column
+            SelectedColumn.ZobristAll(); // XOR-in moved column
             board.ZobristSideToMove();
 
-            if(takenPieces.Count == 0)
+            if(_takenPieces.Count == 0)
             {
                 // Just move
-                if(!justPromoted && selectedColumn.Commander.IsOfficer)
+                if(!_justPromoted && SelectedColumn.Commander.IsOfficer)
                 {
                     board.OfficerMovesSinceLastTake++;
                 }
@@ -296,65 +398,65 @@ namespace Laska
                 // With takes
                 board.ClearRepetitionHistory();
                 board.OfficerMovesSinceLastTake = 0;
-                takenPieces.Clear();
+                _takenPieces.Clear();
             }
             board.SavePositionInRepetitionHistory();
 
-            selectedColumn = null;
-            justPromoted = false;
+            SelectedColumn = null;
+            _justPromoted = false;
             onMoveEnded.Invoke();
         }
 
         private IEnumerator takeAnimation()
         {
-            float height = takenPieces.Count * PIECE_HEIGHT;
+            float height = _takenPieces.Count * PIECE_HEIGHT;
 
             // Lift taken pieces (remove commanders from columns)
-            foreach (var piece in takenPieces)
+            foreach (var piece in _takenPieces)
             {
                 StartCoroutine(move(piece.gameObject, piece.transform.position.Y(piece.transform.position.y + PIECE_HEIGHT)));
             }
 
             // Lift the "killer"
-            var p = selectedColumn.transform.position;
+            var p = SelectedColumn.transform.position;
             p.y += height;
-            yield return move(selectedColumn.gameObject, p);
+            yield return move(SelectedColumn.gameObject, p);
 
             // Move taken pieces under the killer
-            for(int i = 0; i<takenPieces.Count-1; i++)
+            for(int i = 0; i<_takenPieces.Count-1; i++)
             {
-                var piece = takenPieces[i];
-                p = selectedColumn.transform.position;
+                var piece = _takenPieces[i];
+                p = SelectedColumn.transform.position;
                 p.y -= (i+1)*PIECE_HEIGHT;
                 StartCoroutine(move(piece.gameObject, p, 0.5f + i*0.2f));
             }
 
-            p = selectedColumn.transform.position;
+            p = SelectedColumn.transform.position;
             p.y = 0; //-= takenPieces.Count * pieceHeight;
-            var j = takenPieces.Count - 1;
-            yield return move(takenPieces[j].gameObject, p, 0.5f + j * 0.2f);
+            var j = _takenPieces.Count - 1;
+            yield return move(_takenPieces[j].gameObject, p, 0.5f + j * 0.2f);
 
             // Reset position of the column
             var children = new List<Transform>();
-            for (int i = 0; i < selectedColumn.transform.childCount; i++)
-                children.Add(selectedColumn.transform.GetChild(i));
+            for (int i = 0; i < SelectedColumn.transform.childCount; i++)
+                children.Add(SelectedColumn.transform.GetChild(i));
 
-            selectedColumn.transform.DetachChildren();
-            selectedColumn.transform.position = selectedColumn.transform.position.Y(0);
+            SelectedColumn.transform.DetachChildren();
+            SelectedColumn.transform.position = SelectedColumn.transform.position.Y(0);
             foreach (var c in children)
-                c.transform.parent = selectedColumn.transform;
+                c.transform.parent = SelectedColumn.transform;
 
             // Remove "darken" effect from the taken pieces
-            foreach(var piece in takenPieces)
+            foreach(var piece in _takenPieces)
             {
                 piece.UnmarkDark();
             }
 
             // Perform takes on the logic level and end the move
-            foreach (var piece in takenPieces)
+            foreach (var piece in _takenPieces)
             {
                 piece.Column.ZobristCommander(); // XOR-out taken piece
-                selectedColumn.Take(piece.Column);
+                SelectedColumn.Take(piece.Column);
             }
             endMove();
         }
@@ -382,10 +484,10 @@ namespace Laska
 
         private IEnumerator jump(Square targetSquare, float height)
         {
-            yield return jump(selectedColumn.gameObject, targetSquare.transform.position.Y(0), height);
+            yield return jump(SelectedColumn.gameObject, targetSquare.transform.position.Y(0), height);
 
             //Debug.Log("Jumped from " + selectedColumn.Square.coordinate + " to " + targetSquare.coordinate);
-            justPromoted = selectedColumn.Move(targetSquare);
+            _justPromoted = SelectedColumn.Move(targetSquare);
         }
 
         /// <summary>
@@ -446,6 +548,8 @@ namespace Laska
 
         private void Update()
         {
+            columnInfoOnHover();
+
             if (!MoveSelectionEnabled || 
                 gameManager.CurrentGameState != GameManager.GameState.Turn 
                 && gameManager.CurrentGameState != GameManager.GameState.PreGame)
@@ -454,18 +558,16 @@ namespace Laska
             if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
                 var clicked = cam.GetColliderUnderMouse();
-                //if (clicked != null)
-                //    Debug.Log("clicked " + clicked.gameObject.name);
 
                 if (clicked != null && clicked.transform.parent != null)
                 {
-                    if(clicked.gameObject.tag == "Board")
+                    if(clicked.gameObject.CompareTag("Board"))
                     {
                         var square = clicked.GetComponent<Square>();
                         if (square != null)
+                        {
                             squareClicked(square);
-                        //else
-                        //    Debug.LogError("Square component not found at " +  clicked.gameObject.name);
+                        }
                     }
                     else
                     {
@@ -479,7 +581,41 @@ namespace Laska
                     }
                 }
             }
+        }
 
+        private void columnInfoOnHover()
+        {
+            if (_selectedColumn != null)
+                return;
+
+            if (Input.mousePresent || Input.touchCount > 0)
+            {
+                var underMouse = cam.GetColliderUnderMouse();
+                if (underMouse != null)
+                {
+                    if (underMouse.gameObject.CompareTag("Board"))
+                    {
+                        var square = underMouse.GetComponent<Square>();
+                        if (square != null)
+                        {
+                            msg.SelectSquare(square);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        var piece = underMouse.GetComponent<Piece>();
+                        if (piece != null)
+                        {
+                            msg.SelectColumn(piece.Column);
+                            return;
+                        }
+                    }
+                }
+
+                if(Input.touchCount == 0)
+                    msg.SelectColumn(null);
+            }
         }
     }
 }

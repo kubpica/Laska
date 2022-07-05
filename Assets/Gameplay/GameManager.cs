@@ -10,7 +10,8 @@ namespace Laska
 
         public UnityEvent onPlayerDecision;
         public UnityEvent onGameStarted;
-        public CharEvent onGameEnded;  
+        public CharEvent onGameEnded;
+        public bool markOnlyMovableColumn;
 
         /// <summary>
         /// Player to make move.
@@ -79,6 +80,7 @@ namespace Laska
                 Mate = true;
                 setGameState(GameState.Ended);
                 onGameEnded.Invoke(ActivePlayer.color);
+                moveMaker.MoveSelectionEnabled = false;
                 return;
             }
             else
@@ -97,6 +99,15 @@ namespace Laska
             {
                 moveMaker.MoveSelectionEnabled = true;
                 onPlayerDecision.Invoke();
+
+                if (markOnlyMovableColumn)
+                {
+                    // Mark the only movable column
+                    if(player.CanOnlyOneColumnMove(out Column c))
+                    {
+                        moveMaker.MarkPossibleMoves(c);
+                    }
+                }
             }
         }
 

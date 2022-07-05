@@ -14,9 +14,9 @@ namespace Laska
         /// </summary>
         public int OfficerMovesSinceLastTake { get; set; } 
 
-        private Square[,] squares = new Square[7,7];
-        private HashSet<MeshRenderer> marked = new HashSet<MeshRenderer>();
-        private Stack<ulong> repetitionPositionHistory = new Stack<ulong>(); // Zobrist keys 
+        private Square[,] _squares = new Square[7,7];
+        private HashSet<MeshRenderer> _marked = new HashSet<MeshRenderer>();
+        private Stack<ulong> _repetitionPositionHistory = new Stack<ulong>(); // Zobrist keys 
 
         [GlobalComponent] GameManager gameManager;
 
@@ -34,11 +34,11 @@ namespace Laska
             foreach(var s in GetComponentsInChildren<Square>())
             {
                 GetSquareIds(s.coordinate, out int file, out int rank);
-                squares[file, rank] = s;
+                _squares[file, rank] = s;
             }
 
             // Make sure every square is inited
-            foreach(var s in squares)
+            foreach(var s in _squares)
             {
                 if(s == null)
                 {
@@ -47,11 +47,11 @@ namespace Laska
             }
         }
 
-        public void SavePositionInRepetitionHistory() => repetitionPositionHistory.Push(ZobristKey);
-        public void ClearRepetitionHistory() => repetitionPositionHistory.Clear();
-        public bool HasCurrentPositionRepeated() => repetitionPositionHistory.Contains(ZobristKey);
-        public bool IsThreefoldRepetition() => repetitionPositionHistory.Count(x => x == ZobristKey) == 3;
-        public IEnumerable<ulong> GetPositionsSinceLastTake() => repetitionPositionHistory.Distinct();
+        public void SavePositionInRepetitionHistory() => _repetitionPositionHistory.Push(ZobristKey);
+        public void ClearRepetitionHistory() => _repetitionPositionHistory.Clear();
+        public bool HasCurrentPositionRepeated() => _repetitionPositionHistory.Contains(ZobristKey);
+        public bool IsThreefoldRepetition() => _repetitionPositionHistory.Count(x => x == ZobristKey) == 3;
+        public IEnumerable<ulong> GetPositionsSinceLastTake() => _repetitionPositionHistory.Distinct();
 
         public void ZobristSideToMove()
         {
@@ -89,12 +89,12 @@ namespace Laska
             if (fileId < 0 || fileId > 6 || rankId < 0 || rankId > 6)
                 throw new ArgumentOutOfRangeException("file/rank", "Specified unknown square. (the board is 7x7)");
 
-            return squares[fileId, rankId];
+            return _squares[fileId, rankId];
         }
 
         public Square GetSquareAt(int draughtsNotationId)
         {
-            foreach(var s in squares)
+            foreach(var s in _squares)
             {
                 if (s.draughtsNotationIndex == draughtsNotationId)
                     return s;
@@ -119,17 +119,17 @@ namespace Laska
 
             var mr = transform.Find(file.ToString()).GetChild(rank).GetComponent<MeshRenderer>();
             mr.material.color = color;
-            marked.Add(mr);
+            _marked.Add(mr);
         }
 
         public void UnmarkAll()
         {
-            foreach(var mr in marked)
+            foreach(var mr in _marked)
             {
                 mr.material.color = Color.white;
             }
 
-            marked.Clear();
+            _marked.Clear();
         }
 
         /// <summary>

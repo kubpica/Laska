@@ -6,7 +6,7 @@ namespace Laska
 	public class MoveOrdering : MonoBehaviourExtended
 	{
 		[GlobalComponent] private Board board;
-		private float[] moveScores = new float[44];
+		private float[] _moveScores = new float[44];
 
 		public bool evalStrengthByRisk;
 		public bool evalTakesByRisk;
@@ -59,7 +59,7 @@ namespace Laska
 				if (move == ttMove)
 					score += 10000;
 
-				moveScores[i] = score;
+				_moveScores[i] = score;
 			}
 
 			sort(moves);
@@ -79,10 +79,10 @@ namespace Laska
 				for (int j = i + 1; j > 0; j--)
 				{
 					int swapIndex = j - 1;
-					if (moveScores[swapIndex] < moveScores[j])
+					if (_moveScores[swapIndex] < _moveScores[j])
 					{
 						(moves[j], moves[swapIndex]) = (moves[swapIndex], moves[j]);
-						(moveScores[j], moveScores[swapIndex]) = (moveScores[swapIndex], moveScores[j]);
+						(_moveScores[j], _moveScores[swapIndex]) = (_moveScores[swapIndex], _moveScores[j]);
 					}
 				}
 			}

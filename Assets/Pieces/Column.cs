@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace Laska
@@ -216,6 +217,30 @@ namespace Laska
 
         #endregion
 
+        private string _description;
+        private bool _isDescriptionDirty = true;
+        public string Description
+        {
+            get
+            {
+                if (_isDescriptionDirty)
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"Kolumna na {Position}:");
+                    int i = 1;
+                    foreach (var p in _pieces)
+                    {
+                        var color = p.Color == 'b' ? "Czerwony" : "Zielony";
+                        sb.AppendLine($"{i}. {color} {p.Mianownik.ToLower()}");
+                        i++;
+                    }
+                    _description = sb.ToString();
+                    _isDescriptionDirty = false;
+                }
+                return _description;
+            }
+        }
+
         public void Init(Piece commander)
         {
             if (_pieces != null)
@@ -230,6 +255,7 @@ namespace Laska
         {
             _isValueDirtyWhite = true;
             _isValueDirtyBlack = true;
+            _isDescriptionDirty = true;
         }
 
         private void replaceTopPiece(Piece newPiece)

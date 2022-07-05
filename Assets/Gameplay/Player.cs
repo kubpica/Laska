@@ -114,6 +114,32 @@ namespace Laska
         }
 
         /// <summary>
+        /// Check if only one column has legal moves.
+        /// </summary>
+        /// <param name="column"> The only moveable column.</param>
+        /// <returns> True if only one column is moveable.</returns>
+        public bool CanOnlyOneColumnMove(out Column column)
+        {
+            column = null;
+            foreach (var c in _columns)
+            {
+                if (c.PossibleMoves.Count > 0)
+                {
+                    if (column == null)
+                    {
+                        column = c;
+                    }
+                    else
+                    {
+                        column = null;
+                        return false;
+                    }
+                }
+            }
+            return column != null;
+        }
+
+        /// <summary>
         /// Puts all possible moves and takes (not checking for multi-takes) in one list.
         /// </summary>
         /// <param name="refresh"> If true recalculates possible moves, should be true when new position happens.</param>
