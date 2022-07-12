@@ -56,7 +56,6 @@ namespace Laska
         public void SetPlayerToMove(Player player)
         {
             _playerToMove = player;
-            msg.SetCurrentTextColor(player);
         }
 
         private bool SelectColumn(string square)
@@ -260,14 +259,12 @@ namespace Laska
             onMoveStarted.Invoke(move);
 
             var squares = move.Split('-');
-            if (SelectedColumn == null)
+            if (SelectedColumn == null || SelectedColumn.Position != squares[0])
                 SelectedColumn = board.GetColumnAt(squares[0]);
 
             if (_takenPieces.Count == 0)
             {
                 msg.DisplayedMsg = "";
-                msg.SetLastTextColor(_playerToMove);
-
                 SelectedColumn.ZobristAll(); // XOR-out moved column
             }
 

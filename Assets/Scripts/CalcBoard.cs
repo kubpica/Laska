@@ -41,7 +41,7 @@ namespace Laska
             }
 
             // "Unsafe" positions - squares where a piece can be released
-            var deathsPerUnsafeSquare = 1; // _deadSquares.Sum()/13.0f * 0.75f;
+            var deathsPerUnsafeSquare = _deadSquares.Sum() / 13.0f * 0.75f; //1;
             Debug.Log("deathsPerUnsafeSquare: " + deathsPerUnsafeSquare);
             for (int rank = 1; rank < 6; rank++)
             {

@@ -50,6 +50,7 @@ public class CameraController : MonoBehaviourSingleton<CameraController>
 
 
     public GameObject d4;
+    public GameObject light;
 
     /// <summary>
     /// Set to true when free looking (on right mouse button).
@@ -57,6 +58,24 @@ public class CameraController : MonoBehaviourSingleton<CameraController>
     private bool looking = false;
 
     private Vector3 pivotPoint;
+
+    private bool _upsideDown;
+    public bool UpsideDown
+    {
+        get => _upsideDown;
+        set
+        {
+            _upsideDown = value;
+            if (value)
+            {
+                transform.eulerAngles = transform.eulerAngles.Z(180);
+            }
+            else
+            {
+                transform.eulerAngles = transform.eulerAngles.Z(0);
+            }
+        }
+    }
 
     private void Update()
     {
@@ -220,13 +239,22 @@ public class CameraController : MonoBehaviourSingleton<CameraController>
 
     public void MakeSureObjectCanBeSeen(GameObject go)
     {
+        float timer = 0;
+        var pevP = go.transform.position;
         var p = go.transform.position.Y(go.transform.position.y + 1.5f);
         StartCoroutine(makeSureObjectCanBeSeen());
 
         IEnumerator makeSureObjectCanBeSeen()
         {
             while (!CanSee(p))
-            { 
+            {
+                timer += Time.deltaTime;
+                if(timer > 3)
+                {
+                    go.transform.position = pevP;
+                    yield break;
+                }
+
                 transform.position = transform.position + Vector3.up * 2 * Time.deltaTime; // Lift-up
                 //transform.position = transform.position + transform.forward * 2 * Time.deltaTime; // Zoom-out
                 yield return null;
@@ -237,5 +265,6 @@ public class CameraController : MonoBehaviourSingleton<CameraController>
     public void ChangePerspective()
     {
         transform.RotateAround(d4.transform.position, Vector3.up, 180);
+        light.transform.RotateAround(d4.transform.position, Vector3.up, 180);
     }
 }

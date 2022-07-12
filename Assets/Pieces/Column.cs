@@ -251,6 +251,8 @@ namespace Laska
             commander.transform.parent = transform;
         }
 
+        public Color GetActualColor() => Commander.GetActualColor();
+
         public void MarkDirty()
         {
             _isValueDirtyWhite = true;

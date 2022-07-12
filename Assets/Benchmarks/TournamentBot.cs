@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Laska;
+using UnityEngine;
 
 public class TournamentBot : MonoBehaviourExtended
 {

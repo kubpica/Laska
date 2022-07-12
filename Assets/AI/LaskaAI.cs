@@ -31,6 +31,7 @@ namespace Laska
 		private string _threadingMove;
 		private Exception _threadingException;
 		private CancellationTokenSource _cancelSearchTimer;
+		private CancellationTokenSource _cancelMakeMove;
 
 		private System.Diagnostics.Stopwatch _searchStopwatch;
 		private int _numNodes;
@@ -806,6 +807,7 @@ namespace Laska
 		{
 			if (cfg.useThreading)
 			{
+				_cancelMakeMove = new CancellationTokenSource();
 				Task.Factory.StartNew(() =>
 				{
 					try
@@ -817,7 +819,7 @@ namespace Laska
 						_threadingException = e;
 					}
 					_cancelSearchTimer?.Cancel();
-				}, TaskCreationOptions.LongRunning);
+				}, _cancelMakeMove.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
 				_cancelSearchTimer = new CancellationTokenSource();
 				Task.Delay(cfg.searchTime, _cancelSearchTimer.Token).ContinueWith(_ => EndSearch());
@@ -827,6 +829,12 @@ namespace Laska
 				var move = BestMoveMinimax();
 				moveMaker.MakeMove(move);
 			}
+		}
+
+		public void AbortMakeMove()
+		{
+			_cancelMakeMove?.Cancel();
+			EndSearch();
 		}
 
 		public void EndSearch()

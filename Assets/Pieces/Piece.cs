@@ -114,6 +114,11 @@ namespace Laska
             materialColorDark = dark.ToColor();
         }
 
+        public Color GetActualColor()
+        {
+            return Color == 'b' ? UnityEngine.Color.red : UnityEngine.Color.green;
+        }
+
         public int GetHeightInColumn()
         {
             return Column.Pieces.TakeWhile(p => p != this).Count();

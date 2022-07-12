@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace Laska
 {
@@ -34,6 +35,11 @@ namespace Laska
             }
 
             set => _ai = value;
+        }
+
+        public Color GetActualColor()
+        {
+            return color == 'b' ? Color.red : Color.green;
         }
 
         /// <summary>

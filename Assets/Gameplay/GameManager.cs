@@ -1,17 +1,25 @@
 ﻿using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace Laska
 {
     public class GameManager : MonoBehaviourSingleton<GameManager>
     {
+        [GlobalComponent] private MoveMaker moveMaker;
+        [GlobalComponent] private Board board;
+        [GlobalComponent] private GuiScaler gui;
+
+        static System.Random rnd = new System.Random();
+
         public Player[] players;
 
         public UnityEvent onPlayerDecision;
         public UnityEvent onGameStarted;
         public CharEvent onGameEnded;
         public bool markOnlyMovableColumn;
+        public bool firstAIMovesRandom;
 
         /// <summary>
         /// Player to make move.
@@ -23,12 +31,13 @@ namespace Laska
         /// </summary>
         public Player InactivePlayer => GetPlayer(getOppositeColor(ActivePlayer));
 
-        public bool Mate { get; set; }
-        public bool DrawByRepetition { get; set; }
-        public bool DrawByFiftyMoveRule { get; set; }
+        public Player WhitePlayer => GetPlayer('w');
+        public Player BlackPlayer => GetPlayer('b');
 
-        [GlobalComponent] MoveMaker moveMaker;
-        [GlobalComponent] Board board;
+        public bool Mate { get; private set; }
+        public bool DrawByRepetition { get; private set; }
+        public bool DrawByFiftyMoveRule { get; private set; }
+        public int HalfMovesCounter { get; private set; }
 
         public void Reset()
         {
@@ -36,6 +45,7 @@ namespace Laska
             Mate = false;
             DrawByRepetition = false;
             DrawByFiftyMoveRule = false;
+            HalfMovesCounter = 0;
         }
 
         public enum GameState
@@ -53,11 +63,106 @@ namespace Laska
             set => _gameState = value;
         }
 
+        public enum AIMode
+        {
+            PlayerVsPlayer,
+            PlayerVsRedAI,
+            PlayerVsGreenAI,
+            AIVsAI
+        }
+
+        private static AIMode _aIMode = AIMode.PlayerVsRedAI;
+
+        public static AIMode GetAIMode() => _aIMode;
+
         private void Start()
         {
             moveMaker.onMoveStarted.AddListener(moveStarted);
             moveMaker.onMoveEnded.AddListener(moveEnded);
             moveMaker.onMultiTakeDecision.AddListener(multiTakeDecision);
+
+            loadAIMode();
+        }
+
+        public void ResetGame()
+        {
+            if (ActivePlayer != null && ActivePlayer.isAI)
+                ActivePlayer.AI.AbortMakeMove();
+            SceneManager.LoadScene("Laska");
+        }
+
+        public void LoadAIMode(AIMode mode)
+        {
+            _aIMode = mode;
+            ResetGame();
+        }
+
+        private void loadAIMode()
+        {
+            switch (_aIMode)
+            {
+                case AIMode.PlayerVsPlayer:
+                    DisableAI();
+                    break;
+                case AIMode.PlayerVsRedAI:
+                    WhitePlayer.isAI = false;
+                    BlackPlayer.isAI = true;
+                    if (BlackPlayer == ActivePlayer)
+                        makeAIMove();
+                    break;
+                case AIMode.PlayerVsGreenAI:
+                    WhitePlayer.isAI = true;
+                    BlackPlayer.isAI = false;
+                    if (WhitePlayer == ActivePlayer)
+                        makeAIMove();
+                    CameraController.Instance.ChangePerspective();
+                    break;
+                case AIMode.AIVsAI:
+                    WhitePlayer.isAI = true;
+                    BlackPlayer.isAI = true;
+                    if (ActivePlayer != null)
+                        makeAIMove();
+                    break;
+            }
+        }
+
+        private void makeAIMove()
+        {
+            if (firstAIMovesRandom && HalfMovesCounter < 6)
+            {
+                makeRandomMove();
+                return;
+            }
+
+            moveMaker.MoveSelectionEnabled = false;
+            ActivePlayer.AI.MakeMove();
+        }
+
+        private void makeRandomMove()
+        {
+            var move = GetRandomMove();
+            moveMaker.MakeMove(move);
+        }
+
+        public string GetRandomMove()
+        {
+            var moves = ActivePlayer.GetPossibleMovesAndMultiTakes();
+            return moves[rnd.Next(moves.Count)];
+        }
+
+        public void DisableAI()
+        {
+            WhitePlayer.isAI = false;
+            BlackPlayer.isAI = false;
+        }
+
+        public void EnableAI()
+        {
+            if (_aIMode == AIMode.PlayerVsPlayer)
+            {
+                _aIMode = InactivePlayer.color == 'w' ? AIMode.PlayerVsGreenAI : AIMode.PlayerVsRedAI;
+            }
+            loadAIMode();
         }
 
         public Player GetPlayer(char color)
@@ -85,18 +190,19 @@ namespace Laska
             }
             else
             {
+                gui.SetCurrentTextColor(player);
                 moveMaker.SetPlayerToMove(player);
             }
             ActivePlayer = player;
 
             if (player.isAI)
-            {                
+            {
                 // Make AI move
-                moveMaker.MoveSelectionEnabled = false;
-                player.AI.MakeMove();
+                makeAIMove();
             }
             else
             {
+                PiecesManager.TempMoves = false;
                 moveMaker.MoveSelectionEnabled = true;
                 onPlayerDecision.Invoke();
 
@@ -113,18 +219,20 @@ namespace Laska
 
         private void moveStarted(string move)
         {
+            gui.SetLastTextColor(ActivePlayer);
             setGameState(GameState.TurnResults);
         }
 
         private void moveEnded()
         {
+            HalfMovesCounter++;
             if (board.OfficerMovesSinceLastTake >= 100)
             {
                 // Fifty-move rule - it's draw when it's 100th half-move without take or Soldier move
                 DrawByFiftyMoveRule = true;
                 setGameState(GameState.Ended);
                 onGameEnded.Invoke('-');
-                IngameMessages.Instance.SetCurrentTextColor(Color.yellow);
+                gui.SetCurrentTextColor(Color.yellow);
             }
             else if (board.IsThreefoldRepetition())
             {
@@ -133,13 +241,13 @@ namespace Laska
                 DrawByRepetition = true;
                 setGameState(GameState.Ended);
                 onGameEnded.Invoke('-');
-                IngameMessages.Instance.SetCurrentTextColor(Color.yellow);
+                gui.SetCurrentTextColor(Color.yellow);
             }
             else
             {
                 // Set next player
-                nextPlayer();
                 setGameState(GameState.Turn);
+                nextPlayer();
             }
         }
 
@@ -158,11 +266,6 @@ namespace Laska
         {
             setGameState(GameState.Turn);
             moveMaker.MoveSelectionEnabled = true;
-            /*if (ActivePlayer.isAI)
-            {
-                // Make AI move
-                moveMaker.MakeMove(moveMaker.selectedColumn.PossibleMoves[0]);
-            }*/
         }
 
         private void setGameState(GameState gs)
@@ -178,7 +281,7 @@ namespace Laska
         //        if (activePlayer.timer <= 0)
         //        {
         //            activePlayer.timer = 0;
-        //            //TODO gracz przegrywa na czas
+        //            //TODO player lost on time
         //        }
         //    }
         //}

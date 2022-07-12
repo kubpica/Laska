@@ -5,8 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class BotsTournamentManager : MonoBehaviourExtended
 {
-    static System.Random rnd = new System.Random();
-   
     public int stagesLimit = 0;
 
     public GameManager GameManager => GameManager.Instance;
@@ -48,8 +46,7 @@ public class BotsTournamentManager : MonoBehaviourExtended
 
     private void resetScene()
     {
-        PiecesManager.TempMoves = false;
-        SceneManager.LoadScene("Laska");
+        GameManager.ResetGame();
     }
 
     private void onSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -110,6 +107,8 @@ public class BotsTournamentManager : MonoBehaviourExtended
 
     private void playMatch()
     {
+        White.isAI = false;
+        Black.isAI = false;
         switch (_matchRound)
         {
             case 1:
@@ -151,9 +150,7 @@ public class BotsTournamentManager : MonoBehaviourExtended
 
     private void drawRandomMove() 
     {
-        var player = GameManager.ActivePlayer;
-        var moves = player.GetPossibleMovesAndMultiTakes();
-        var move = moves[rnd.Next(moves.Count)];
+        var move = GameManager.GetRandomMove();
         _randomMoves[_randomMoveCounter] = move;
         makeMove(move);
     }
