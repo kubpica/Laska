@@ -18,7 +18,8 @@ namespace Laska
         private HashSet<MeshRenderer> _marked = new HashSet<MeshRenderer>();
         private Stack<ulong> _repetitionPositionHistory = new Stack<ulong>(); // Zobrist keys 
 
-        [GlobalComponent] GameManager gameManager;
+        [GlobalComponent] private GameManager gameManager;
+        [GlobalComponent] private CameraController cameraController;
 
         public void Clear()
         {
@@ -139,20 +140,39 @@ namespace Laska
         /// Every piece in the column should be newly created as the pieces will be added to the player's list of pieces.
         /// </remarks>
         /// <param name="column"> Column to register.</param>
-        public void AddColumn(Column column, Square square)
+        public void RegisterColumn(Column column, Square square)
         {
             // Place on the square
             column.Square = square;
             column.gameObject.name = "Column " + square.coordinate;
 
             // Add to the player's list of pieces
-            var white = gameManager.players.First(p => p.color == 'w');
-            var black = gameManager.players.First(p => p.color == 'b');
             foreach (var p in column.Pieces)
             {
-                var player = p.Color == 'w' ? white : black;
-                player.pieces.Add(p);
+                RegisterPiece(p);
             }
+        }
+
+        public void RegisterPiece(Piece piece)
+        {
+            var player = gameManager.GetPlayer(piece.Color);
+            player.pieces.Add(piece);
+
+            cameraController.MakeSureObjectCanBeSeen(piece.gameObject);
+        }
+
+        public void UnregisterColumn(Column column)
+        {
+            foreach (var p in column.Pieces)
+            {
+                UnregisterPiece(p);
+            }
+        }
+
+        public void UnregisterPiece(Piece piece)
+        {
+            var player = gameManager.GetPlayer(piece.Color);
+            player.pieces.Remove(piece);
         }
     }
 }

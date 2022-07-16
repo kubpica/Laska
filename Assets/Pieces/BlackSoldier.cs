@@ -9,6 +9,7 @@ namespace Laska
     {
         private static readonly List<string> _directions = new List<string> { "+-", "--" };
 
+        public override char Id => 'b';
         public override char PromotionRank => '1';
         public override bool IsOfficer => false;
         public override List<string> MovementDirections => _directions;
@@ -16,6 +17,5 @@ namespace Laska
 
         public override string Mianownik => Theme.SoldierMianownik;
         public override string Biernik => Theme.SoldierBiernik;
-
     }
 }

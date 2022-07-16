@@ -91,6 +91,7 @@ namespace Laska
             }
         }
 
+        public abstract char Id { get; }
         public abstract char PromotionRank { get; }
         public abstract bool IsOfficer { get; }
         public abstract List<string> MovementDirections { get; }

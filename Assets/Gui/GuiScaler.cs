@@ -11,6 +11,8 @@ namespace Laska
         public float WidthScale { get; private set; }
         public float HeightScale { get; private set; }
 
+        public Color LightGray { get; private set; } = new Color(0.855f, 0.855f, 0.855f);
+
         private void Start()
         {
             CurrentStyle.fontStyle = FontStyle.Bold;
@@ -72,9 +74,28 @@ namespace Laska
             return new Rect(x * WidthScale, y * HeightScale, width * WidthScale, height * HeightScale);
         }
 
+        public bool ButtonTopRight(Rect r, string text, bool selected)
+        {
+            if (selected)
+                return ButtonTopRight(r, text, Color.yellow);
+            else
+                return ButtonTopRight(r, text);
+        }
+
         public bool ButtonTopRight(Rect r, string text)
         {
             return GUI.Button(ScaleRect(Screen.width / WidthScale - r.x, r.y, r.width, r.height), text, ButtonStyle);
+        }
+
+        public bool ButtonTopRight(Rect r, string text, Color color)
+        {
+            var backupColor = ButtonStyle.normal.textColor;
+            ButtonStyle.normal.textColor = color;
+            ButtonStyle.hover.textColor = color;
+            var isClicked = ButtonTopRight(r, text);
+            ButtonStyle.normal.textColor = backupColor;
+            ButtonStyle.hover.textColor = backupColor;
+            return isClicked;
         }
 
         public bool ButtonBottomRight(Rect r, string text)

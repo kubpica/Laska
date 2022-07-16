@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Laska;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -17,6 +19,8 @@ using UnityEngine;
 public class CameraController : MonoBehaviourSingleton<CameraController>
 {
     [Component] private Camera cam;
+
+    public Camera Camera => cam;
 
     public bool controlsEnabled;
 
@@ -240,7 +244,7 @@ public class CameraController : MonoBehaviourSingleton<CameraController>
     public void MakeSureObjectCanBeSeen(GameObject go)
     {
         float timer = 0;
-        var pevP = go.transform.position;
+        var pevP = transform.position;
         var p = go.transform.position.Y(go.transform.position.y + 1.5f);
         StartCoroutine(makeSureObjectCanBeSeen());
 
@@ -249,13 +253,13 @@ public class CameraController : MonoBehaviourSingleton<CameraController>
             while (!CanSee(p))
             {
                 timer += Time.deltaTime;
-                if(timer > 3)
+                if(timer > 4)
                 {
-                    go.transform.position = pevP;
+                    transform.position = pevP;
                     yield break;
                 }
 
-                transform.position = transform.position + Vector3.up * 2 * Time.deltaTime; // Lift-up
+                transform.position = transform.position + Vector3.up * 2 * Time.deltaTime * Mathf.Max(1, timer); // Lift-up
                 //transform.position = transform.position + transform.forward * 2 * Time.deltaTime; // Zoom-out
                 yield return null;
             }
@@ -266,5 +270,25 @@ public class CameraController : MonoBehaviourSingleton<CameraController>
     {
         transform.RotateAround(d4.transform.position, Vector3.up, 180);
         light.transform.RotateAround(d4.transform.position, Vector3.up, 180);
+
+        makeSureColumnsCanBeSeen();
+    }
+
+    private void makeSureColumnsCanBeSeen()
+    {
+        var game = GameManager.Instance;
+        checkColumns(game.ActivePlayer.Columns);
+        checkColumns(game.InactivePlayer.Columns);
+
+        void checkColumns(IEnumerable<Column> columns)
+        {
+            if (columns == null)
+                return;
+
+            foreach (var c in columns)
+            {
+                MakeSureObjectCanBeSeen(c.Commander.gameObject);
+            }
+        }
     }
 }

@@ -53,6 +53,7 @@ namespace Laska
             PreGame,
             Turn,
             TurnResults,
+            Paused,
             Ended
         }
 
@@ -60,7 +61,7 @@ namespace Laska
         public GameState CurrentGameState
         {
             get => _gameState;
-            set => _gameState = value;
+            set => setGameState(value);
         }
 
         public enum AIMode
@@ -71,15 +72,18 @@ namespace Laska
             AIVsAI
         }
 
-        private static AIMode _aIMode = AIMode.PlayerVsRedAI;
+        private static AIMode s_aIMode = AIMode.PlayerVsRedAI;
 
-        public static AIMode GetAIMode() => _aIMode;
+        public static AIMode GetAIMode() => s_aIMode;
 
         private void Start()
         {
             moveMaker.onMoveStarted.AddListener(moveStarted);
             moveMaker.onMoveEnded.AddListener(moveEnded);
             moveMaker.onMultiTakeDecision.AddListener(multiTakeDecision);
+
+            if (MenusManager.IsEditorActive)
+                setGameState(GameState.Paused);
 
             loadAIMode();
         }
@@ -88,18 +92,24 @@ namespace Laska
         {
             if (ActivePlayer != null && ActivePlayer.isAI)
                 ActivePlayer.AI.AbortMakeMove();
+            PiecesManager.TempMoves = false;
             SceneManager.LoadScene("Laska");
+        }
+
+        public void PresetAIMode(AIMode mode)
+        {
+            s_aIMode = mode;
         }
 
         public void LoadAIMode(AIMode mode)
         {
-            _aIMode = mode;
+            PresetAIMode(mode);
             ResetGame();
         }
 
         private void loadAIMode()
         {
-            switch (_aIMode)
+            switch (s_aIMode)
             {
                 case AIMode.PlayerVsPlayer:
                     DisableAI();
@@ -113,9 +123,10 @@ namespace Laska
                 case AIMode.PlayerVsGreenAI:
                     WhitePlayer.isAI = true;
                     BlackPlayer.isAI = false;
+                    if (HalfMovesCounter == 0)
+                        CameraController.Instance.ChangePerspective();
                     if (WhitePlayer == ActivePlayer)
                         makeAIMove();
-                    CameraController.Instance.ChangePerspective();
                     break;
                 case AIMode.AIVsAI:
                     WhitePlayer.isAI = true;
@@ -128,6 +139,9 @@ namespace Laska
 
         private void makeAIMove()
         {
+            if (CurrentGameState == GameState.TurnResults || CurrentGameState == GameState.Paused)
+                return;
+
             if (firstAIMovesRandom && HalfMovesCounter < 6)
             {
                 makeRandomMove();
@@ -158,9 +172,9 @@ namespace Laska
 
         public void EnableAI()
         {
-            if (_aIMode == AIMode.PlayerVsPlayer)
+            if (s_aIMode == AIMode.PlayerVsPlayer)
             {
-                _aIMode = InactivePlayer.color == 'w' ? AIMode.PlayerVsGreenAI : AIMode.PlayerVsRedAI;
+                s_aIMode = InactivePlayer.color == 'w' ? AIMode.PlayerVsGreenAI : AIMode.PlayerVsRedAI;
             }
             loadAIMode();
         }
@@ -177,6 +191,13 @@ namespace Laska
 
         private void setActivePlayer(Player player)
         {
+            if(CurrentGameState == GameState.Paused || MenusManager.IsEditorActive)
+            {
+                ActivePlayer = player;
+                moveMaker.MoveSelectionEnabled = false;
+                return;
+            }
+
             player.RefreshPossibleMoves();
 
             if (!player.HasPossibleMoves())
@@ -188,14 +209,21 @@ namespace Laska
                 moveMaker.MoveSelectionEnabled = false;
                 return;
             }
-            else
-            {
-                gui.SetCurrentTextColor(player);
-                moveMaker.SetPlayerToMove(player);
-            }
-            ActivePlayer = player;
 
-            if (player.isAI)
+            applyPlayer(player);
+            prepareToMove();
+        }
+
+        private void applyPlayer(Player player)
+        {
+            gui.SetCurrentTextColor(player);
+            moveMaker.SetPlayerToMove(player);
+            ActivePlayer = player;
+        }
+
+        private void prepareToMove()
+        {
+            if (ActivePlayer.isAI)
             {
                 // Make AI move
                 makeAIMove();
@@ -209,7 +237,7 @@ namespace Laska
                 if (markOnlyMovableColumn)
                 {
                     // Mark the only movable column
-                    if(player.CanOnlyOneColumnMove(out Column c))
+                    if (ActivePlayer.CanOnlyOneColumnMove(out Column c))
                     {
                         moveMaker.MarkPossibleMoves(c);
                     }
@@ -247,7 +275,7 @@ namespace Laska
             {
                 // Set next player
                 setGameState(GameState.Turn);
-                nextPlayer();
+                NextPlayer();
             }
         }
 
@@ -256,7 +284,7 @@ namespace Laska
             return p.color == 'w' ? 'b' : 'w';
         }
 
-        private void nextPlayer()
+        public void NextPlayer()
         {
             char nextColor = getOppositeColor(ActivePlayer);
             SetActivePlayer(nextColor);
@@ -270,7 +298,11 @@ namespace Laska
 
         private void setGameState(GameState gs)
         {
+            var prevState = _gameState;
             _gameState = gs;
+
+            if (prevState == GameState.Paused)
+                setActivePlayer(ActivePlayer);
         }
 
         //private void FixedUpdate()

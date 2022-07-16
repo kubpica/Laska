@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Laska
 {
@@ -10,9 +9,7 @@ namespace Laska
         public GameObject blackSoldier;
         public GameObject blackOfficer;
 
-        [GlobalComponent] private Board board;
-
-        private Column spawnColumn(string c)
+        public Column SpawnColumn(string c)
         {
             var commander = SpawnPiece(c[0]);
 
@@ -25,26 +22,6 @@ namespace Laska
                     column.Take(p);
                 }
             }
-
-            return column;
-        }
-
-        public Column SpawnColumn(string c, int fileId, int rankId)
-        {
-            var column = spawnColumn(c);
-
-            var square = board.GetSquareAt(fileId, rankId);
-            Vector3 p = square.transform.position;
-            p.y = 0;
-
-            column.transform.position = p;
-            foreach (var piece in column.Pieces.Reverse())
-            {
-                piece.transform.position = p;
-                p.y += piece.transform.localScale.y/2.0f;
-            }
-
-            board.AddColumn(column, square);
 
             return column;
         }

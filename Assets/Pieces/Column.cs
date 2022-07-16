@@ -251,6 +251,12 @@ namespace Laska
             commander.transform.parent = transform;
         }
 
+        public void OnDestroy()
+        {
+            if (_square != null)
+                _square.Clear();
+        }
+
         public Color GetActualColor() => Commander.GetActualColor();
 
         public void MarkDirty()
@@ -396,6 +402,14 @@ namespace Laska
             }
 
             _pieces.AddLast(piece);
+            piece.Column = this;
+        }
+
+        public void AddOnTop(Piece piece)
+        {
+            MarkDirty();
+
+            _pieces.AddFirst(piece);
             piece.Column = this;
         }
 

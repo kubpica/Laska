@@ -35,7 +35,7 @@ namespace Laska
             }
         }
 
-        public Camera cam;
+        private Camera _cam;
         private Player _playerToMove;
         private List<Piece> _takenPieces = new List<Piece>();
         private bool _justPromoted;
@@ -46,9 +46,7 @@ namespace Laska
 
         private void Start()
         {
-            if (cam == null)
-                cam = Camera.main;
-
+            _cam = cameraController.Camera;
             _halfSelectionColor = Color.Lerp(new Color(0.855f, 0.855f, 0.855f), Color.yellow, 0.5f);
             _moreHalfSelectionColor = Color.Lerp(new Color(0.855f, 0.855f, 0.855f), Color.yellow, 0.6f);
         }
@@ -545,8 +543,6 @@ namespace Laska
 
         private void Update()
         {
-            columnInfoOnHover();
-
             if (!MoveSelectionEnabled || 
                 gameManager.CurrentGameState != GameManager.GameState.Turn 
                 && gameManager.CurrentGameState != GameManager.GameState.PreGame)
@@ -554,7 +550,7 @@ namespace Laska
 
             if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
-                var clicked = cam.GetColliderUnderMouse();
+                var clicked = _cam.GetColliderUnderMouse();
 
                 if (clicked != null && clicked.transform.parent != null)
                 {
@@ -577,41 +573,6 @@ namespace Laska
                         //Debug.Log("clicked piece " + piece);
                     }
                 }
-            }
-        }
-
-        private void columnInfoOnHover()
-        {
-            if (_selectedColumn != null)
-                return;
-
-            if (Input.mousePresent || Input.touchCount > 0)
-            {
-                var underMouse = cam.GetColliderUnderMouse();
-                if (underMouse != null)
-                {
-                    if (underMouse.gameObject.CompareTag("Board"))
-                    {
-                        var square = underMouse.GetComponent<Square>();
-                        if (square != null)
-                        {
-                            msg.SelectSquare(square);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var piece = underMouse.GetComponent<Piece>();
-                        if (piece != null)
-                        {
-                            msg.SelectColumn(piece.Column);
-                            return;
-                        }
-                    }
-                }
-
-                if(Input.touchCount == 0)
-                    msg.SelectColumn(null);
             }
         }
     }

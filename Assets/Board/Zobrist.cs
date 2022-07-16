@@ -7,20 +7,27 @@ namespace Laska
 {
 	public static class Zobrist
 	{
-		const int seed = 4066935;
-		const string randomNumbersFileName = "RandomNumbers.txt";
+		private const int SEED = 4066935;
+		private const string FILE_NAME = "RandomNumbers.txt";
+		private const int PIECE_TYPES = 4;
+		private const int SQUARES = 25;
+		private const int MAX_PIECES = 100; // Normally 22 would be enough, but in position editor we allow max 100 pieces 
 
-		/// piece type, square index, height in the column
-		public static readonly ulong[,,] piecesArray = new ulong[4, 25, 22];
+		private static int NumbersToGenerate => PIECE_TYPES * SQUARES * MAX_PIECES + 1;
+
+		/// <summary>
+		/// [piece type, square index, height in the column]
+		/// </summary>
+		public static readonly ulong[,,] piecesArray = new ulong[PIECE_TYPES, SQUARES, MAX_PIECES];
 		public static readonly ulong blackToMove;
 
-		static System.Random prng = new System.Random(seed);
+		static System.Random prng = new System.Random(SEED);
 
 		static void WriteRandomNumbers()
 		{
-			prng = new System.Random(seed);
+			prng = new System.Random(SEED);
 			string randomNumberString = "";
-			int numRandomNumbers = 4 * 25 * 22 + 1;
+			int numRandomNumbers = NumbersToGenerate;
 
 			for (int i = 0; i < numRandomNumbers; i++)
 			{
@@ -49,11 +56,19 @@ namespace Laska
 			reader.Close();
 
 			string[] numberStrings = numbersString.Split(',');
+			if (numberStrings.Length < NumbersToGenerate)
+			{
+				Debug.LogError("Not enought numberStrings, regenerating...");
+				File.Delete(randomNumbersPath);
+				return ReadRandomNumbers();
+			}
+
 			for (int i = 0; i < numberStrings.Length; i++)
 			{
 				ulong number = ulong.Parse(numberStrings[i]);
 				randomNumbers.Enqueue(number);
 			}
+
 			return randomNumbers;
 		}
 
@@ -61,11 +76,11 @@ namespace Laska
 		{
 			var randomNumbers = ReadRandomNumbers();
 
-			for (int pieceIndex = 0; pieceIndex < 4; pieceIndex++)
+			for (int pieceIndex = 0; pieceIndex < PIECE_TYPES; pieceIndex++)
 			{
-				for (int squareIndex = 0; squareIndex < 25; squareIndex++)
+				for (int squareIndex = 0; squareIndex < SQUARES; squareIndex++)
 				{
-					for (int columnHeight = 0; columnHeight < 22; columnHeight++)
+					for (int columnHeight = 0; columnHeight < MAX_PIECES; columnHeight++)
 					{
 						piecesArray[pieceIndex, squareIndex, columnHeight] = randomNumbers.Dequeue();
 					}
@@ -102,7 +117,7 @@ namespace Laska
 		{
 			get
 			{
-				return Path.Combine(Application.persistentDataPath, randomNumbersFileName);
+				return Path.Combine(Application.persistentDataPath, FILE_NAME);
 			}
 		}
 

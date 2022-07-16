@@ -9,6 +9,7 @@ namespace Laska
     {
         private static readonly List<string> _directions = new List<string> { "++", "-+", "+-", "--" };
 
+        public override char Id => char.ToUpper(Color);
         public override char PromotionRank => '-';
         public override bool IsOfficer => true;
         public override List<string> MovementDirections => _directions;

@@ -42,6 +42,11 @@ namespace Laska
             return color == 'b' ? Color.red : Color.green;
         }
 
+        public void RefreshOwnedColumns()
+        {
+            _columns = GetOwnedColums();
+        }
+
         /// <summary>
         /// Get columns that have commander of this player.
         /// </summary>
@@ -64,7 +69,7 @@ namespace Laska
         /// </remarks>
         public void RefreshPossibleMoves(List<string> takenSquares = null)
         {
-            _columns = GetOwnedColums();
+            RefreshOwnedColumns();
 
             foreach(var c in _columns)
             {
