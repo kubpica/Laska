@@ -58,6 +58,9 @@ namespace Laska
         private void toolSelection()
         {
             toolButton(0, "Usuwanie", PositionEditorTool.Delete, gui.LightGray);
+            if (pieces.IsPiecesLimitReached)
+                return;
+
             toolButton(1, "Zielony szeregowy", PositionEditorTool.GreenSoldier, Color.green);
             toolButton(2, "Zielony oficer", PositionEditorTool.GreenOfficer, Color.green);
             toolButton(3, "Czerwony szeregowy", PositionEditorTool.RedSoldier, Color.red);
@@ -65,7 +68,8 @@ namespace Laska
 
             void toolButton(int i, string text, PositionEditorTool tool, Color color)
             {
-                if (gui.ButtonTopRight(new Rect(315, 300 + 90 * i, 280, 80), text, editor.SelectedTool == tool))
+                var deselectedColor = Color.Lerp(gui.ButtonStyle.normal.textColor, color, 0.15f);
+                if (gui.ButtonTopRight(new Rect(315, 300 + 90 * i, 280, 80), text, editor.SelectedTool == tool, deselectedColor))
                 {
                     if (CheckPiecesLimit())
                     {

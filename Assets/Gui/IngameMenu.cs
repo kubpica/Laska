@@ -144,37 +144,38 @@ namespace Laska
 
         private void modeSelection()
         {
-            if (modeButton(0, "Graj zielonymi", AIMode.PlayerVsRedAI))
+            if (modeButton(0, "Graj zielonymi", AIMode.PlayerVsRedAI, Color.green, Color.green))
             {
                 s_rotateAutomatically = false;
                 fixLevel();
                 game.LoadAIMode(AIMode.PlayerVsRedAI);
             }
 
-            if (modeButton(1, "Graj czerwonymi", AIMode.PlayerVsGreenAI))
+            if (modeButton(1, "Graj czerwonymi", AIMode.PlayerVsGreenAI, Color.red, Color.red))
             {
                 s_rotateAutomatically = false;
                 fixLevel();
                 game.LoadAIMode(AIMode.PlayerVsGreenAI);
             }
 
-            if (modeButton(2, "Gracz vs gracz", AIMode.PlayerVsPlayer))
+            if (modeButton(2, "Gracz vs gracz", AIMode.PlayerVsPlayer, gui.LightGray, Color.yellow))
             {
                 s_rotateAutomatically = true;
                 s_level = BOT_OFF;
                 game.LoadAIMode(AIMode.PlayerVsPlayer);
             }
 
-            if (modeButton(3, "Bot vs bot", AIMode.AIVsAI))
+            if (modeButton(3, "Bot vs bot", AIMode.AIVsAI, gui.LightGray, Color.yellow))
             {
                 s_rotateAutomatically = false;
                 s_level = BOT_LEVEL_X;
                 game.LoadAIMode(AIMode.AIVsAI);
             }
 
-            bool modeButton(int i, string text, AIMode mode)
+            bool modeButton(int i, string text, AIMode mode, Color deselectedColor, Color selectedColor)
             {
-                return gui.ButtonTopRight(new Rect(255, 320 + 90 * i, 220, 80), text, GameManager.GetAIMode() == mode);
+                var miniColor = Color.Lerp(gui.ButtonStyle.normal.textColor, deselectedColor, 0.1f);
+                return gui.ButtonTopRight(new Rect(255, 320 + 90 * i, 220, 80), text, GameManager.GetAIMode() == mode, miniColor, selectedColor);
             }
         }
 

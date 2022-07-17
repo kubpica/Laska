@@ -82,6 +82,19 @@ namespace Laska
                 return ButtonTopRight(r, text);
         }
 
+        public bool ButtonTopRight(Rect r, string text, bool selected, Color deselectedColor)
+        {
+            return ButtonTopRight(r, text, selected, deselectedColor, Color.yellow);
+        }
+
+        public bool ButtonTopRight(Rect r, string text, bool selected, Color deselectedColor, Color selectedColor)
+        {
+            if (selected)
+                return ButtonTopRight(r, text, selectedColor);
+            else
+                return ButtonTopRight(r, text, deselectedColor);
+        }
+
         public bool ButtonTopRight(Rect r, string text)
         {
             return GUI.Button(ScaleRect(Screen.width / WidthScale - r.x, r.y, r.width, r.height), text, ButtonStyle);
