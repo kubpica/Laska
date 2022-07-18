@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36166ac0b1941874dae451362fb1a7f0, type: 3}
   m_Name: NormalTheme
   m_EditorClassIdentifier: 
-  soldierMianownik: Szeregowy
-  soldierBiernik: szeregowego
-  officerMianownik: Oficer
-  officerBiernik: oficera
-  takesMsg: bierze do niewoli
-  movesMsg: rusza z
+  soldierMianownik: 
+  soldierBiernik: 
+  officerMianownik: 
+  officerBiernik: 
+  takesMsg: 
+  movesMsg: 
   d4StinkyCheese: 0

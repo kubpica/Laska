@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ec10fc23725a794d83a46cd23215c79, type: 3}
+  m_Name: english
+  m_EditorClassIdentifier: 
+  botOff: AI turned off
+  level: Level
+  newGame: New game
+  editPosition: Edit position
+  autoRotate: 'Auto. rotate:'
+  screen: screen
+  board: board
+  rotate: Rotate
+  automatically: automatically
+  playAsGreen: Play as green
+  playAsRed: Play as red
+  playerVsPlayer: Player vs player
+  botVsBot: AI vs AI
+  mate: Mate!
+  greenWins: Green player wins
+  redWins: Red player wins
+  drawByRepetition: Draw by repetition!
+  drawBy50MoveRule: Draw by 50 moves without a take or soldier move!
+  greenPlayerToMove: Green player to move
+  redPlayerToMove: Red player to move
+  gameOver: Game over! :)
+  positionEval: 'Position eval.:'
+  column: Column
+  square: Square
+  soldier: Private
+  soldierBiernik: private
+  officer: Officer
+  officerBiernik: officer
+  takesMsg: takes
+  movesMsg: moves from
+  on: on
+  from: from
+  to: to
+  editor: Editor
+  deleting: Deleting
+  exit: Exit
+  restoreDefault: Restore default
+  greenToMove: Green to move
+  redToMove: Red to move
+  green: Green
+  red: Red
+  piecesLimitReached: The 100-piece limit has been reached!

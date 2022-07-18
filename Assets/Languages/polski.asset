@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ec10fc23725a794d83a46cd23215c79, type: 3}
+  m_Name: polski
+  m_EditorClassIdentifier: 
+  botOff: "Bot wy\u0142\u0105czony"
+  level: Poziom
+  newGame: Nowa gra
+  editPosition: "Edytuj pozycj\u0119"
+  autoRotate: "Auto. obr\xF3\u0107:"
+  screen: ekran
+  board: "plansz\u0119"
+  rotate: "Obr\xF3\u0107"
+  automatically: automatycznie
+  playAsGreen: Graj zielonymi
+  playAsRed: Graj czerwonymi
+  playerVsPlayer: Gracz vs gracz
+  botVsBot: Bot vs bot
+  mate: Pat-mat!
+  greenWins: Wygrana gracza zielonego
+  redWins: Wygrana gracza czerwonego
+  drawByRepetition: "Remis przez powt\xF3rzenie!"
+  drawBy50MoveRule: "Remis przez 50 ruch\xF3w bez bicia ani posuni\u0119cia szeregowym!"
+  greenPlayerToMove: Ruch gracza zielonego
+  redPlayerToMove: Ruch gracza czerwonego
+  gameOver: Koniec gry! :)
+  positionEval: 'Ocena pozycji:'
+  column: Kolumna
+  square: Pole
+  soldier: Szeregowy
+  soldierBiernik: szeregowego
+  officer: Oficer
+  officerBiernik: oficera
+  takesMsg: bierze do niewoli
+  movesMsg: rusza z
+  on: na
+  from: z
+  to: na
+  editor: Edytor
+  deleting: Usuwanie
+  exit: "Opu\u015B\u0107"
+  restoreDefault: "Przywr\xF3\u0107 domy\u015Bln\u0105"
+  greenToMove: Ruch zielonego
+  redToMove: Ruch czerwonego
+  green: Zielony
+  red: Czerwony
+  piecesLimitReached: "Limit 100 bierek zosta\u0142 osi\u0105gni\u0119ty!"

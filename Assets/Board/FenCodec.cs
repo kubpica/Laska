@@ -16,6 +16,12 @@ namespace Laska
 
         void Start()
         {
+            if (LanguageManager.IsLanguageSelected)
+                Load();
+        }
+
+        public void Load()
+        {
             if (!string.IsNullOrEmpty(SavedFen))
             {
                 try

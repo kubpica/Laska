@@ -81,6 +81,8 @@ namespace Laska
                         _currentTool = _redOfficer;
                         break;
                 }
+
+                menus.editor.UpdateToolText();
             }
         }
 

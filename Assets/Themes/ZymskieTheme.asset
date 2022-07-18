@@ -16,6 +16,10 @@ MonoBehaviour:
   soldierBiernik: "\u017Cymianina"
   officerMianownik: Zbycholud
   officerBiernik: zbycholuda
+  column: Koloseum
   takesMsg: "\u0142apie pod sk\xF3rk\u0105"
   movesMsg: robi kiwke z
+  editPosition: "Edytuj \u017Cym"
+  positionEval: "Ocena \u017Cymu:"
+  gameOver: "\u017Bym p\u0142onie! To koniec :)"
   d4StinkyCheese: 1

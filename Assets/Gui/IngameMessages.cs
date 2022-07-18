@@ -8,7 +8,9 @@ namespace Laska
         [GlobalComponent] private GameManager game;
         [GlobalComponent] private MoveMaker moveMaker;
         [GlobalComponent] private GuiScaler gui;
+        [GlobalComponent] private ThemeManager theme;
 
+        private Language Language => LanguageManager.Language;
 
         private Camera _cam;
         private Square _selectedSquare;
@@ -95,27 +97,27 @@ namespace Laska
         private void OnGUI()
         {
             displaySelectedMsg();
-            string player = game.ActivePlayer.color == 'b' ? "czerwonego" : "zielonego";
+            bool isWhite = game.ActivePlayer.color == 'w';
             if (game.Mate)
             {
-                gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Pat-mat! Wygrana gracza " + player);
+                gui.LabelTopLeft(new Rect(60, 10, 200, 20), $"{Language.mate} {(isWhite ? Language.greenWins : Language.redWins)}");
                 gameOver();
                 return;
             }
             else if (game.DrawByRepetition)
             {
-                gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Remis przez powtórzenie!");
+                gui.LabelTopLeft(new Rect(60, 10, 200, 20), Language.drawByRepetition);
                 gameOver();
                 return;
             }
             else if (game.DrawByFiftyMoveRule)
             {
-                gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Remis przez 50 ruchów bez bicia!");
+                gui.LabelTopLeft(new Rect(60, 10, 200, 20), Language.drawBy50MoveRule);
                 gameOver();
                 return;
             }
 
-            gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Ruch gracza " + player);
+            gui.LabelTopLeft(new Rect(60, 10, 200, 20), isWhite ? Language.greenPlayerToMove : Language.redPlayerToMove);
             if (DisplayedMsg != null)
             {
                 gui.DrawOutline(new Rect(60, 40, 1900, 1000), DisplayedMsg, gui.LastStyle, Color.black, gui.LastStyle.normal.textColor);
@@ -124,7 +126,7 @@ namespace Laska
 
         private void gameOver()
         {
-            gui.DrawOutline(new Rect(60, 40, 1900, 1000), "Koniec gry! :)", gui.CurrentStyle, Color.black, gui.CurrentStyle.normal.textColor);
+            gui.DrawOutline(new Rect(60, 40, 1900, 1000), theme.GameOver, gui.CurrentStyle, Color.black, gui.CurrentStyle.normal.textColor);
         }
 
         private void displaySelectedMsg()
@@ -147,8 +149,15 @@ namespace Laska
 
         private void displaySquareDescription(Square square)
         {
+            if(theme.IsStinkyCheese && square.coordinate == "d4")
+            {
+                gui.DrawOutline(new Rect(60, 70 + 30 * _displayedLines, 1900, 1000),
+                    "D4 ŚMIERDZĄCY SER!", gui.LastStyle, Color.black, Color.yellow);
+                return;
+            }
+
             gui.DrawOutline(new Rect(60, 70 + 30 * _displayedLines, 1900, 1000),
-                $"Pole {square.coordinate}.", gui.LastStyle, Color.black, gui.LightGray);
+                $"{Language.square} {square.coordinate}.", gui.LastStyle, Color.black, gui.LightGray);
         }
 
         private string formatEval(float eval, char color)
@@ -168,21 +177,28 @@ namespace Laska
 
         private void displayPositionEval()
         {
-            var msg = $"Ocena pozycji: {formatEval(_cachedEval, game.ActivePlayer.color)}";
+            var msg = $"{theme.PositionEval} {formatEval(_cachedEval, game.ActivePlayer.color)}";
             gui.DrawOutline(new Rect(60, 70 + 30 * _displayedLines, 1900, 1000),
                    msg, gui.LastStyle, Color.black, game.ActivePlayer.GetActualColor());
         }
 
         private void displayColumnDescription(Column column)
         {
-            var msg = $"Kolumna na {column.Position}:";
+            var msg = $"{theme.Column} {Language.on} {column.Position}:";
             if (DisplayEval)
             {
                 msg += $" ({formatEval(column.Value / 3.608963f, column.Commander.Color)})";
             }
 
+            bool isStinky = theme.IsStinkyCheese && column.Square.coordinate == "d4";
+            if (isStinky)
+            {
+                msg += " (śmierdzi)";
+            }
+            Color color = isStinky ? Color.yellow : column.GetActualColor();
+            
             gui.DrawOutline(new Rect(60, 70 + 30 * _displayedLines, 1900, 1000),
-                msg, gui.LastStyle, Color.black, column.GetActualColor());
+                msg, gui.LastStyle, Color.black, color);
             int i = 0;
             foreach (var p in column.Pieces)
             {

@@ -15,7 +15,7 @@ namespace Laska
         public override List<string> MovementDirections => _directions;
         public override int ZobristIndex => 0;
 
-        public override string Mianownik => Theme.SoldierMianownik;
+        public override string Mianownik => Theme.Soldier;
         public override string Biernik => Theme.SoldierBiernik;
     }
 }

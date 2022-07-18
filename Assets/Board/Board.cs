@@ -46,6 +46,8 @@ namespace Laska
                     Debug.LogError("Not every square is inited!");
                 }
             }
+
+            ThemeManager.Instance.ApplyStinkyCheese();
         }
 
         public void SavePositionInRepetitionHistory() => _repetitionPositionHistory.Push(ZobristKey);
