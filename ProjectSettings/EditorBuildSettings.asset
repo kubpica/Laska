@@ -9,6 +9,6 @@ EditorBuildSettings:
     path: Assets/Scenes/_preload.unity
     guid: 20734c8f39c64244facd2bf0793eaedc
   - enabled: 1
-    path: Assets/Scenes/Piniondz.unity
-    guid: f0724fd5452778e47921c2dd100bcde5
+    path: Assets/Scenes/Laska.unity
+    guid: 6b7f00e8ac8bc4940882798104d0019c
   m_configObjects: {}

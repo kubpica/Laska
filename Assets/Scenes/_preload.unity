@@ -124,6 +124,732 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &443843548
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 443843549}
+  - component: {fileID: 443843550}
+  - component: {fileID: 443843551}
+  m_Layer: 0
+  m_Name: Bot4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &443843549
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443843548}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 550926186}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &443843550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443843548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: Points per owned column
+  initialElo: 1403
+  settings: {fileID: 0}
+--- !u!114 &443843551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 443843548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 0
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 10000
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 0
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!1 &488735565
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 488735566}
+  - component: {fileID: 488735568}
+  - component: {fileID: 488735567}
+  m_Layer: 0
+  m_Name: Bot5
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &488735566
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488735565}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 550926186}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &488735567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488735565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 0
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 10000
+  evalColumnsStrength: 1
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!114 &488735568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 488735565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: Eval strength + space
+  initialElo: 1482
+  settings: {fileID: 0}
+--- !u!1 &535304299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 535304300}
+  m_Layer: 0
+  m_Name: ExtensionsBots
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &535304300
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 535304299}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 903635215}
+  - {fileID: 1160465523}
+  - {fileID: 1411757658}
+  - {fileID: 889815476}
+  - {fileID: 1030606617}
+  - {fileID: 618776314}
+  m_Father: {fileID: 1028882571}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &550926185
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 550926186}
+  m_Layer: 0
+  m_Name: EvalFuncBots
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &550926186
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 550926185}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1071981417}
+  - {fileID: 1367076016}
+  - {fileID: 2089182928}
+  - {fileID: 443843549}
+  - {fileID: 488735566}
+  - {fileID: 1542002993}
+  m_Father: {fileID: 1028882571}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &618776313
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 618776314}
+  - component: {fileID: 618776316}
+  - component: {fileID: 618776315}
+  m_Layer: 0
+  m_Name: Bot2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &618776314
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 618776313}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 535304300}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &618776315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 618776313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!114 &618776316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 618776313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: Anty-zugzwang
+  initialElo: 1497
+  settings: {fileID: 0}
+--- !u!1 &889815475
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 889815476}
+  - component: {fileID: 889815478}
+  - component: {fileID: 889815477}
+  m_Layer: 0
+  m_Name: Bot5
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &889815476
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889815475}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 535304300}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &889815477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889815475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 0
+  searchAllTakes: 0
+  searchUnsafePositions: 0
+  antyZugzwang: 0
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!114 &889815478
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889815475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: no extenstions
+  initialElo: 1476
+  settings: {fileID: 0}
+--- !u!1 &903635214
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 903635215}
+  - component: {fileID: 903635217}
+  - component: {fileID: 903635216}
+  m_Layer: 0
+  m_Name: Bot1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &903635215
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903635214}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 535304300}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &903635216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903635214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 1
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!114 &903635217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 903635214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: Anty-zugzwang seek win
+  initialElo: 1509
+  settings: {fileID: 0}
+--- !u!1 &1028882569
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1028882571}
+  - component: {fileID: 1028882570}
+  - component: {fileID: 1028882572}
+  m_Layer: 0
+  m_Name: BotsTournament
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1028882570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028882569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1cce5b136cd3c2449cfd9f8c5a4cc48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stagesLimit: 27
+--- !u!4 &1028882571
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028882569}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.418901, y: -2.4283535, z: -0.5516052}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 550926186}
+  - {fileID: 535304300}
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1028882572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1028882569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75e0a2029cfdb1f46a6a75e2df5eb0e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1030606616
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1030606617}
+  - component: {fileID: 1030606619}
+  - component: {fileID: 1030606618}
+  m_Layer: 0
+  m_Name: Bot6
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1030606617
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1030606616}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 535304300}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1030606618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1030606616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 0
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!114 &1030606619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1030606616}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: extend takes only + anty-zugzwang
+  initialElo: 1479
+  settings: {fileID: 0}
+--- !u!1 &1071981416
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1071981417}
+  - component: {fileID: 1071981418}
+  - component: {fileID: 1071981419}
+  m_Layer: 0
+  m_Name: Bot1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1071981417
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071981416}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 550926186}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1071981418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071981416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: Eval captives + space
+  initialElo: 1497
+  settings: {fileID: 0}
+--- !u!114 &1071981419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071981416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
 --- !u!1 &1123453521
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +909,91 @@ MonoBehaviour:
   OnWindowSizeChange:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1160465522
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1160465523}
+  - component: {fileID: 1160465525}
+  - component: {fileID: 1160465524}
+  m_Layer: 0
+  m_Name: Bot3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1160465523
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1160465522}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 535304300}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1160465524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1160465522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 0
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!114 &1160465525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1160465522}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: extenstions unsafeposition
+  initialElo: 1452
+  settings: {fileID: 0}
 --- !u!1 &1292610043
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,3 +1037,343 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1367076015
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1367076016}
+  - component: {fileID: 1367076017}
+  - component: {fileID: 1367076019}
+  m_Layer: 0
+  m_Name: Bot2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1367076016
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367076015}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 550926186}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1367076017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367076015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: Eval captives
+  initialElo: 1568
+  settings: {fileID: 0}
+--- !u!114 &1367076019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367076015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 0
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!1 &1411757657
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1411757658}
+  - component: {fileID: 1411757660}
+  - component: {fileID: 1411757659}
+  m_Layer: 0
+  m_Name: Bot4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1411757658
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411757657}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 535304300}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1411757659
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411757657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 0
+  antyZugzwang: 0
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!114 &1411757660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411757657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: extenstions all takes only
+  initialElo: 1542
+  settings: {fileID: 0}
+--- !u!1 &1542002992
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1542002993}
+  - component: {fileID: 1542002995}
+  - component: {fileID: 1542002994}
+  m_Layer: 0
+  m_Name: Bot6
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1542002993
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542002992}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 550926186}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1542002994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542002992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 1
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 0
+  evalColumnsStrength: 0
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 1
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 0
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0
+--- !u!114 &1542002995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542002992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: Eval captives + space (dont store AllNode)
+  initialElo: 1505
+  settings: {fileID: 0}
+--- !u!1 &2089182927
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2089182928}
+  - component: {fileID: 2089182929}
+  - component: {fileID: 2089182931}
+  m_Layer: 0
+  m_Name: Bot3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2089182928
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089182927}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 550926186}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2089182929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089182927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586350ba96468094187cf50d0407c0d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  botName: Eval strength
+  initialElo: 1556
+  settings: {fileID: 0}
+--- !u!114 &2089182931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2089182927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b237f708f2d730b4db8b3c7890b75cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useThreading: 1
+  searchTime: 1000
+  useIterativeDeepening: 1
+  limitDeepeningDepth: 0
+  searchDepth: 0
+  forcedSequencesAsOneMove: 1
+  searchAllTakes: 1
+  searchUnsafePositions: 1
+  antyZugzwang: 1
+  seekWinInZugzwangSearch: 0
+  evalColumnsValue: 0
+  officerValue: 10.296
+  officerCaptivesShare: 0.208
+  soldierValue: 4.08477
+  soldierCaptivesShare: 0.523585
+  pointsPerOwnedColumn: 10000
+  evalColumnsStrength: 1
+  pointsPerExtraColumnStrength: 10000
+  evalSpace: 0
+  orderMoves: 1
+  useTranspositionTable: 1
+  useTTForDirectEvals: 1
+  storeBestMoveForAllNodes: 1
+  storeMovesInfuencedByDraws: 1
+  failSoft: 1
+  dontUseAlphaBeta: 0

@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using Laska;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// A simple free camera to be added to a Unity game object.
@@ -13,9 +16,13 @@
 ///	mouse			- free look / rotation
 ///     
 /// </summary>
-public class CameraController : MonoBehaviourExtended
+public class CameraController : MonoBehaviourSingleton<CameraController>
 {
     [Component] private Camera cam;
+
+    public Camera Camera => cam;
+
+    public bool controlsEnabled;
 
     /// <summary>
     /// Normal speed of camera movement.
@@ -45,7 +52,9 @@ public class CameraController : MonoBehaviourExtended
     public float dragSpeed = 1f;
     public float fastDragSpeed = 5f;
 
+
     public GameObject d4;
+    public GameObject light;
 
     /// <summary>
     /// Set to true when free looking (on right mouse button).
@@ -54,13 +63,29 @@ public class CameraController : MonoBehaviourExtended
 
     private Vector3 pivotPoint;
 
-    private void Start()
+    private bool _upsideDown;
+    public bool UpsideDown
     {
-        
+        get => _upsideDown;
+        set
+        {
+            _upsideDown = value;
+            if (value)
+            {
+                transform.eulerAngles = transform.eulerAngles.Z(180);
+            }
+            else
+            {
+                transform.eulerAngles = transform.eulerAngles.Z(0);
+            }
+        }
     }
 
     private void Update()
     {
+        if (!controlsEnabled)
+            return;
+
         var fastMode = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         var movementSpeed = fastMode ? this.fastMovementSpeed : this.movementSpeed;
 
@@ -203,5 +228,67 @@ public class CameraController : MonoBehaviourExtended
         looking = false;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+    }
+
+    public bool CanSee(Vector3 point)
+    {
+        Vector3 viewPos = cam.WorldToViewportPoint(point);
+        if (viewPos.x < 0 || viewPos.x > 1 ||
+            viewPos.y < 0 || viewPos.y > 1 ||
+            viewPos.z < 0)
+            return false;
+
+        return true;
+    }
+
+    public void MakeSureObjectCanBeSeen(GameObject go)
+    {
+        float timer = 0;
+        var pevP = transform.position;
+        var p = go.transform.position.Y(go.transform.position.y + 1.5f);
+        StartCoroutine(makeSureObjectCanBeSeen());
+
+        IEnumerator makeSureObjectCanBeSeen()
+        {
+            while (!CanSee(p))
+            {
+                timer += Time.deltaTime;
+                if(timer > 4)
+                {
+                    transform.position = pevP;
+                    yield break;
+                }
+
+                transform.position = transform.position + Vector3.up * 2 * Time.deltaTime * Mathf.Max(1, timer); // Lift-up
+                //transform.position = transform.position + transform.forward * 2 * Time.deltaTime; // Zoom-out
+                yield return null;
+            }
+        }
+    }
+
+    public void ChangePerspective()
+    {
+        transform.RotateAround(d4.transform.position, Vector3.up, 180);
+        light.transform.RotateAround(d4.transform.position, Vector3.up, 180);
+
+        makeSureColumnsCanBeSeen();
+    }
+
+    private void makeSureColumnsCanBeSeen()
+    {
+        var game = GameManager.Instance;
+        checkColumns(game.ActivePlayer.Columns);
+        checkColumns(game.InactivePlayer.Columns);
+
+        void checkColumns(IEnumerable<Column> columns)
+        {
+            if (columns == null)
+                return;
+
+            foreach (var c in columns)
+            {
+                MakeSureObjectCanBeSeen(c.Commander.gameObject);
+            }
+        }
     }
 }
