@@ -9,6 +9,7 @@ namespace Laska
         [GlobalComponent] private MoveMaker moveMaker;
         [GlobalComponent] private GuiScaler gui;
 
+
         private Camera _cam;
         private Square _selectedSquare;
 
@@ -30,6 +31,8 @@ namespace Laska
                 }
             }
         }
+
+        public bool DisplayEval { get; set;}
 
         private void Start()
         {
@@ -124,6 +127,12 @@ namespace Laska
 
         private void displaySelectedMsg()
         {
+            if (DisplayEval && _selectedSquare == null)
+            {
+                displayPositionEval();
+                return;
+            }
+
             if (PiecesManager.TempMoves || _selectedSquare == null || game.CurrentGameState == GameManager.GameState.TurnResults)
                 return;
 
@@ -140,10 +149,33 @@ namespace Laska
                 $"Pole {square.coordinate}.", gui.LastStyle, Color.black, gui.LightGray);
         }
 
+        private string formatEval(float eval, char color)
+        {
+            if (color != game.ActivePlayer.color)
+                eval *= -1;
+
+            string msg = eval > 0 ? "+" : "";
+            return msg + string.Format("{0:0.##}", eval);
+        }
+
+        private void displayPositionEval()
+        {
+            var player = game.ActivePlayer;
+            var msg = $"Ocena pozycji: {formatEval(player.AI.EvaluatePosition(player)/10000f, game.ActivePlayer.color)}";
+            gui.DrawOutline(new Rect(60, 70 + 30 * _displayedLines, 1900, 1000),
+                   msg, gui.LastStyle, Color.black, game.ActivePlayer.GetActualColor());
+        }
+
         private void displayColumnDescription(Column column)
         {
+            var msg = $"Kolumna na {column.Position}:";
+            if (DisplayEval)
+            {
+                msg += $" ({formatEval(column.Value / 3.608963f, column.Commander.Color)})";
+            }
+
             gui.DrawOutline(new Rect(60, 70 + 30 * _displayedLines, 1900, 1000),
-                $"Kolumna na {column.Position}:", gui.LastStyle, Color.black, column.GetActualColor());
+                msg, gui.LastStyle, Color.black, column.GetActualColor());
             int i = 0;
             foreach (var p in column.Pieces)
             {

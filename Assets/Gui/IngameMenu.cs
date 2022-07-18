@@ -11,9 +11,9 @@ namespace Laska
         [GlobalComponent] private GuiScaler gui;
         [GlobalComponent] private MenusManager menus;
 
-        private const int BOT_OFF = 9;
-        private const int BOT_LEVEL_X = 8;
-        private static int s_level = 0;
+        public const int BOT_OFF = 9;
+        public const int BOT_LEVEL_X = 8;
+        public static int s_level = 0;
         private static bool s_rotateAutomatically;
         private static bool s_rotateScreen;
 
@@ -40,17 +40,22 @@ namespace Laska
             setLevel();
         }
 
-        private void setLevel()
+        public void SetLevel(int level)
         {
-            s_level %= 10;
-            if (s_level == BOT_OFF)
+            if (level == BOT_OFF)
             {
                 levelManager.SetLevel(-1);
             }
             else
             {
-                levelManager.SetLevel(s_level);
+                levelManager.SetLevel(level);
             }
+        }
+
+        private void setLevel()
+        {
+            s_level %= 10;
+            SetLevel(s_level);
         }
 
         private void fixLevel()

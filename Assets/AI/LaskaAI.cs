@@ -72,10 +72,10 @@ namespace Laska
 			if (cfg.evalColumnsValue)
 			{
 				foreach (var c in activeColumns)
-					activeScore += c.Value * 2808.054061f; //2408.118596f;
+					activeScore += c.Value * 2770.879059f; //2808.054061f;
 
 				foreach (var c in inactiveColumns)
-					activeScore -= c.Value * 2808.054061f; //2408.118596f;
+					activeScore -= c.Value * 2770.879059f; //2808.054061f;
 			}
 
 			if (cfg.evalColumnsStrength)

@@ -35,6 +35,7 @@ namespace Laska
             var pieces = column.Pieces;
             var toRemove = pieces.First.Value;
 
+            column.MarkDirty();
             pieces.RemoveFirst();
             _board.UnregisterPiece(toRemove);
             Destroy(toRemove.gameObject);

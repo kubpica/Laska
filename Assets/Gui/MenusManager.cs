@@ -6,6 +6,7 @@ namespace Laska
     {
         [Component] public IngameMenu ingame;
         [Component] public PositionEditorMenu editor;
+        [GlobalComponent] public IngameMessages msg;
         [GlobalComponent] private GameManager game;
 
         public static bool IsEditorActive;
@@ -26,6 +27,7 @@ namespace Laska
             if(game.CurrentGameState == GameManager.GameState.Paused)
                 game.CurrentGameState = GameManager.GameState.Turn;
             fixAIMode();
+            msg.DisplayEval = false;
         }
 
         public void ShowEditorMenu()
@@ -36,6 +38,8 @@ namespace Laska
             game.CurrentGameState = GameManager.GameState.Paused;
             Board.Instance.UnmarkAll();
             fixAIMode();
+            msg.DisplayEval = true;
+            ingame.SetLevel(IngameMenu.BOT_LEVEL_X);
         }
 
         private void fixAIMode()
