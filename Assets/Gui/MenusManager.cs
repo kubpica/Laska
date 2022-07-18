@@ -38,8 +38,9 @@ namespace Laska
             game.CurrentGameState = GameManager.GameState.Paused;
             Board.Instance.UnmarkAll();
             fixAIMode();
-            msg.DisplayEval = true;
             ingame.SetLevel(IngameMenu.BOT_LEVEL_X);
+            msg.DisplayEval = true;
+            msg.UpdateEval();
         }
 
         private void fixAIMode()

@@ -32,8 +32,9 @@ namespace Laska
             }
         }
 
-        [GlobalComponent] CameraController cameraController;
-        [GlobalComponent] PiecesManager pieces;
+        [GlobalComponent] private CameraController cameraController;
+        [GlobalComponent] private PiecesManager pieces;
+        [GlobalComponent] private MenusManager menus;
 
         private Camera _cam;
         private Square _selectedSquare;
@@ -110,41 +111,97 @@ namespace Laska
             if(square != null && square.draughtsNotationIndex > 0)
             {
                 _currentTool.Do(square);
+                menus.msg.UpdateEval();
                 if (pieces.IsPiecesLimitReached)
-                    MenusManager.Instance.editor.CheckPiecesLimit();
+                    menus.editor.CheckPiecesLimit();
             }
+        }
+
+        private bool getSquareUnderMouse(out Square square)
+        {
+            var underMouse = _cam.GetColliderUnderMouse();
+            if (underMouse != null)
+            {
+                if (underMouse.gameObject.CompareTag("Board"))
+                {
+                    square = underMouse.GetComponent<Square>();
+                    return true;
+                }
+                else
+                {
+                    square = underMouse.GetComponent<Piece>().Square;
+                    return true;
+                }
+            }
+            square = null;
+            return false;
+        }
+
+        private void altAction(Square square)
+        {
+            if (square.draughtsNotationIndex == 0)
+                return;
+
+            if (square.IsEmpty)
+            {
+                _currentTool.Do(square);
+            }
+            else if (_currentTool == _delete)
+            {
+                var c = square.Column.Commander;
+                EditorTool tempTool;
+                if (c.IsOfficer)
+                {
+                    tempTool = c.Color == 'w' ? _greenSoldier : _redSoldier;
+                }
+                else
+                {
+                    tempTool = c.Color == 'w' ? _greenOfficer : _redOfficer;
+                }
+
+                _delete.Do(square);
+                tempTool.Do(square);
+            }
+            else
+            {
+                _delete.Do(square);
+            }
+            menus.msg.UpdateEval();
         }
 
         private void detectSquareHover()
         {
             if (Input.GetMouseButton(0) || Input.touchCount > 0)
             {
-                var underMouse = _cam.GetColliderUnderMouse();
-                if (underMouse != null)
+                if(getSquareUnderMouse(out Square s))
                 {
-                    if (underMouse.gameObject.CompareTag("Board"))
-                    {
-                        var square = underMouse.GetComponent<Square>();
-                        if (square != null)
-                        {
-                            selectSquare(square);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        var piece = underMouse.GetComponent<Piece>();
-                        if (piece != null)
-                        {
-                            selectSquare(piece.Square);
-                            return;
-                        }
-                    }
+                    selectSquare(s);
+                }
+            }
+            else if (Input.GetMouseButtonDown(2))
+            {
+                if (getSquareUnderMouse(out Square s))
+                {
+                    altAction(s);
                 }
             }
             else
             {
                 selectSquare(null);
+            }
+
+            if (Input.GetMouseButtonDown(3))
+            {
+                SelectedTool = (PositionEditorTool)((int)(SelectedTool + 1) % 5);
+            }
+            else if (Input.GetMouseButtonDown(4))
+            {
+                if (SelectedTool == PositionEditorTool.Delete)
+                {
+                    SelectedTool = PositionEditorTool.RedOfficer;
+                    return;
+                }
+                SelectedTool = (PositionEditorTool)((int)(SelectedTool - 1) % 5);
             }
         }
     }

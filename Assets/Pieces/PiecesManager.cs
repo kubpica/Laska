@@ -42,7 +42,10 @@ namespace Laska
             IsPiecesLimitReached = false;
 
             if(pieces.Count == 0)
+            {
+                column.Square.Clear();
                 Destroy(column.gameObject);
+            }
         }
 
         public void RemoveColumn(Square square)

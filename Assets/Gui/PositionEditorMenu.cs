@@ -49,6 +49,7 @@ namespace Laska
                 game.BlackPlayer.RefreshOwnedColumns();
                 cameraController.ChangePerspective();
                 game.NextPlayer();
+                msg.UpdateEval();
                 gui.SetCurrentTextColor(game.ActivePlayer.GetActualColor());
             }
 

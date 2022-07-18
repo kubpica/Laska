@@ -253,7 +253,7 @@ namespace Laska
 
         public void OnDestroy()
         {
-            if (_square != null)
+            if (_square != null && _square.Column == this)
                 _square.Clear();
         }
 

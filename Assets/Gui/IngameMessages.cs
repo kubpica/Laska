@@ -13,7 +13,9 @@ namespace Laska
         private Camera _cam;
         private Square _selectedSquare;
 
+        private float _cachedEval;
         private int _displayedLines;
+
         private string _displayedMsg;
         public string DisplayedMsg 
         {
@@ -158,10 +160,15 @@ namespace Laska
             return msg + string.Format("{0:0.##}", eval);
         }
 
-        private void displayPositionEval()
+        public void UpdateEval()
         {
             var player = game.ActivePlayer;
-            var msg = $"Ocena pozycji: {formatEval(player.AI.EvaluatePosition(player)/10000f, game.ActivePlayer.color)}";
+            _cachedEval = player.AI.EvaluatePosition(player) / 10000f;
+        }
+
+        private void displayPositionEval()
+        {
+            var msg = $"Ocena pozycji: {formatEval(_cachedEval, game.ActivePlayer.color)}";
             gui.DrawOutline(new Rect(60, 70 + 30 * _displayedLines, 1900, 1000),
                    msg, gui.LastStyle, Color.black, game.ActivePlayer.GetActualColor());
         }
