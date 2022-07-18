@@ -36,15 +36,11 @@ public class LoadingSceneIntegration : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void InitLoadingScene()
     {
-        //Debug.Log("InitLoadingScene()");
         int sceneIndex = SceneManager.GetActiveScene().buildIndex;
-        if (SceneManager.GetActiveScene().name == "Laska")
-            return;
         if (sceneIndex == 0) return;
 
-        //Debug.Log("Loading _preload scene");
         otherScene = sceneIndex;
-        //make sure your _preload scene is the first in scene build list
+        // Make sure your _preload scene is the first in scene build list
         SceneManager.LoadScene(0);
     }
 

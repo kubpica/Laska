@@ -861,6 +861,8 @@ GameObject:
   - component: {fileID: 1123453523}
   - component: {fileID: 1123453522}
   - component: {fileID: 1123453524}
+  - component: {fileID: 1123453525}
+  - component: {fileID: 1123453526}
   m_Layer: 0
   m_Name: _app
   m_TagString: Untagged
@@ -909,6 +911,33 @@ MonoBehaviour:
   OnWindowSizeChange:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1123453525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123453521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09a0fcc10d9dec744a76e9ffd4b993f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultLanguage: {fileID: 11400000, guid: 0174ef50c08ef9a4394a9c9a861ef2a8, type: 2}
+--- !u!114 &1123453526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123453521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cec2f181cea174349ba79711abd60860, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  theme: {fileID: 11400000, guid: 74c97db4ffdd7ec4a89e12e9a0f5e31e, type: 2}
+  cheeseMaterial: {fileID: 2100000, guid: 08baed28638ae2440819508b156a7395, type: 2}
 --- !u!1 &1160465522
 GameObject:
   m_ObjectHideFlags: 0

@@ -100,12 +100,28 @@ namespace Laska
             return GUI.Button(ScaleRect(Screen.width / WidthScale - r.x, r.y, r.width, r.height), text, ButtonStyle);
         }
 
+        public bool ButtonTopLeft(Rect r, string text)
+        {
+            return GUI.Button(ScaleRect(r), text, ButtonStyle);
+        }
+
         public bool ButtonTopRight(Rect r, string text, Color color)
         {
             var backupColor = ButtonStyle.normal.textColor;
             ButtonStyle.normal.textColor = color;
             ButtonStyle.hover.textColor = color;
             var isClicked = ButtonTopRight(r, text);
+            ButtonStyle.normal.textColor = backupColor;
+            ButtonStyle.hover.textColor = backupColor;
+            return isClicked;
+        }
+
+        public bool ButtonTopLeft(Rect r, string text, Color color)
+        {
+            var backupColor = ButtonStyle.normal.textColor;
+            ButtonStyle.normal.textColor = color;
+            ButtonStyle.hover.textColor = color;
+            var isClicked = ButtonTopLeft(r, text);
             ButtonStyle.normal.textColor = backupColor;
             ButtonStyle.hover.textColor = backupColor;
             return isClicked;

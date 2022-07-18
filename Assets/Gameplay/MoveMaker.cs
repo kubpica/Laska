@@ -14,6 +14,8 @@ namespace Laska
         [GlobalComponent] private IngameMessages msg;
         [GlobalComponent] private CameraController cameraController;
 
+        private Language Language => LanguageManager.Language;
+
         public StringEvent onMoveStarted;
         public UnityEvent onMoveEnded;
         public UnityEvent onMultiTakeDecision;
@@ -284,7 +286,8 @@ namespace Laska
                 var targetSquare = board.GetSquareAt(squares[1]);
 
                 var piece = SelectedColumn.Commander;
-                msg.DisplayedMsg += piece.Mianownik + " " + theme.MovesMsg + " " + piece.Position + " na " + targetSquare.coordinate + "\n";
+                msg.DisplayedMsg +=
+                    $"{piece.Mianownik} {theme.MovesMsg} {piece.Position} {Language.to} {targetSquare.coordinate}\n";
                 StartCoroutine(animateMove(targetSquare));
             }
         }
@@ -293,9 +296,9 @@ namespace Laska
         {
             var killer = SelectedColumn.Commander;
             var victim = takenColumn.Commander;
-            msg.DisplayedMsg += killer.Mianownik + " z " + killer.Position
-                + " " + theme.TakesMsg + " " + victim.Biernik + " z " + victim.Position
-                + " na " + targetSquare.coordinate + "\n";
+            msg.DisplayedMsg +=
+                $"{killer.Mianownik} {Language.from} {killer.Position} {theme.TakesMsg} {victim.Biernik}" +
+                $" {Language.from} {victim.Position} {Language.to} {targetSquare.coordinate}\n";
         }
 
         private IEnumerator animateMultiTake(string[] squares)

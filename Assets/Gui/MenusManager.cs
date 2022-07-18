@@ -4,6 +4,7 @@ namespace Laska
 {
     public class MenusManager : MonoBehaviourSingleton<MenusManager>
     {
+        [Component] public LanguageMenu language;
         [Component] public IngameMenu ingame;
         [Component] public PositionEditorMenu editor;
         [GlobalComponent] public IngameMessages msg;
@@ -13,15 +14,39 @@ namespace Laska
 
         private void Start()
         {
+            if (!LanguageManager.IsLanguageSelected)
+            {
+                language.gameObject.SetActive(true);
+                editor.gameObject.SetActive(false);
+                ingame.gameObject.SetActive(false);
+                msg.gameObject.SetActive(false);
+                return;
+            }
+
+            showMenu();
+        }
+
+        private void showMenu()
+        {
             if (IsEditorActive)
                 ShowEditorMenu();
             else
                 ShowIngameMenu();
         }
 
+        public void ExitLanguageMenu()
+        {
+            LanguageManager.IsLanguageSelected = true;
+            msg.gameObject.SetActive(true);
+            ThemeManager.Instance.ApplyStinkyCheese();
+            FenCodec.Instance.Load();
+            showMenu();
+        }
+
         public void ShowIngameMenu()
         {
             IsEditorActive = false;
+            language.gameObject.SetActive(false);
             editor.gameObject.SetActive(false);
             ingame.gameObject.SetActive(true);
             if(game.CurrentGameState == GameManager.GameState.Paused)
@@ -33,6 +58,7 @@ namespace Laska
         public void ShowEditorMenu()
         {
             IsEditorActive = true;
+            language.gameObject.SetActive(false);
             editor.gameObject.SetActive(true);
             ingame.gameObject.SetActive(false);
             game.CurrentGameState = GameManager.GameState.Paused;
