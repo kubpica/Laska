@@ -11,7 +11,7 @@ namespace Laska
 
         public GUIStyle CurrentStyle { get; private set; } = new GUIStyle();
         public GUIStyle LastStyle { get; private set; } = new GUIStyle();
-        public GUIStyle ButtonStyle { get; private set; } = new GUIStyle();
+        public GUIStyle ButtonStyle { get; private set; }
 
         public float WidthScale { get; private set; }
         public float HeightScale { get; private set; }
@@ -26,9 +26,6 @@ namespace Laska
             LastStyle.fontStyle = FontStyle.Bold;
             LastStyle.normal.textColor = Color.red;
             LastStyle.fontSize = 13;
-
-            ButtonStyle = new GUIStyle("button");
-            ButtonStyle.fontSize = 13;
         }
 
         public void DrawOutline(Rect pos, string text, GUIStyle style, Color outColor, Color inColor)
@@ -149,7 +146,7 @@ namespace Laska
         private bool click(bool doClick)
         {
             if (doClick)
-                sfx.Play("Click");
+                sfx.PlayOneShot("Click", null, 0.5f);
             return doClick;
         }
 
@@ -168,6 +165,12 @@ namespace Laska
 
         private void OnGUI()
         {
+            if (ButtonStyle == null)
+            {
+                ButtonStyle = new GUIStyle(GUI.skin.button);
+                ButtonStyle.fontSize = 13;
+            }
+
             WidthScale = Mathf.Max(Screen.width / 1917f, 0.25f);
             HeightScale = Mathf.Max(Screen.height / 908f, 0.25f);
 

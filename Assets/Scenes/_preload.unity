@@ -1025,7 +1025,7 @@ MonoBehaviour:
     loop: 0
     mixerGroup: {fileID: 0}
     source: {fileID: 0}
-  volume: 2.5
+  volume: 5
   isMuted: 0
 --- !u!1 &1160465522
 GameObject:
