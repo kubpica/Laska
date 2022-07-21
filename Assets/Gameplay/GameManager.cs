@@ -303,6 +303,9 @@ namespace Laska
 
             if (prevState == GameState.Paused)
                 setActivePlayer(ActivePlayer);
+
+            if (gs == GameState.Ended)
+                AudioManager.Instance.Play("Win");
         }
 
         //private void FixedUpdate()

@@ -13,7 +13,12 @@ namespace Laska
         {
             public override void Do(Square square)
             {
+                if (square.IsEmpty)
+                    return;
+
+                var p = square.Column.Commander.transform.position;
                 PiecesManager.Instance.RemovePiece(square);
+                AudioManager.Instance.PlayAtPoint("Capture", p);
             }
         }
 
@@ -29,6 +34,7 @@ namespace Laska
             public override void Do(Square square)
             {
                 PiecesManager.Instance.AddPiece(_piece, square);
+                AudioManager.Instance.PlayAtPoint("Placement", square.Column.Commander.transform.position);
             }
         }
 
@@ -100,7 +106,8 @@ namespace Laska
 
         private void Update()
         {
-            detectSquareHover();
+            detectSquareClick();
+            detectToolChangeOnMouse();
         }
 
         private void selectSquare(Square square)
@@ -171,7 +178,24 @@ namespace Laska
             menus.msg.UpdateEval();
         }
 
-        private void detectSquareHover()
+        private void detectToolChangeOnMouse()
+        {
+            if (Input.GetMouseButtonDown(3))
+            {
+                SelectedTool = (PositionEditorTool)((int)(SelectedTool + 1) % 5);
+            }
+            else if (Input.GetMouseButtonDown(4))
+            {
+                if (SelectedTool == PositionEditorTool.Delete)
+                {
+                    SelectedTool = PositionEditorTool.RedOfficer;
+                    return;
+                }
+                SelectedTool = (PositionEditorTool)((int)(SelectedTool - 1) % 5);
+            }
+        }
+
+        private void detectSquareClick()
         {
             if (Input.GetMouseButton(0) || Input.touchCount > 0)
             {
@@ -190,20 +214,6 @@ namespace Laska
             else
             {
                 selectSquare(null);
-            }
-
-            if (Input.GetMouseButtonDown(3))
-            {
-                SelectedTool = (PositionEditorTool)((int)(SelectedTool + 1) % 5);
-            }
-            else if (Input.GetMouseButtonDown(4))
-            {
-                if (SelectedTool == PositionEditorTool.Delete)
-                {
-                    SelectedTool = PositionEditorTool.RedOfficer;
-                    return;
-                }
-                SelectedTool = (PositionEditorTool)((int)(SelectedTool - 1) % 5);
             }
         }
     }

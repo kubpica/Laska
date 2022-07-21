@@ -149,6 +149,11 @@ namespace Laska
             if (game.HalfMovesCounter < 2)
             {
                 modeSelection();
+                gui.SoundButton(680);
+            }
+            else
+            {
+                gui.SoundButton(300);
             }
         }
 
@@ -185,7 +190,7 @@ namespace Laska
             bool modeButton(int i, string text, AIMode mode, Color deselectedColor, Color selectedColor)
             {
                 var miniColor = Color.Lerp(gui.ButtonStyle.normal.textColor, deselectedColor, 0.1f);
-                return gui.ButtonTopRight(new Rect(255, 320 + 90 * i, 220, 80), text, GameManager.GetAIMode() == mode, miniColor, selectedColor);
+                return gui.ButtonTopRight(new Rect(255, 300 + 90 * i, 220, 80), text, GameManager.GetAIMode() == mode, miniColor, selectedColor);
             }
         }
 

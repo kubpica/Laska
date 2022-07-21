@@ -863,6 +863,7 @@ GameObject:
   - component: {fileID: 1123453524}
   - component: {fileID: 1123453525}
   - component: {fileID: 1123453526}
+  - component: {fileID: 1123453527}
   m_Layer: 0
   m_Name: _app
   m_TagString: Untagged
@@ -938,6 +939,94 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   theme: {fileID: 11400000, guid: 74c97db4ffdd7ec4a89e12e9a0f5e31e, type: 2}
   cheeseMaterial: {fileID: 2100000, guid: 08baed28638ae2440819508b156a7395, type: 2}
+--- !u!114 &1123453527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1123453521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e14b38aa1d37dd84caa05ad399157058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mixerGroup: {fileID: 0}
+  sounds:
+  - name: Capture
+    clip: {fileID: 8300000, guid: ceb11df41aeb5fe4395d0b1959753f68, type: 3}
+    volume: 0.4
+    pitch: 1
+    spatialBlend: 1
+    startTime: 0
+    loop: 0
+    mixerGroup: {fileID: 0}
+    source: {fileID: 0}
+  - name: Placement
+    clip: {fileID: 8300000, guid: 1577d9e09b33808439445dd63799375f, type: 3}
+    volume: 0.4
+    pitch: 1
+    spatialBlend: 1
+    startTime: 0
+    loop: 0
+    mixerGroup: {fileID: 0}
+    source: {fileID: 0}
+  - name: Slide
+    clip: {fileID: 8300000, guid: 02caf666ae5d27f49a92ff97c8f337d3, type: 3}
+    volume: 0.4
+    pitch: 1
+    spatialBlend: 1
+    startTime: 0
+    loop: 0
+    mixerGroup: {fileID: 0}
+    source: {fileID: 0}
+  - name: Start
+    clip: {fileID: 8300000, guid: 27c2978c388cf974591cb6c3edd508ae, type: 3}
+    volume: 0.4
+    pitch: 1
+    spatialBlend: 1
+    startTime: 0
+    loop: 0
+    mixerGroup: {fileID: 0}
+    source: {fileID: 0}
+  - name: Wrong
+    clip: {fileID: 8300000, guid: f262f18fb5c154f49a525250e3ab5e34, type: 3}
+    volume: 0.4
+    pitch: 1
+    spatialBlend: 1
+    startTime: 0
+    loop: 0
+    mixerGroup: {fileID: 0}
+    source: {fileID: 0}
+  - name: Win
+    clip: {fileID: 8300000, guid: bf04df05f8ef79f4fb6aa40caddd4ee5, type: 3}
+    volume: 0.4
+    pitch: 1
+    spatialBlend: 0
+    startTime: 0
+    loop: 0
+    mixerGroup: {fileID: 0}
+    source: {fileID: 0}
+  - name: Click
+    clip: {fileID: 8300000, guid: 3445356940b3df04cafcff7dc178d6a7, type: 3}
+    volume: 0.2
+    pitch: 1
+    spatialBlend: 0.5
+    startTime: 0
+    loop: 0
+    mixerGroup: {fileID: 0}
+    source: {fileID: 0}
+  - name: Hover
+    clip: {fileID: 8300000, guid: 205243ce9c55bce4eb19fc89aa3a9dca, type: 3}
+    volume: 0.8
+    pitch: 1
+    spatialBlend: 0.5
+    startTime: 0
+    loop: 0
+    mixerGroup: {fileID: 0}
+    source: {fileID: 0}
+  volume: 2.5
+  isMuted: 0
 --- !u!1 &1160465522
 GameObject:
   m_ObjectHideFlags: 0

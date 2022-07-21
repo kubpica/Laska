@@ -4,6 +4,11 @@ namespace Laska
 {
     public class GuiScaler : MonoBehaviourSingleton<GuiScaler>
     {
+        [GlobalComponent] private AudioManager sfx;
+
+        public Texture soundOnIcon;
+        public Texture soundOffIcon;
+
         public GUIStyle CurrentStyle { get; private set; } = new GUIStyle();
         public GUIStyle LastStyle { get; private set; } = new GUIStyle();
         public GUIStyle ButtonStyle { get; private set; } = new GUIStyle();
@@ -19,7 +24,7 @@ namespace Laska
             CurrentStyle.normal.textColor = Color.green;
             CurrentStyle.fontSize = 13;
             LastStyle.fontStyle = FontStyle.Bold;
-            LastStyle.normal.textColor = Color.green;
+            LastStyle.normal.textColor = Color.red;
             LastStyle.fontSize = 13;
 
             ButtonStyle = new GUIStyle("button");
@@ -95,14 +100,22 @@ namespace Laska
                 return ButtonTopRight(r, text, deselectedColor);
         }
 
+        public bool ButtonTopRight(Rect r, Texture texture)
+        {
+            var clicked = GUI.Button(ScaleRect(Screen.width / WidthScale - r.x, r.y, r.width, r.height), texture, ButtonStyle);
+            return click(clicked);
+        }
+
         public bool ButtonTopRight(Rect r, string text)
         {
-            return GUI.Button(ScaleRect(Screen.width / WidthScale - r.x, r.y, r.width, r.height), text, ButtonStyle);
+            var clicked = GUI.Button(ScaleRect(Screen.width / WidthScale - r.x, r.y, r.width, r.height), text, ButtonStyle);
+            return click(clicked);
         }
 
         public bool ButtonTopLeft(Rect r, string text)
         {
-            return GUI.Button(ScaleRect(r), text, ButtonStyle);
+            var clicked = GUI.Button(ScaleRect(r), text, ButtonStyle);
+            return click(clicked);
         }
 
         public bool ButtonTopRight(Rect r, string text, Color color)
@@ -129,7 +142,23 @@ namespace Laska
 
         public bool ButtonBottomRight(Rect r, string text)
         {
-            return GUI.Button(ScaleRect(Screen.width / WidthScale - r.x, Screen.height / HeightScale - r.y, r.width, r.height), text, ButtonStyle);
+            var clicked = GUI.Button(ScaleRect(Screen.width / WidthScale - r.x, Screen.height / HeightScale - r.y, r.width, r.height), text, ButtonStyle);
+            return click(clicked);
+        }
+
+        private bool click(bool doClick)
+        {
+            if (doClick)
+                sfx.Play("Click");
+            return doClick;
+        }
+
+        public void SoundButton(int y)
+        {
+            if (ButtonTopRight(new Rect(135, y, 100, 80), sfx.isMuted ? soundOffIcon : soundOnIcon))
+            {
+                sfx.isMuted = !sfx.isMuted;
+            }
         }
 
         public void LabelTopLeft(Rect r, string text)

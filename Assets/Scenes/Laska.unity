@@ -6108,6 +6108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b77774bd810eaa249bc3464bcb45fbf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  soundOnIcon: {fileID: 2800000, guid: 02daedb6e00011a48a02a9b0c1e58b9b, type: 3}
+  soundOffIcon: {fileID: 2800000, guid: 8f3aa329db1a24046ba014377a02d620, type: 3}
 --- !u!4 &1226056399
 Transform:
   m_ObjectHideFlags: 0

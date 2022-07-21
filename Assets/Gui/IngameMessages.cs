@@ -9,11 +9,13 @@ namespace Laska
         [GlobalComponent] private MoveMaker moveMaker;
         [GlobalComponent] private GuiScaler gui;
         [GlobalComponent] private ThemeManager theme;
+        [GlobalComponent] private AudioManager sfx;
 
         private Language Language => LanguageManager.Language;
 
         private Camera _cam;
         private Square _selectedSquare;
+        private Column _selectedColumn;
 
         private float _cachedEval;
         private int _displayedLines;
@@ -41,7 +43,12 @@ namespace Laska
         private void Start()
         {
             _cam = CameraController.Instance.Camera;
-            moveMaker.onColumnSelected.AddListener(() => SelectColumn(moveMaker.SelectedColumn));
+            moveMaker.onColumnSelected.AddListener(() =>
+            {
+                if (!PiecesManager.TempMoves && GameManager.GetAIMode() != GameManager.AIMode.AIVsAI
+                    && !game.ActivePlayer.isAI)
+                    SelectColumn(moveMaker.SelectedColumn);
+            });
         }
 
         private void Update()
@@ -51,7 +58,7 @@ namespace Laska
 
         private void columnInfoOnHover()
         {
-            if (moveMaker.SelectedColumn != null)
+            if (moveMaker.SelectedColumn != null && GameManager.GetAIMode() != GameManager.AIMode.AIVsAI)
                 return;
 
             if (Input.mousePresent || Input.touchCount > 0)
@@ -73,7 +80,8 @@ namespace Laska
                         var piece = underMouse.GetComponent<Piece>();
                         if (piece != null)
                         {
-                            SelectColumn(piece.Column);
+                            if (!PiecesManager.TempMoves)
+                                SelectColumn(piece.Column);
                             return;
                         }
                     }
@@ -86,17 +94,36 @@ namespace Laska
 
         public void SelectColumn(Column column)
         {
-            _selectedSquare = column == null ? null : column.Square;
+            var square = column == null ? null : column.Square;
+            if (_selectedSquare == square)
+                return;
+
+            _selectedSquare = square;
+            _selectedColumn = column;
+            if (_selectedSquare != null)
+                sfx.PlayAtPoint("Hover", column.Commander.transform.position);
         }
 
         public void SelectSquare(Square square)
         {
-            _selectedSquare = square.draughtsNotationIndex == 0 ? null : square;
+            square = square.draughtsNotationIndex == 0 ? null : square;
+            if (_selectedSquare == square)
+                return;
+
+            _selectedSquare = square;
+            if (_selectedSquare != null)
+            {
+                _selectedColumn = square.Column;
+                sfx.PlayAtPoint("Hover", square.transform.position);
+            }
         }
 
         private void OnGUI()
         {
             displaySelectedMsg();
+
+            if (game.ActivePlayer == null)
+                return;
             bool isWhite = game.ActivePlayer.color == 'w';
             if (game.Mate)
             {
@@ -137,8 +164,25 @@ namespace Laska
                 return;
             }
 
-            if (PiecesManager.TempMoves || _selectedSquare == null || game.CurrentGameState == GameManager.GameState.TurnResults)
+            if (_selectedSquare == null)
                 return;
+
+            if (PiecesManager.TempMoves)
+            {
+                displaySquareDescription(_selectedSquare);
+                return;
+            }
+
+            if(game.CurrentGameState == GameManager.GameState.TurnResults)
+            {
+                if (!game.ActivePlayer.isAI)
+                    return;
+
+                if (_selectedSquare.IsEmpty && _selectedColumn != null && _selectedColumn.Pieces.Count > 0)
+                {
+                    displayColumnDescription(_selectedColumn);
+                }
+            }
 
             var column = _selectedSquare.Column;
             if (column == null)

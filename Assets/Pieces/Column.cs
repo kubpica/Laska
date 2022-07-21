@@ -61,6 +61,7 @@ namespace Laska
             }
         }
         public Piece Commander => _pieces.First.Value;
+        public Piece BottomPiece => _pieces.Last.Value;
         public List<string> PossibleMoves => Commander.PossibleMoves;
         public List<string> MovementDirections => Commander.MovementDirections;
         public bool CanTake => Commander.CanTake;

@@ -58,6 +58,7 @@ namespace Laska
             }
 
             toolSelection();
+            gui.SoundButton(770);
         }
 
         private string getToolName(PositionEditorTool tool)

@@ -13,6 +13,7 @@ namespace Laska
         [GlobalComponent] private Board board;
         [GlobalComponent] private IngameMessages msg;
         [GlobalComponent] private CameraController cameraController;
+        [GlobalComponent] private AudioManager sfx;
 
         private Language Language => LanguageManager.Language;
 
@@ -216,6 +217,7 @@ namespace Laska
                     var s = m.Substring(m.LastIndexOf("-") + 1, 2);
                     board.MarkSquare(s, Color.green);
                 }
+                sfx.PlayAtPoint("Click", column.Commander.transform.position, 40);
             }
         }
 
@@ -301,6 +303,13 @@ namespace Laska
                 $" {Language.from} {victim.Position} {Language.to} {targetSquare.coordinate}\n";
         }
 
+        private void take(Column column)
+        {
+            _takenPieces.Add(column.Commander);
+            column.Commander.MarkDark(); // Darken the taken piece
+            sfx.PlayAtPoint("Capture", column.Commander.transform.position);
+        }
+
         private IEnumerator animateMultiTake(string[] squares)
         {
             for (int i = 1; i<squares.Length; i+=2)
@@ -316,8 +325,7 @@ namespace Laska
                 yield return jump(targetSquare, 1.5f + 0.5f * takenColumn.Pieces.Count);
 
                 // Save taken pieces on the list
-                _takenPieces.Add(takenColumn.Commander);
-                takenColumn.Commander.MarkDark(); // Darken the taken piece
+                take(takenColumn);
             }
 
             // No more takes possible
@@ -333,8 +341,7 @@ namespace Laska
             yield return jump(targetSquare, 1.5f + 0.5f * takenColumn.Pieces.Count);
 
             // Save taken pieces on the list
-            _takenPieces.Add(takenColumn.Commander);
-            takenColumn.Commander.MarkDark(); // Darken the taken piece
+            take(takenColumn);
 
             // Can continue taking?
             if (!_justPromoted) // End move on promotion 
@@ -426,13 +433,13 @@ namespace Laska
                 var piece = _takenPieces[i];
                 p = SelectedColumn.transform.position;
                 p.y -= (i+1)*PIECE_HEIGHT;
-                StartCoroutine(move(piece.gameObject, p, 0.5f + i*0.2f));
+                StartCoroutine(move(piece.gameObject, p, 0.5f + i*0.2f, true));
             }
 
             p = SelectedColumn.transform.position;
             p.y = 0; //-= takenPieces.Count * pieceHeight;
             var j = _takenPieces.Count - 1;
-            yield return move(_takenPieces[j].gameObject, p, 0.5f + j * 0.2f);
+            yield return move(_takenPieces[j].gameObject, p, 0.5f + j * 0.2f, true);
 
             // Reset position of the column
             var children = new List<Transform>();
@@ -462,11 +469,14 @@ namespace Laska
         /// <summary>
         /// Lineary moves <c>go</c> to <c>target</c> position.
         /// </summary>
-        private IEnumerator move(GameObject go, Vector3 target, float time = 0.5f)
+        private IEnumerator move(GameObject go, Vector3 target, float time = 0.5f, bool sound = false)
         {
             Vector3 basePos = go.transform.position;
             var offset = target - basePos;
-            
+
+            if (sound)
+                sfx.PlayAtPoint("Slide", basePos);
+
             for (float passed = 0.0f; passed < time;)
             {
                 passed += Time.deltaTime;
@@ -478,11 +488,17 @@ namespace Laska
 
                 yield return 0;
             }
+
+            if (sound)
+                sfx.PlayAtPoint("Placement", target);
         }
 
         private IEnumerator jump(Square targetSquare, float height)
         {
+            var bottomPiece = SelectedColumn.BottomPiece;
+            sfx.PlayAtPoint("Slide", bottomPiece.transform.position);
             yield return jump(SelectedColumn.gameObject, targetSquare.transform.position.Y(0), height);
+            sfx.PlayAtPoint("Placement", bottomPiece.transform.position);
 
             //Debug.Log("Jumped from " + selectedColumn.Square.coordinate + " to " + targetSquare.coordinate);
             _justPromoted = SelectedColumn.Move(targetSquare);
@@ -532,7 +548,8 @@ namespace Laska
         {
             if(!SelectColumn(square))
             {
-                SelectMove(square.coordinate);
+                if(!SelectMove(square.coordinate) && !square.IsEmpty)
+                    sfx.PlayAtPoint("Wrong", square.Column.Commander.transform.position);
             }
         }
         
@@ -540,7 +557,8 @@ namespace Laska
         {
             if (!SelectColumn(piece.Column))
             {
-                SelectMove(piece.Position);
+                if(!SelectMove(piece.Position))
+                    sfx.PlayAtPoint("Wrong", piece.transform.position);
             }
         }
 

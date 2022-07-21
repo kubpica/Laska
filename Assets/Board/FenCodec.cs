@@ -88,6 +88,8 @@ namespace Laska
                     cameraController.ChangePerspective();
                 }
             }
+
+            AudioManager.Instance.PlayAtPoint("Start", board.GetSquareAt("d4").transform.position);
         }
 
         private string getCurrentFen()
