@@ -296,6 +296,8 @@ namespace Laska
             moveMaker.MoveSelectionEnabled = true;
         }
 
+        private bool isGameActive() => _gameState == GameState.Turn || _gameState == GameState.TurnResults;
+
         private void setGameState(GameState gs)
         {
             var prevState = _gameState;
@@ -306,6 +308,8 @@ namespace Laska
 
             if (gs == GameState.Ended)
                 AudioManager.Instance.Play("Win");
+
+            Screen.sleepTimeout = isGameActive() ? SleepTimeout.NeverSleep : SleepTimeout.SystemSetting;
         }
 
         //private void FixedUpdate()

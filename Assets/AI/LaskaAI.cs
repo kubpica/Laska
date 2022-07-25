@@ -22,7 +22,7 @@ namespace Laska
 		/// <summary>
 		/// Contempt Factor - https://www.chessprogramming.org/Contempt_Factor
 		/// </summary>
-		public const float DRAW = -0.5f;
+		public const float DRAW = -1; //-998999 to avoid draws
 
 		private HashSet<ulong> _visitedNonTakePositions = new HashSet<ulong>(); // Zobrist keys
 		private bool _isSearchingZugzwang;

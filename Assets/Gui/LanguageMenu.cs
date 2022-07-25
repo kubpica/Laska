@@ -14,8 +14,12 @@ namespace Laska
 
         private void OnGUI()
         {
-            gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Laska: 3D Checkers v1.0 by kubpica");
-            gui.DrawOutline(new Rect(60, 40, 1900, 1000), "TikTok: @warcoins\nSfx: el-boss, fachii, gronkjaer, mlaudio (freesound.org)", gui.LastStyle, Color.black, Color.red);
+            gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Laska: 3D Checkers v1.0.1 by kubpica");
+            var msg = "TikTok: @warcoins\nSfx: el-boss, fachii, gronkjaer, mlaudio (freesound.org)\n" +
+                      "PP: github.com/kubpica/Laska (PRIVACY_POLICY.md)\n" +
+                      "We do not collect any personal data :)\n" +
+                      "Please consider rating this app on Google Play!";
+            gui.DrawOutline(new Rect(60, 40, 1900, 2000), msg, gui.LastStyle, Color.black, Color.red);
 
             langButton(0, "Wybierz język:", "polski", () => LanguageManager.Language = polish);
             langButton(1, "Choose language:", "english", () => LanguageManager.Language = english);
