@@ -11,6 +11,7 @@ namespace Laska
         [GlobalComponent] private GuiScaler gui;
         [GlobalComponent] private MenusManager menus;
         [GlobalComponent] private ThemeManager theme;
+        [GlobalComponent] private InappReview review;
 
         public const int BOT_OFF = 9;
         public const int BOT_LEVEL_X = 8;
@@ -18,12 +19,29 @@ namespace Laska
         private static bool s_rotateAutomatically;
         private static bool s_rotateScreen;
 
+        private bool _isReviewBlocked = false;
+        private bool _isReviewLoading = false;
+
         private Language Language => LanguageManager.Language;
 
         private void Start()
         {
             MoveMaker.Instance.onMoveEnded.AddListener(moveEnded);
             setLevel();
+
+            game.onGameEnded.AddListener(_ => review.RequestReview());
+            review.onRequestFailed.AddListener(() => _isReviewBlocked = true);
+            review.onLaunchFailed.AddListener(() => 
+            {
+                _isReviewBlocked = true;
+                menus.msg.DisplayedMsg = Language.reviewFailed + "\n" + review.Error;
+                openAppPage();
+            });
+            review.onLaunchFinished.AddListener(() => 
+            {
+                _isReviewLoading = false;
+                _isReviewBlocked = true;
+            });
         }
 
         private void moveEnded()
@@ -146,7 +164,11 @@ namespace Laska
                 }
             }
 
-            if (game.HalfMovesCounter < 2)
+            if (game.CurrentGameState == GameState.Ended)
+            {
+                gameEndedMenu();
+            }
+            else if (game.HalfMovesCounter < 2)
             {
                 modeSelection();
                 gui.SoundButton(680);
@@ -154,6 +176,59 @@ namespace Laska
             else
             {
                 gui.SoundButton(300);
+            }
+        }
+
+        private void openAppPage()
+        {
+            Application.OpenURL("https://play.google.com/store/apps/details?id=com.NiebieskiPunkt.Checkers3D");
+        }
+
+        private void gameEndedMenu()
+        {
+            int i = 0;
+            if (!game.ActivePlayer.isAI && !_isReviewBlocked)
+            {
+                if (_isReviewLoading)
+                {
+                    if (button(Language.loading))
+                    {
+                        openAppPage();
+                    }
+                }
+                else if (button(Language.reviewApp))
+                {
+#if UNITY_ANDROID
+                    review.LaunchReview();
+                    _isReviewLoading = true;
+#else
+                    openAppPage();
+#endif
+                }
+                i++;
+            }
+
+            if (button(Language.myOtherGames))
+            {
+                if (Language.myOtherGames.StartsWith("My"))
+                {
+#if UNITY_ANDROID
+                    Application.OpenURL("https://play.google.com/store/apps/details?id=com.NiebieskiPunkt.HeadBumper");
+#else
+                    Application.OpenURL("https://store.steampowered.com/app/1398130/Head_Bumper_Editcraft");
+#endif
+                }
+                else
+                {
+                    Application.OpenURL("https://play.google.com/store/apps/developer?id=Niebieski+Punkt");
+                }
+            }
+
+            gui.SoundButton(405 + 90 * i);
+
+            bool button(string text)
+            {
+                return gui.ButtonTopRight(new Rect(255, 300 + 90 * i, 220, 80), text);
             }
         }
 

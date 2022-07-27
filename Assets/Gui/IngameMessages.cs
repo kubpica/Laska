@@ -20,6 +20,8 @@ namespace Laska
         private float _cachedEval;
         private int _displayedLines;
 
+        private bool IsWhite => game.ActivePlayer.color == 'w';
+
         private string _displayedMsg;
         public string DisplayedMsg 
         {
@@ -124,36 +126,47 @@ namespace Laska
 
             if (game.ActivePlayer == null)
                 return;
-            bool isWhite = game.ActivePlayer.color == 'w';
+
             if (game.Mate)
             {
-                gui.LabelTopLeft(new Rect(60, 10, 200, 20), $"{Language.mate} {(isWhite ? Language.greenWins : Language.redWins)}");
+                gui.LabelTopLeft(new Rect(60, 10, 200, 20), $"{Language.mate} {(IsWhite ? Language.greenWins : Language.redWins)}");
                 gameOver();
-                return;
             }
             else if (game.DrawByRepetition)
             {
                 gui.LabelTopLeft(new Rect(60, 10, 200, 20), Language.drawByRepetition);
                 gameOver();
-                return;
             }
             else if (game.DrawByFiftyMoveRule)
             {
                 gui.LabelTopLeft(new Rect(60, 10, 200, 20), Language.drawBy50MoveRule);
                 gameOver();
-                return;
             }
-
-            gui.LabelTopLeft(new Rect(60, 10, 200, 20), isWhite ? Language.greenPlayerToMove : Language.redPlayerToMove);
-            if (DisplayedMsg != null)
+            else
             {
-                gui.DrawOutline(new Rect(60, 40, 1900, 1000), DisplayedMsg, gui.LastStyle, Color.black, gui.LastStyle.normal.textColor);
+                gui.LabelTopLeft(new Rect(60, 10, 200, 20), IsWhite ? Language.greenPlayerToMove : Language.redPlayerToMove);
+                displayMsg();
             }
         }
 
         private void gameOver()
         {
-            gui.DrawOutline(new Rect(60, 40, 1900, 1000), theme.GameOver, gui.CurrentStyle, Color.black, gui.CurrentStyle.normal.textColor);
+            if (DisplayedMsg.StartsWith(Language.reviewFailed))
+            {
+                displayMsg();
+            }
+            else
+            {
+                gui.DrawOutline(new Rect(60, 40, 1900, 1000), theme.GameOver, gui.CurrentStyle, Color.black, gui.CurrentStyle.normal.textColor);
+            }
+        }
+
+        private void displayMsg()
+        {
+            if (DisplayedMsg != null)
+            {
+                gui.DrawOutline(new Rect(60, 40, 1900, 1000), DisplayedMsg, gui.LastStyle, Color.black, gui.LastStyle.normal.textColor);
+            }
         }
 
         private void displaySelectedMsg()

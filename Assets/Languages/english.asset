@@ -54,3 +54,7 @@ MonoBehaviour:
   green: Green
   red: Red
   piecesLimitReached: The 100-piece limit has been reached!
+  reviewApp: Rate the app ;)
+  reviewFailed: Failed to load in-app review, plase visit Google Play.
+  loading: Loading...
+  myOtherGames: My other game

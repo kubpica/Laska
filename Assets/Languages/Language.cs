@@ -45,4 +45,8 @@ public class Language : ScriptableObject
     public string green = "Zielony";
     public string red = "Czerwony";
     public string piecesLimitReached = "Limit 100 bierek został osiągnięty!";
+    public string reviewApp = "Oceń aplikację ;)";
+    public string reviewFailed = "Nie udało się wczytać oceniania w apliacji, proszę odwiedź sklep Play.";
+    public string loading = "Wczytywanie...";
+    public string myOtherGames = "Moje inne gry";
 }
