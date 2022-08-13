@@ -37,6 +37,8 @@ namespace Laska
             set => _ai = value;
         }
 
+        public bool IsThinking { get; set; }
+
         public Color GetActualColor()
         {
             return color == 'b' ? Color.red : Color.green;

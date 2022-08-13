@@ -24,7 +24,7 @@ public class Language : ScriptableObject
     public string greenPlayerToMove = "Ruch gracza zielonego";
     public string redPlayerToMove = "Ruch gracza czerwonego";
     public string gameOver = "Koniec gry! :)";
-    public string positionEval = "Ocena pozycji:";
+    public string materialEval = "Ocena materiału:";
     public string column = "Kolumna";
     public string square = "Pole";
     public string soldier = "Szeregowy";
@@ -49,4 +49,8 @@ public class Language : ScriptableObject
     public string reviewFailed = "Nie udało się wczytać oceniania w apliacji, proszę odwiedź sklep Play.";
     public string loading = "Wczytywanie...";
     public string myOtherGames = "Moje inne gry";
+    public string aiIsThinking = "Bot myśli.";
+    public string forceMove = "Wymuś ruch";
+    public string secondAbbreviated = "sek.";
+    public string searchedDepth = "Przeszukana głębokość:";
 }

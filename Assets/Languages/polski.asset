@@ -33,7 +33,7 @@ MonoBehaviour:
   greenPlayerToMove: Ruch gracza zielonego
   redPlayerToMove: Ruch gracza czerwonego
   gameOver: Koniec gry! :)
-  positionEval: 'Ocena pozycji:'
+  materialEval: "Ocena materia\u0142u:"
   column: Kolumna
   square: Pole
   soldier: Szeregowy
@@ -54,3 +54,12 @@ MonoBehaviour:
   green: Zielony
   red: Czerwony
   piecesLimitReached: "Limit 100 bierek zosta\u0142 osi\u0105gni\u0119ty!"
+  reviewApp: "Oce\u0144 aplikacj\u0119 ;)"
+  reviewFailed: "Nie uda\u0142o si\u0119 wczyta\u0107 oceniania w apliacji, prosz\u0119
+    odwied\u017A sklep Play."
+  loading: Wczytywanie...
+  myOtherGames: Moje inne gry
+  aiIsThinking: "Bot my\u015Bli."
+  forceMove: "Wymu\u015B ruch"
+  secondAbbreviated: sek.
+  searchedDepth: "Przeszukana g\u0142\u0119boko\u015B\u0107:"

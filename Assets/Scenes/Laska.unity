@@ -418,7 +418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2dde9cd0fa1de24e85625aec696b305, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 128000
+  size: 64000
   isEnabled: 1
   failSoft: 1
 --- !u!114 &26702260
@@ -1526,7 +1526,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  searchTime: 1000
+  searchTime: 60000
   useIterativeDeepening: 1
   limitDeepeningDepth: 1
   searchDepth: 5
@@ -1657,7 +1657,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  searchTime: 1000
+  searchTime: 60000
   useIterativeDeepening: 1
   limitDeepeningDepth: 1
   searchDepth: 4
@@ -1757,7 +1757,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2dde9cd0fa1de24e85625aec696b305, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 128000
+  size: 64000
   isEnabled: 1
   failSoft: 1
 --- !u!114 &281146565
@@ -3316,7 +3316,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  searchTime: 1000
+  searchTime: 60000
   useIterativeDeepening: 1
   limitDeepeningDepth: 1
   searchDepth: 6
@@ -3328,8 +3328,8 @@ MonoBehaviour:
   evalColumnsValue: 1
   officerValue: 10.296
   officerCaptivesShare: 0.208
-  soldierValue: 4.08477
-  soldierCaptivesShare: 0.523585
+  soldierValue: 4.132272
+  soldierCaptivesShare: 0.5233092
   pointsPerOwnedColumn: 0
   evalColumnsStrength: 0
   pointsPerExtraColumnStrength: 10000
@@ -4202,7 +4202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  searchTime: 1000
+  searchTime: 60000
   useIterativeDeepening: 1
   limitDeepeningDepth: 1
   searchDepth: 1
@@ -4271,7 +4271,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  searchTime: 500
+  searchTime: 1000
   useIterativeDeepening: 1
   limitDeepeningDepth: 1
   searchDepth: 1
@@ -7506,7 +7506,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  searchTime: 1000
+  searchTime: 60000
   useIterativeDeepening: 1
   limitDeepeningDepth: 1
   searchDepth: 3
@@ -7685,7 +7685,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  searchTime: 1000
+  searchTime: 60000
   useIterativeDeepening: 1
   limitDeepeningDepth: 1
   searchDepth: 1
@@ -8119,7 +8119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useThreading: 1
-  searchTime: 1000
+  searchTime: 60000
   useIterativeDeepening: 1
   limitDeepeningDepth: 1
   searchDepth: 2

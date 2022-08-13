@@ -19,8 +19,11 @@ namespace Laska
 
         private float _cachedEval;
         private int _displayedLines;
+        private int _aiThinkingTimer;
+        private string _aiThinkingMsg;
 
         private bool IsWhite => game.ActivePlayer.color == 'w';
+        private System.Diagnostics.Stopwatch AIStopwatch => game.ActivePlayer.AI.SearchStopwatch;
 
         private string _displayedMsg;
         public string DisplayedMsg 
@@ -51,11 +54,13 @@ namespace Laska
                     && !game.ActivePlayer.isAI)
                     SelectColumn(moveMaker.SelectedColumn);
             });
+            moveMaker.onMoveEnded.AddListener(() => _aiThinkingTimer = 0);
         }
 
         private void Update()
         {
-            columnInfoOnHover();   
+            columnInfoOnHover();
+            whenAIThinking();
         }
 
         private void columnInfoOnHover()
@@ -91,6 +96,22 @@ namespace Laska
 
                 if (Input.touchCount == 0)
                     SelectColumn(null);
+            }
+        }
+
+        private void whenAIThinking()
+        {
+            if (!game.IsAIThinking)
+                return;
+
+            if (AIStopwatch.ElapsedMilliseconds > _aiThinkingTimer * 1000)
+            {
+                _aiThinkingTimer++;
+                _aiThinkingMsg = Language.aiIsThinking;
+                if (_aiThinkingTimer % 3 > 0)
+                    _aiThinkingMsg += _aiThinkingTimer % 3 == 1 ? "." : "..";
+                if (_aiThinkingTimer > 3)
+                    _aiThinkingMsg += "(" + (_aiThinkingTimer-1) + ")";
             }
         }
 
@@ -144,7 +165,10 @@ namespace Laska
             }
             else
             {
-                gui.LabelTopLeft(new Rect(60, 10, 200, 20), IsWhite ? Language.greenPlayerToMove : Language.redPlayerToMove);
+                string msg = IsWhite ? Language.greenPlayerToMove : Language.redPlayerToMove;
+                if (game.IsAIThinking && _aiThinkingTimer > 1)
+                    msg += ". " + _aiThinkingMsg;
+                gui.LabelTopLeft(new Rect(60, 10, 200, 20), msg);
                 displayMsg();
             }
         }

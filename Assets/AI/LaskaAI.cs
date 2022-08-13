@@ -33,11 +33,18 @@ namespace Laska
 		private CancellationTokenSource _cancelSearchTimer;
 		private CancellationTokenSource _cancelMakeMove;
 
-		private System.Diagnostics.Stopwatch _searchStopwatch;
 		private int _numNodes;
 		private int _numExtensions;
 		private int _numCutoffs;
 		private int _numTranspositions;
+
+		public System.Diagnostics.Stopwatch SearchStopwatch { get; private set; }
+		public int LastDepth { get; private set; } = -1;
+
+		private void Start()
+		{
+			initDiagnostics();
+		}
 
 		public float EvaluatePosition(Player playerToMove)
 		{
@@ -733,12 +740,14 @@ namespace Laska
 			if (moves.Count == 1)
 			{
 				Debug.Log(gameManager.ActivePlayer.GetName() + ": forcedMove " + bestMove);
+				LastDepth = -1;
 			}
 			else
 			{
 				Debug.Log(gameManager.ActivePlayer.GetName() 
 					+ ": bestMove/" + moves.Count + " " + bestMove + " (" + bestScore + "), Depth: " + bestDepth);
 				announceMate(bestScore);
+				LastDepth = bestDepth;
 			}
 			return bestMove;
 
@@ -790,7 +799,7 @@ namespace Laska
 
 		private void initDiagnostics()
 		{
-			_searchStopwatch = System.Diagnostics.Stopwatch.StartNew();
+			SearchStopwatch = System.Diagnostics.Stopwatch.StartNew();
 			_numNodes = 0;
 			_numExtensions = 0;
 			_numCutoffs = 0;
@@ -799,7 +808,7 @@ namespace Laska
 
 		private void logDiagnostics()
 		{
-			Debug.Log($"Search time: {_searchStopwatch.ElapsedMilliseconds} ms." +
+			Debug.Log($"Search time: {SearchStopwatch.ElapsedMilliseconds} ms." +
 				$" Nodes: {_numNodes} Extensions: {_numExtensions} Cutoffs: {_numCutoffs} TThits: {_numTranspositions}");
 		}
 

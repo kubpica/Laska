@@ -17,7 +17,7 @@ namespace Laska
         public string TakesMsg => themeOrLanguage(theme.takesMsg, Language.takesMsg);
         public string MovesMsg => themeOrLanguage(theme.movesMsg, Language.movesMsg);
         public string EditPosition => themeOrLanguage(theme.editPosition, Language.editPosition);
-        public string PositionEval => themeOrLanguage(theme.positionEval, Language.positionEval);
+        public string PositionEval => themeOrLanguage(theme.positionEval, Language.materialEval);
         public string GameOver => themeOrLanguage(theme.gameOver, Language.gameOver);
 
         public bool IsStinkyCheese => theme.d4StinkyCheese;

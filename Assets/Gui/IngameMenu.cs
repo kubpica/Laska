@@ -13,21 +13,23 @@ namespace Laska
         [GlobalComponent] private ThemeManager theme;
         [GlobalComponent] private InappReview review;
 
-        public const int BOT_OFF = 9;
-        public const int BOT_LEVEL_X = 8;
-        public static int s_level = 0;
         private static bool s_rotateAutomatically;
         private static bool s_rotateScreen;
 
         private bool _isReviewBlocked = false;
         private bool _isReviewLoading = false;
 
+        private int Level
+        {
+            get => levelManager.CurrentLevel;
+            set => levelManager.SetLevel(value);
+        }
+
         private Language Language => LanguageManager.Language;
 
         private void Start()
         {
             MoveMaker.Instance.onMoveEnded.AddListener(moveEnded);
-            setLevel();
 
             game.onGameEnded.AddListener(_ => review.RequestReview());
             review.onRequestFailed.AddListener(() => _isReviewBlocked = true);
@@ -54,37 +56,15 @@ namespace Laska
 
         private void nextLevel()
         {
-            if (s_level == BOT_OFF)
-                game.EnableAI();
-
-            s_level++;
-            setLevel();
-        }
-
-        public void SetLevel(int level)
-        {
-            if (level == BOT_OFF)
-            {
-                levelManager.SetLevel(-1);
-            }
-            else
-            {
-                levelManager.SetLevel(level);
-            }
-        }
-
-        private void setLevel()
-        {
-            s_level %= 10;
-            SetLevel(s_level);
+            Level = (Level + 1)%10;
         }
 
         private void fixLevel()
         {
-            if (s_level == BOT_OFF
-                || s_level == BOT_LEVEL_X && GameManager.GetAIMode() == AIMode.AIVsAI)
+            if (Level == LevelManager.BOT_OFF
+                || Level == LevelManager.BOT_1SEC_LEVEL && GameManager.GetAIMode() == AIMode.AIVsAI)
             {
-                s_level = 0;
+                Level = 0;
             }
         }
 
@@ -100,12 +80,15 @@ namespace Laska
             }   
         }
 
-        private string currentlevelName() => s_level == BOT_LEVEL_X ? Language.level + " X" : Language.level + " " + s_level;
+        private string currentlevelName() => 
+            Level == LevelManager.BOT_1SEC_LEVEL 
+            ? Language.level + $" ? (1 {Language.secondAbbreviated})" 
+            : Language.level + " " + Level;
 
         private void normalGui()
         {
             if (gui.ButtonTopRight(new Rect(340, 10, 305, 80),
-                s_level == BOT_OFF ? Language.botOff : currentlevelName()))
+                Level == LevelManager.BOT_OFF ? Language.botOff : currentlevelName()))
             {
                 nextLevel();
             }
@@ -113,7 +96,14 @@ namespace Laska
             {
                 if (gui.ButtonTopRight(new Rect(340, 100, 305, 80), Language.newGame))
                 {
-                    game.ResetGame();
+                    if (GameManager.GetAIMode() == AIMode.AIVsAI)
+                    {
+                        game.LoadAIMode(AIMode.PlayerVsRedAI);
+                    }
+                    else
+                    {
+                        game.ResetGame();
+                    }
                 }
             }
             else
@@ -167,6 +157,13 @@ namespace Laska
             if (game.CurrentGameState == GameState.Ended)
             {
                 gameEndedMenu();
+            }
+            else if (game.IsAIThinking && game.ActivePlayer.AI.SearchStopwatch.ElapsedMilliseconds > 3000)
+            {
+                if (gui.ButtonTopRight(new Rect(255, 300, 220, 80), Language.forceMove))
+                {
+                    game.ActivePlayer.AI.EndSearch();
+                }
             }
             else if (game.HalfMovesCounter < 2)
             {
@@ -251,14 +248,14 @@ namespace Laska
             if (modeButton(2, Language.playerVsPlayer, AIMode.PlayerVsPlayer, gui.LightGray, Color.yellow))
             {
                 s_rotateAutomatically = true;
-                s_level = BOT_OFF;
+                Level = LevelManager.BOT_OFF;
                 game.LoadAIMode(AIMode.PlayerVsPlayer);
             }
 
             if (modeButton(3, Language.botVsBot, AIMode.AIVsAI, gui.LightGray, Color.yellow))
             {
                 s_rotateAutomatically = false;
-                s_level = BOT_LEVEL_X;
+                Level = LevelManager.BOT_1SEC_LEVEL;
                 game.LoadAIMode(AIMode.AIVsAI);
             }
 
