@@ -256,6 +256,17 @@ namespace Laska
             return true;
         }
 
+        private void resetDisplayedMsg()
+        {
+            if (_playerToMove.isAI && _playerToMove.AI.LastDepth >= 0
+                && LevelManager.Instance.CurrentLevel == LevelManager.BOT_1SEC_LEVEL)
+            {
+                msg.DisplayedMsg = $"{Language.searchedDepth} {_playerToMove.AI.LastDepth}\n";
+                return;
+            }
+            msg.DisplayedMsg = "";
+        }
+
         public void MakeMove(string move)
         {
             onMoveStarted.Invoke(move);
@@ -266,7 +277,7 @@ namespace Laska
 
             if (_takenPieces.Count == 0)
             {
-                msg.DisplayedMsg = "";
+                resetDisplayedMsg();
                 SelectedColumn.ZobristAll(); // XOR-out moved column
             }
 
@@ -569,7 +580,7 @@ namespace Laska
                 && gameManager.CurrentGameState != GameManager.GameState.PreGame)
                 return;
 
-            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+            if (Input.GetMouseButtonDown(0) || Input.touchCount > 0 && Input.GetTouch(Input.touchCount-1).phase == TouchPhase.Began)
             {
                 var clicked = _cam.GetColliderUnderMouse();
 

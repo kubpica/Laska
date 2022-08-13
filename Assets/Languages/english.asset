@@ -33,7 +33,7 @@ MonoBehaviour:
   greenPlayerToMove: Green player to move
   redPlayerToMove: Red player to move
   gameOver: Game over! :)
-  positionEval: 'Position eval.:'
+  materialEval: 'Material eval.:'
   column: Column
   square: Square
   soldier: Private
@@ -54,3 +54,11 @@ MonoBehaviour:
   green: Green
   red: Red
   piecesLimitReached: The 100-piece limit has been reached!
+  reviewApp: Rate the app ;)
+  reviewFailed: Failed to load in-app review, plase visit Google Play.
+  loading: Loading...
+  myOtherGames: My other game
+  aiIsThinking: AI is thinking.
+  forceMove: Force move
+  secondAbbreviated: sec
+  searchedDepth: 'Searched depth:'

@@ -11,7 +11,7 @@ namespace Laska
         [GlobalComponent] private Board board;
         [GlobalComponent] private GuiScaler gui;
 
-        static System.Random rnd = new System.Random();
+        static readonly System.Random rnd = new System.Random();
 
         public Player[] players;
 
@@ -33,6 +33,8 @@ namespace Laska
 
         public Player WhitePlayer => GetPlayer('w');
         public Player BlackPlayer => GetPlayer('b');
+
+        public bool IsAIThinking => ActivePlayer != null && ActivePlayer.isAI && ActivePlayer.IsThinking;
 
         public bool Mate { get; private set; }
         public bool DrawByRepetition { get; private set; }
@@ -168,6 +170,11 @@ namespace Laska
         {
             WhitePlayer.isAI = false;
             BlackPlayer.isAI = false;
+
+            if (IsAIThinking)
+            {
+                ActivePlayer.AI.AbortMakeMove();
+            }
         }
 
         public void EnableAI()
@@ -223,6 +230,8 @@ namespace Laska
 
         private void prepareToMove()
         {
+            ActivePlayer.IsThinking = true;
+
             if (ActivePlayer.isAI)
             {
                 // Make AI move
@@ -247,6 +256,7 @@ namespace Laska
 
         private void moveStarted(string move)
         {
+            ActivePlayer.IsThinking = false;
             gui.SetLastTextColor(ActivePlayer);
             setGameState(GameState.TurnResults);
         }

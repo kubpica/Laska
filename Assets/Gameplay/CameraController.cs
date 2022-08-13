@@ -81,6 +81,13 @@ public class CameraController : MonoBehaviourSingleton<CameraController>
         }
     }
 
+    private void Start()
+    {
+#if UNITY_STANDALONE
+        controlsEnabled = true;
+#endif
+    }
+
     private void Update()
     {
         if (!controlsEnabled)

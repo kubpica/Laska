@@ -19,6 +19,11 @@ namespace Laska
 
         private float _cachedEval;
         private int _displayedLines;
+        private int _aiThinkingTimer;
+        private string _aiThinkingMsg;
+
+        private bool IsWhite => game.ActivePlayer.color == 'w';
+        private System.Diagnostics.Stopwatch AIStopwatch => game.ActivePlayer.AI.SearchStopwatch;
 
         private string _displayedMsg;
         public string DisplayedMsg 
@@ -49,11 +54,13 @@ namespace Laska
                     && !game.ActivePlayer.isAI)
                     SelectColumn(moveMaker.SelectedColumn);
             });
+            moveMaker.onMoveEnded.AddListener(() => _aiThinkingTimer = 0);
         }
 
         private void Update()
         {
-            columnInfoOnHover();   
+            columnInfoOnHover();
+            whenAIThinking();
         }
 
         private void columnInfoOnHover()
@@ -92,6 +99,22 @@ namespace Laska
             }
         }
 
+        private void whenAIThinking()
+        {
+            if (!game.IsAIThinking)
+                return;
+
+            if (AIStopwatch.ElapsedMilliseconds > _aiThinkingTimer * 1000)
+            {
+                _aiThinkingTimer++;
+                _aiThinkingMsg = Language.aiIsThinking;
+                if (_aiThinkingTimer % 3 > 0)
+                    _aiThinkingMsg += _aiThinkingTimer % 3 == 1 ? "." : "..";
+                if (_aiThinkingTimer > 3)
+                    _aiThinkingMsg += "(" + (_aiThinkingTimer-1) + ")";
+            }
+        }
+
         public void SelectColumn(Column column)
         {
             var square = column == null ? null : column.Square;
@@ -124,36 +147,50 @@ namespace Laska
 
             if (game.ActivePlayer == null)
                 return;
-            bool isWhite = game.ActivePlayer.color == 'w';
+
             if (game.Mate)
             {
-                gui.LabelTopLeft(new Rect(60, 10, 200, 20), $"{Language.mate} {(isWhite ? Language.greenWins : Language.redWins)}");
+                gui.LabelTopLeft(new Rect(60, 10, 200, 20), $"{Language.mate} {(IsWhite ? Language.greenWins : Language.redWins)}");
                 gameOver();
-                return;
             }
             else if (game.DrawByRepetition)
             {
                 gui.LabelTopLeft(new Rect(60, 10, 200, 20), Language.drawByRepetition);
                 gameOver();
-                return;
             }
             else if (game.DrawByFiftyMoveRule)
             {
                 gui.LabelTopLeft(new Rect(60, 10, 200, 20), Language.drawBy50MoveRule);
                 gameOver();
-                return;
             }
-
-            gui.LabelTopLeft(new Rect(60, 10, 200, 20), isWhite ? Language.greenPlayerToMove : Language.redPlayerToMove);
-            if (DisplayedMsg != null)
+            else
             {
-                gui.DrawOutline(new Rect(60, 40, 1900, 1000), DisplayedMsg, gui.LastStyle, Color.black, gui.LastStyle.normal.textColor);
+                string msg = IsWhite ? Language.greenPlayerToMove : Language.redPlayerToMove;
+                if (game.IsAIThinking && _aiThinkingTimer > 1)
+                    msg += ". " + _aiThinkingMsg;
+                gui.LabelTopLeft(new Rect(60, 10, 200, 20), msg);
+                displayMsg();
             }
         }
 
         private void gameOver()
         {
-            gui.DrawOutline(new Rect(60, 40, 1900, 1000), theme.GameOver, gui.CurrentStyle, Color.black, gui.CurrentStyle.normal.textColor);
+            if (DisplayedMsg.StartsWith(Language.reviewFailed))
+            {
+                displayMsg();
+            }
+            else
+            {
+                gui.DrawOutline(new Rect(60, 40, 1900, 1000), theme.GameOver, gui.CurrentStyle, Color.black, gui.CurrentStyle.normal.textColor);
+            }
+        }
+
+        private void displayMsg()
+        {
+            if (DisplayedMsg != null)
+            {
+                gui.DrawOutline(new Rect(60, 40, 1900, 1000), DisplayedMsg, gui.LastStyle, Color.black, gui.LastStyle.normal.textColor);
+            }
         }
 
         private void displaySelectedMsg()
