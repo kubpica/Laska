@@ -17,7 +17,7 @@ namespace Laska
         public void SetLevel(int level)
         {
             bool enable = false;
-            if (s_level == LevelManager.BOT_OFF)
+            if (s_level == LevelManager.BOT_OFF && level != LevelManager.BOT_OFF)
                 enable = true;
 
             s_level = level;

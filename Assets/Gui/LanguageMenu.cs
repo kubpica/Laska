@@ -14,7 +14,7 @@ namespace Laska
 
         private void OnGUI()
         {
-            gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Laska: 3D Checkers v1.1 by kubpica");
+            gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Laska: 3D Checkers v1.1.1 by kubpica");
             var msg = "TikTok: @warcoins\nSfx: el-boss, fachii, gronkjaer, mlaudio (freesound.org)\n" +
                       "PP: github.com/kubpica/Laska (PRIVACY_POLICY.md)\n" +
                       "We do not collect any personal data :)\n" +
