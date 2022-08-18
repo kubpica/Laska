@@ -43,7 +43,8 @@ namespace Laska
             }
         }
 
-        public bool DisplayEval { get; set;}
+        public bool DisplayEval { get; set; }
+        
 
         private void Start()
         {
@@ -175,7 +176,7 @@ namespace Laska
 
         private void gameOver()
         {
-            if (DisplayedMsg.StartsWith(Language.reviewFailed))
+            if (DisplayedMsg.StartsWith(Language.reviewFailed) || DisplayedMsg.EndsWith(Language.areYouSureExit))
             {
                 displayMsg();
             }

@@ -6090,6 +6090,7 @@ GameObject:
   - component: {fileID: 1226056396}
   - component: {fileID: 1226056400}
   - component: {fileID: 1226056397}
+  - component: {fileID: 1226056398}
   m_Layer: 0
   m_Name: Gui
   m_TagString: Untagged
@@ -6132,6 +6133,18 @@ MonoBehaviour:
   onLaunchFinished:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1226056398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1226056395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58dd0dddd4bfabf4c921eb77658fb0a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1226056399
 Transform:
   m_ObjectHideFlags: 0

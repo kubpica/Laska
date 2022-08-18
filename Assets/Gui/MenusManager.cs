@@ -38,6 +38,7 @@ namespace Laska
         {
             LanguageManager.IsLanguageSelected = true;
             msg.gameObject.SetActive(true);
+            msg.DisplayedMsg = "";
             ThemeManager.Instance.ApplyStinkyCheese();
             FenCodec.Instance.Load();
             showMenu();

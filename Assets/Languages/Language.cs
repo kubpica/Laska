@@ -53,4 +53,8 @@ public class Language : ScriptableObject
     public string forceMove = "Wymuś ruch";
     public string secondAbbreviated = "sek.";
     public string searchedDepth = "Przeszukana głębokość:";
+    public string installTheApp = "Zainstaluj tę apkę";
+    public string areYouSureExit = "Czy na pewno chcesz wyjść? Wciśnij jeszcze raz aby potwierdzić.";
+    public string nextLevel = "Następny poziom";
+    public string prevLevel = "Poprzedni poziom";
 }
