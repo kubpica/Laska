@@ -62,3 +62,7 @@ MonoBehaviour:
   forceMove: Force move
   secondAbbreviated: sec
   searchedDepth: 'Searched depth:'
+  installTheApp: Install the app
+  areYouSureExit: Are you sure you want to leave? Press again to confirm.
+  nextLevel: Next level
+  prevLevel: Previous level

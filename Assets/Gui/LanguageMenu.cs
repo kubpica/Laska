@@ -7,6 +7,7 @@ namespace Laska
     {
         [GlobalComponent] private MenusManager menus;
         [GlobalComponent] private GuiScaler gui;
+        [ParentComponent] private ExitApp exitApp;
 
         public Language polish;
         public Language english;
@@ -14,11 +15,13 @@ namespace Laska
 
         private void OnGUI()
         {
-            gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Laska: 3D Checkers v1.1.1 by kubpica");
+            gui.LabelTopLeft(new Rect(60, 10, 200, 20), "Laska: 3D Checkers v1.2 by kubpica");
             var msg = "TikTok: @warcoins\nSfx: el-boss, fachii, gronkjaer, mlaudio (freesound.org)\n" +
                       "PP: github.com/kubpica/Laska (PRIVACY_POLICY.md)\n" +
                       "We do not collect any personal data :)\n" +
                       "Please consider rating this app on Google Play!";
+            if (exitApp.ReadyToExit)
+                msg += "\n" + english.areYouSureExit;
             gui.DrawOutline(new Rect(60, 40, 1900, 2000), msg, gui.LastStyle, Color.black, Color.red);
 
             langButton(0, "Wybierz język:", "polski", () => LanguageManager.Language = polish);
@@ -33,6 +36,7 @@ namespace Laska
             if (gui.ButtonTopLeft(new Rect(x, 374, 305, 80), lang, Color.yellow))
             {
                 onClick();
+                exitApp.ReadyToExit = false;
                 menus.ExitLanguageMenu();
             }
         }

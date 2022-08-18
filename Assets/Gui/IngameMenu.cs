@@ -59,6 +59,11 @@ namespace Laska
             Level = (Level + 1)%10;
         }
 
+        private void prevLevel()
+        {
+            Level = (Level - 1) % 10;
+        }
+
         private void fixLevel()
         {
             if (Level == LevelManager.BOT_OFF
@@ -183,8 +188,9 @@ namespace Laska
 
         private void gameEndedMenu()
         {
+            bool didHumanWin = !game.ActivePlayer.isAI;
             int i = 0;
-            if (!game.ActivePlayer.isAI && !_isReviewBlocked)
+            if (didHumanWin && !_isReviewBlocked)
             {
                 if (_isReviewLoading)
                 {
@@ -220,6 +226,47 @@ namespace Laska
                     Application.OpenURL("https://play.google.com/store/apps/developer?id=Niebieski+Punkt");
                 }
             }
+
+#if PLAY_INSTANT
+            i++;
+            if (button(Language.installTheApp))
+            {
+                try
+                {
+                    Google.Play.Instant.InstallLauncher.ShowInstallPrompt();
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogException(e);
+                    openAppPage();
+                }
+            }
+#else
+            if (didHumanWin)
+            {
+                if (Level < LevelManager.BOT_1SEC_LEVEL)
+                {
+                    i++;
+                    if (button(Language.nextLevel))
+                    {
+                        nextLevel();
+                        game.ResetGame();
+                    }
+                }
+            }
+            else
+            {
+                if (Level > 0)
+                {
+                    i++;
+                    if (button(Language.prevLevel))
+                    {
+                        prevLevel();
+                        game.ResetGame();
+                    }
+                }
+            }
+#endif
 
             gui.SoundButton(405 + 90 * i);
 
